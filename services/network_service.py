@@ -1,5 +1,5 @@
 import utime
-#import aioble
+import aioble
 import bluetooth
 import asyncio
 import network
@@ -17,38 +17,33 @@ class WirelessService:
         self.display_service = service_locator.get(DisplayService)
         self.light_service = service_locator.get(LightService)
         self.config_service = service_locator.get(ConfigService)
+        self.wlan = network.WLAN(network.STA_IF)
+        self.wlan.active(True)
         
-        
-    def connect(self, ssid, password):
-        wlan = network.WLAN(network.STA_IF)
     
-        if not wlan.isconnected():
-            self.display_service.clear()
-            self.display_service.print('Scan Wifi...', 0)
-            wlan.active(True)
-            wlan.connect(ssid, password)
+    async def start(self):
+        pass
+    
+    
+    def connect(self, ssid, password):   
+        if not self.wlan.isconnected():
+            self.wlan.connect(ssid, password)
             
-            while not wlan.isconnected():
+            while not self.wlan.isconnected():
                 utime.sleep(3)
-
+                
         self.light_service.set_wlan(True)
-        self.display_service.clear()
-        self.display_service.print(ssid, 0)
-        self.display_service.print(wlan.ifconfig()[0], 1)
     
     
-    def disconnect(self, wlan):
-        if wlan.isconnected():
-            wlan.disconnect()
-            self.display_service.clear()
-            self.display_service.print('WiFi Off', 0)
+    def disconnect(self):
+        if self.wlan.isconnected():
+            self.wlan.disconnect()
             self.light_service.set_wlan(False)
 
 
     def toggle(self):
-        wlan = network.WLAN(network.STA_IF)
-        if wlan.isconnected():
-            self.disconnect(wlan)
+        if self.wlan.isconnected():
+            self.disconnect()
         else:
             self.connect(self.config_service.get('NETWORK_SSID'), self.config_service.get('NETWORK_PASSWORD'))
             
@@ -65,24 +60,26 @@ class BluetoothService:
     
     
     def __init__(self):
-        self.bt = bluetooth.BLE
         self.configure()
-        self.bt.active(True)
         self.BLE_UUID_HR = bluetooth.UUID(0x180D)
         self.display_service = service_locator.get(DisplayService)
         self.paired_device = None
-        asyncio.run(self.scan())
+    
+    
+    async def start(self):
+        print("Service Started")
+        await self.scan()
     
     
     def configure(self):
+        self.bt = bluetooth.BLE()
+        self.bt.active(True)
         self.bt.config(gap_name='Smart Fan')
-        self.bt.irq(handler=self.bluetooth_event_handler)
+        self.bt.irq(self.bluetooth_event_handler)
     
     
     def bluetooth_event_handler(self, event, data):
-        if event == _IRQ_SCAN_RESULT:
-            print("[BluetoothService] - Device Detected - {}".format(data))
-        elif event == _IRQ_PERIPHERAL_CONNECT:
+        if event == _IRQ_PERIPHERAL_CONNECT:
             print("[BluetoothService] - Device Connected")
         elif event == _IRQ_PERIPHERAL_DISCONNECT:
             self.paired_device = None
@@ -91,7 +88,7 @@ class BluetoothService:
     
     async def scan(self, interval=10):
         self.devices = []
-        
+
         while self.paired_device == None:
             print('[BluetoothService][SEARCH] - Scanning For Heart Rate Monitor(s)')
             async with aioble.scan(interval * 1000, interval_us=30000, window_us=30000, active=True) as scanner:

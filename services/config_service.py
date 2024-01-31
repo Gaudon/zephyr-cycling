@@ -7,12 +7,16 @@ class ConfigService:
     config_file_name = 'config.txt'
     data = {}
     
+    
     def __init__(self):
-        
         if not self.file_exists(self.config_file_name):
             self.create_config_file()
         return self.load_config_file()
-        
+    
+    
+    async def start(self):
+        pass
+    
     
     def file_exists(self, filename):
         try:

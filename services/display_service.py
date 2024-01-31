@@ -8,9 +8,15 @@ class DisplayService:
         self.display.text("Gaudon Fan", 0, 0)
         self.display.show()
 
+
+    async def start(self):
+        pass
+
+
     def print(self, text, line):
         self.display.text(text, 0, line * 16)
         self.display.show()          
+
 
     def clear(self):
         self.display.fill(0)
