@@ -1,4 +1,5 @@
 import utime
+import bluetooth
 
 from service_manager import service_locator
 from services.config_service import ConfigService

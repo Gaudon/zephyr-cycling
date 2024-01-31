@@ -1,4 +1,6 @@
 import uos
+import bluetooth
+
 
 class ConfigService:
     
@@ -6,6 +8,7 @@ class ConfigService:
     data = {}
     
     def __init__(self):
+        
         if not self.file_exists(self.config_file_name):
             self.create_config_file()
         return self.load_config_file()
