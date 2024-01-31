@@ -64,11 +64,15 @@ class BluetoothService:
         self.BLE_UUID_HR = bluetooth.UUID(0x180D)
         self.display_service = service_locator.get(DisplayService)
         self.paired_device = None
-    
+        self.devices = []
+        
     
     async def start(self):
-        print("Service Started")
-        await self.scan()
+        pass
+#         await asyncio.gather(
+#             #self.scan()
+#             self.scan_devices()
+#         )
     
     
     def configure(self):
@@ -86,25 +90,27 @@ class BluetoothService:
             print("[BluetoothService] - Device Connected")
     
     
-    async def scan(self, interval=10):
-        self.devices = []
-
-        while self.paired_device == None:
+    async def scan(self):
+        while True:
+            await asyncio.sleep(5)
             print('[BluetoothService][SEARCH] - Scanning For Heart Rate Monitor(s)')
-            async with aioble.scan(interval * 1000, interval_us=30000, window_us=30000, active=True) as scanner:
+            async with aioble.scan(duration_ms=5000, interval_us=30000, window_us=30000, active=True) as scanner:
                 async for result in scanner:
-                    device_name = result.name()
-                    device_services = result.services()
-                    if device_name is not None and device_name is not "":
-                        if self.BLE_UUID_HR in device_services:
-                            if device_name not in self.devices:
-                                self.devices.append(device_name)
-           
-                if len(self.devices) == 0:
-                    print('[BluetoothService][SLEEP] - No Heart Rate Monitor Found')
-                else:
-                    for item in self.devices:
-                        self.display_service.clear()
-                        self.display_service.print(item, self.devices.index(item))
-                        
-            await asyncio.sleep(10)  
+                    print(result, result.name(), result.rssi, result.services())
+                    
+                    
+#                 async for result in scanner:
+#                     print(result)
+#                     device_name = result.name()
+#                     device_services = result.services()
+#                     if device_name is not None and device_name is not "":
+#                         if self.BLE_UUID_HR in device_services:
+#                             if device_name not in self.devices:
+#                                 self.devices.append(device_name)
+#                 print('No Results Found')
+#                 if len(self.devices) == 0:
+#                     print('[BluetoothService][SLEEP] - No Heart Rate Monitor Found')
+#                 else:
+#                     for item in self.devices:
+#                         self.display_service.clear()
+#                         self.display_service.print(item, self.devices.index(item))
