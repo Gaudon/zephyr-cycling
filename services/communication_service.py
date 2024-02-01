@@ -63,59 +63,80 @@ class BluetoothService:
     
     def __init__(self):
         self.configure()
-        self.BLE_UUID_HR = bluetooth.UUID(0x180D)
         self.display_service = service_locator.get(DisplayService)
-        self.paired_device = None
-        self.devices = []
+        self.connection = None
+        self.sleep_duration = 5
         
-    
+        # Device Info
+        self.svc_device_info = aioble.Service(self._SVC_DEVICE_INFO)        
+        aioble.Characteristic(self.svc_device_info, self._CHAR_MANUFACTURER_NAME_STR, read=True, initial='Gaudon')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_MODEL_NUMBER_STR, read=True, initial='PF-0001')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_SERIAL_NUMBER_STR, read=True, initial='G-PF-982987')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_FIRMWARE_REV_STR, read=True, initial='0.0.1')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_HARDWARE_REV_STR, read=True, initial='0.0.1')
+        
+        # Heart Rate
+        self.svc_heart_rate = aioble.Service(self._SVC_HEART_RATE)
+        aioble.Characteristic(self.svc_heart_rate, self._CHAR_HEART_RATE_MEASUREMENT, read=True)
+        
+        # Register Services
+        aioble.register_services(self.svc_device_info, self.svc_heart_rate)
+        
+        
     async def start(self):
         await asyncio.gather(
-            #self.scan()
-            self.aio_scan()
+            self.scan(),
+            self.read_data()
         )
     
     
     def configure(self):
         self.ble = bluetooth.BLE()
         self.ble.active(True)
-        self.ble.config(gap_name='Smart Fan')
-        #self.ble.irq(self.bluetooth_event_handler)
+        self._SVC_DEVICE_INFO = bluetooth.UUID(0x180A)
+        self._SVC_HEART_RATE = bluetooth.UUID(0x180D)
+        self._CHAR_HEART_RATE_MEASUREMENT = bluetooth.UUID(0x2A37)
+        self._CHAR_MANUFACTURER_NAME_STR = bluetooth.UUID(0x2A29)
+        self._CHAR_MODEL_NUMBER_STR = bluetooth.UUID(0x2A24)
+        self._CHAR_SERIAL_NUMBER_STR = bluetooth.UUID(0x2A25)
+        self._CHAR_FIRMWARE_REV_STR = bluetooth.UUID(0x2A26)
+        self._CHAR_HARDWARE_REV_STR = bluetooth.UUID(0x2A27)
     
     
-    def bluetooth_event_handler(self, event, data):
-        if event == _IRQ_PERIPHERAL_CONNECT:
-            print("[BluetoothService] - Device Connected")
-        elif event == _IRQ_PERIPHERAL_DISCONNECT:
-            self.paired_device = None
-            print("[BluetoothService] - Device Connected")
-        elif event == _IRQ_SCAN_RESULT:
-            addr_type, addr, adv_type, rssi, adv_data = data
-            print(adv_data)
-        elif event == _IRQ_SCAN_DONE:
-            print("[BluetoothService] - Scan Done")
+    async def read_data(self):
+        hrm_service = None
+        hrm_char = None
+        while True:
+            if self.connection is not None:
+                try:
+                   if hrm_service is None:
+                       hrm_service = await self.connection.service(self._SVC_HEART_RATE)
+                       print("Service : {}".format(hrm_service.uuid))
+                   
+                   if hrm_char is None:
+                       hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
+                       print("Characteristic : {}".format(hrm_char.uuid))
+                                       
+                   data = await hrm_char.read(timeout_ms=5000)
+                   print(data)
+                except Exception as e:
+                    print('[BluetoothService][CHAR] - {}'.format(e))
+                    self.connection.disconnect(timeout_ms=5000)
+            await asyncio.sleep(2)
+                    
     
-    
-    async def aio_scan(self):
-        while self.paired_device == None:
+    async def scan(self):
+        while self.connection == None:
             async with aioble.scan(5000, 1280000, 11250, True) as scanner:
                 async for result in scanner:
                     device_name = result.name()
                     device_services = result.services()
-                    if device_name is not None and device_name is not "":
-                        if self.BLE_UUID_HR in device_services:
-                            if device_name not in self.devices:
-                                self.devices.append(device_name)
-                if len(self.devices) == 0:
-                    print('[BluetoothService][SLEEP] - No Heart Rate Monitor Found')
-                else:
-                    for item in self.devices:
-                        self.display_service.clear()
-                        self.display_service.print(item, self.devices.index(item))
-            await asyncio.sleep(5)
-    
-    async def scan(self):
-        while True:
-            print('[BluetoothService][SEARCH] - Scanning For Heart Rate Monitor(s)')
-            self.ble.gap_scan(5000, 1280000, 11250, True)
-            await asyncio.sleep(5)
+
+                    if self._SVC_HEART_RATE in device_services:
+                        try:
+                            self.connection = await result.device.connect(timeout_ms=10000)
+                        except asyncio.TimeoutError:
+                            print('[BluetoothService][TIMEOUT] - Could not connect to device.')
+          
+            print('[BluetoothService][SLEEP]({}) - No heart rate monitor found.'.format(self.sleep_duration))
+            await asyncio.sleep(self.sleep_duration)
