@@ -67,7 +67,10 @@ class BluetoothService:
         self.configure()
         self.display_service = service_locator.get(DisplayService)
         self.connection = None
+        self.connected_device_name = ""
+        self.data = None
         self.sleep_duration = 5
+        self.reconnect_interval = 10
         
         # Device Info
         self.svc_device_info = aioble.Service(self._SVC_DEVICE_INFO)        
@@ -111,6 +114,7 @@ class BluetoothService:
         hrm_subscribed = False
         
         while True:
+            self.update_display()
             if self.connection is not None:
                 try:
                    if hrm_service is None:
@@ -123,27 +127,32 @@ class BluetoothService:
                      
                    if hrm_subscribed is False: 
                        await hrm_char.subscribe(notify=True)
+                       self.hrm_subscribed = True
                    
                    # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
                    data = await hrm_char.notified()
                    flag_data = data[0]
-                   hrm_measurement_format = self.get_bits(flag_data, 0, 1)
-                   hrm_sensor_contact_status = self.get_bits(flag_data, 1, 1)
-                   hrm_sensor_contact_supported = self.get_bits(flag_data, 2, 1)
-                   value_data = data[1]
-
-                   print("HRM Data Received - Format [{}] - Contact Support [{}] - Contact [{}] - Value [{}]".format(
-                       hrm_measurement_format,
-                       hrm_sensor_contact_supported,
-                       hrm_sensor_contact_status,
-                       value_data)
-                   )
+                   self.data = data[1]
                    
+                   print("HRM Data Received - {} bpm".format(self.data))
                 except Exception as e:
-                    print('[BluetoothService][CHAR] - {}'.format(e))
-                    self.connection.disconnect(timeout_ms=5000)
-            await asyncio.sleep(2)
+                    print('[BluetoothService][Exception] - Connection Lost')
+                    self.connection = None
+                    self.data = None
+            await asyncio.sleep(3)
                             
+    
+    def update_display(self):
+        if self.connected_device_name is "" or self.connected_device_name is None:
+            self.display_service.print("No Device", 1)
+            self.display_service.print("HR: 0 bpm", 2)
+        else:
+            self.display_service.print(self.connected_device_name, 1)
+            if self.data is not None:
+                self.display_service.print("HR: {} bpm".format(str(self.data)), 2)
+            else:
+                self.display_service.print("HR: 0 bpm", 2)
+    
     
     def get_bits(self, byte, start_bit, num_bits):
         mask = (1 << num_bits) - 1
@@ -153,17 +162,19 @@ class BluetoothService:
 
 
     async def scan(self):
-        while self.connection == None:
-            async with aioble.scan(5000, 1280000, 11250, True) as scanner:
-                async for result in scanner:
-                    device_name = result.name()
-                    device_services = result.services()
+        while True:
+            if self.connection == None:
+                async with aioble.scan(5000, 1280000, 11250, True) as scanner:
+                    async for result in scanner:
+                        self.connected_device_name = result.name()
+                        device_services = result.services()
 
-                    if self._SVC_HEART_RATE in device_services:
-                        try:
-                            self.connection = await result.device.connect(timeout_ms=10000)
-                        except asyncio.TimeoutError:
-                            print('[BluetoothService][TIMEOUT] - Could not connect to device.')
-          
-            print('[BluetoothService][SLEEP]({}) - No heart rate monitor found.'.format(self.sleep_duration))
-            await asyncio.sleep(self.sleep_duration)
+                        if self._SVC_HEART_RATE in device_services:
+                            try:
+                                self.connection = await result.device.connect(timeout_ms=10000)
+                            except asyncio.TimeoutError:
+                                print('[BluetoothService][TIMEOUT] - Could not connect to device.')
+              
+                print('[BluetoothService][SLEEP]({}) - No heart rate monitor found.'.format(self.sleep_duration))
+                await asyncio.sleep(self.sleep_duration)
+            await asyncio.sleep(self.reconnect_interval)
