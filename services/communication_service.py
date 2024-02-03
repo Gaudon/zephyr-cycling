@@ -3,6 +3,7 @@ import aioble
 import bluetooth
 import asyncio
 import network
+import traceback
 import micropython
 
 from micropython import const
@@ -18,12 +19,12 @@ class WirelessService:
         self.display_service = service_locator.get(DisplayService)
         self.light_service = service_locator.get(LightService)
         self.config_service = service_locator.get(ConfigService)
-        self.wlan = network.WLAN(network.STA_IF)
-        self.wlan.active(True)
+        self.wlan = network.WLAN(network.STA_IF)        
         
     
     async def start(self):
-        pass
+        self.wlan.active(False)
+        self.wlan.deinit()
     
     
     def connect(self, ssid, password):   
@@ -74,7 +75,7 @@ class BluetoothService:
         
         # Device Info
         self.svc_device_info = aioble.Service(self._SVC_DEVICE_INFO)        
-        aioble.Characteristic(self.svc_device_info, self._CHAR_MANUFACTURER_NAME_STR, read=True, initial='Gaudon')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_MANUFACTURER_NAME_STR, read=True, initial='Pico Fan')
         aioble.Characteristic(self.svc_device_info, self._CHAR_MODEL_NUMBER_STR, read=True, initial='PF-0001')
         aioble.Characteristic(self.svc_device_info, self._CHAR_SERIAL_NUMBER_STR, read=True, initial='G-PF-982987')
         aioble.Characteristic(self.svc_device_info, self._CHAR_FIRMWARE_REV_STR, read=True, initial='0.0.1')
@@ -93,7 +94,7 @@ class BluetoothService:
             self.scan(),
             self.get_data()
         )
-    
+
     
     def configure(self):
         self.ble = bluetooth.BLE()
@@ -111,10 +112,13 @@ class BluetoothService:
     async def get_data(self):
         hrm_service = None
         hrm_char = None
-        hrm_subscribed = False
+        self.hrm_subscribed = False
         
         while True:
+            
+            # Update the display screen
             self.update_display()
+            
             if self.connection is not None:
                 try:
                    if hrm_service is None:
@@ -125,7 +129,7 @@ class BluetoothService:
                        hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
                        print("Characteristic : {}".format(hrm_char.uuid))
                      
-                   if hrm_subscribed is False: 
+                   if self.hrm_subscribed is False: 
                        await hrm_char.subscribe(notify=True)
                        self.hrm_subscribed = True
                    
@@ -136,22 +140,21 @@ class BluetoothService:
                    
                    print("HRM Data Received - {} bpm".format(self.data))
                 except Exception as e:
-                    print('[BluetoothService][Exception] - Connection Lost')
+                    print(type(e).__name__)
+                    print("[BluetoothService][Exception] - {}".format(e))
                     self.connection = None
                     self.data = None
-            await asyncio.sleep(3)
+            await asyncio.sleep(0.5)
                             
     
     def update_display(self):
         if self.connected_device_name is "" or self.connected_device_name is None:
-            self.display_service.print("No Device", 1)
-            self.display_service.print("HR: 0 bpm", 2)
+            self.display_service.print("No Device")
         else:
-            self.display_service.print(self.connected_device_name, 1)
             if self.data is not None:
-                self.display_service.print("HR: {} bpm".format(str(self.data)), 2)
+                self.display_service.print("{} [{}]".format(str(self.data), self.connected_device_name))
             else:
-                self.display_service.print("HR: 0 bpm", 2)
+                self.display_service.print("0")
     
     
     def get_bits(self, byte, start_bit, num_bits):
