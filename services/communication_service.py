@@ -60,6 +60,8 @@ class BluetoothService:
     _IRQ_PERIPHERAL_CONNECT = const(7)
     _IRQ_PERIPHERAL_DISCONNECT = const(8)
     
+    # HRM Service 
+    
     
     def __init__(self):
         self.configure()
@@ -86,7 +88,7 @@ class BluetoothService:
     async def start(self):
         await asyncio.gather(
             self.scan(),
-            self.read_data()
+            self.get_data()
         )
     
     
@@ -103,9 +105,11 @@ class BluetoothService:
         self._CHAR_HARDWARE_REV_STR = bluetooth.UUID(0x2A27)
     
     
-    async def read_data(self):
+    async def get_data(self):
         hrm_service = None
         hrm_char = None
+        hrm_subscribed = False
+        
         while True:
             if self.connection is not None:
                 try:
@@ -116,15 +120,38 @@ class BluetoothService:
                    if hrm_char is None:
                        hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
                        print("Characteristic : {}".format(hrm_char.uuid))
-                                       
-                   data = await hrm_char.read(timeout_ms=5000)
-                   print(data)
+                     
+                   if hrm_subscribed is False: 
+                       await hrm_char.subscribe(notify=True)
+                   
+                   # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
+                   data = await hrm_char.notified()
+                   flag_data = data[0]
+                   hrm_measurement_format = self.get_bits(flag_data, 0, 1)
+                   hrm_sensor_contact_status = self.get_bits(flag_data, 1, 1)
+                   hrm_sensor_contact_supported = self.get_bits(flag_data, 2, 1)
+                   value_data = data[1]
+
+                   print("HRM Data Received - Format [{}] - Contact Support [{}] - Contact [{}] - Value [{}]".format(
+                       hrm_measurement_format,
+                       hrm_sensor_contact_supported,
+                       hrm_sensor_contact_status,
+                       value_data)
+                   )
+                   
                 except Exception as e:
                     print('[BluetoothService][CHAR] - {}'.format(e))
                     self.connection.disconnect(timeout_ms=5000)
             await asyncio.sleep(2)
-                    
+                            
     
+    def get_bits(self, byte, start_bit, num_bits):
+        mask = (1 << num_bits) - 1
+        mask = mask << start_bit
+        result = (byte & mask) >> start_bit
+        return result
+
+
     async def scan(self):
         while self.connection == None:
             async with aioble.scan(5000, 1280000, 11250, True) as scanner:
