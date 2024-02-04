@@ -1,5 +1,11 @@
 import network
 
+from service_manager import service_locator
+from services.display_service import DisplayService
+from services.light_service import LightService
+from services.config_service import ConfigService
+
+
 class WirelessService:
     def __init__(self):
         self.display_service = service_locator.get(DisplayService)

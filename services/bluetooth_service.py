@@ -10,6 +10,7 @@ from service_manager import service_locator
 from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
+from services.uart_service import UartService
 
 
 class BluetoothService:
@@ -27,6 +28,7 @@ class BluetoothService:
     def __init__(self):
         self.configure()
         self.display_service = service_locator.get(DisplayService)
+        self.uart_service = service_locator.get(UartService)
         self.connection = None
         self.connected_device_name = ""
         self.data = None

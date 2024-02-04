@@ -10,6 +10,7 @@ from services.bluetooth_service import BluetoothService
 from services.display_service import DisplayService
 from services.light_service import LightService
 from services.input_service import InputService
+from services.uart_service import UartService
 
 
 async def main():
@@ -32,6 +33,7 @@ async def main():
     # Networking
     service_locator.register(WirelessService())
     service_locator.register(BluetoothService())
+    service_locator.register(UartService())
       
     # Start Services
     coroutines = []
