@@ -5,7 +5,8 @@ import aioble
 
 from service_manager import service_locator
 from services.config_service import ConfigService
-from services.communication_service import WirelessService, BluetoothService
+from services.wlan_service import WirelessService
+from services.bluetooth_service import BluetoothService
 from services.display_service import DisplayService
 from services.light_service import LightService
 from services.input_service import InputService

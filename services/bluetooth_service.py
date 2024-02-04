@@ -2,8 +2,6 @@ import utime
 import aioble
 import bluetooth
 import asyncio
-import network
-import traceback
 import micropython
 
 from micropython import const
@@ -13,42 +11,6 @@ from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
 
-
-class WirelessService:
-    def __init__(self):
-        self.display_service = service_locator.get(DisplayService)
-        self.light_service = service_locator.get(LightService)
-        self.config_service = service_locator.get(ConfigService)
-        self.wlan = network.WLAN(network.STA_IF)        
-        
-    
-    async def start(self):
-        self.wlan.active(False)
-        self.wlan.deinit()
-    
-    
-    def connect(self, ssid, password):   
-        if not self.wlan.isconnected():
-            self.wlan.connect(ssid, password)
-            
-            while not self.wlan.isconnected():
-                utime.sleep(3)
-                
-        self.light_service.set_wlan(True)
-    
-    
-    def disconnect(self):
-        if self.wlan.isconnected():
-            self.wlan.disconnect()
-            self.light_service.set_wlan(False)
-
-
-    def toggle(self):
-        if self.wlan.isconnected():
-            self.disconnect()
-        else:
-            self.connect(self.config_service.get('NETWORK_SSID'), self.config_service.get('NETWORK_PASSWORD'))
-            
 
 class BluetoothService:
     
@@ -60,8 +22,6 @@ class BluetoothService:
     _IRQ_SCAN_DONE = const(6)
     _IRQ_PERIPHERAL_CONNECT = const(7)
     _IRQ_PERIPHERAL_DISCONNECT = const(8)
-    
-    # HRM Service 
     
     
     def __init__(self):
@@ -115,7 +75,6 @@ class BluetoothService:
         self.hrm_subscribed = False
         
         while True:
-            
             # Update the display screen
             self.update_display()
             
@@ -144,7 +103,7 @@ class BluetoothService:
                     print("[BluetoothService][Exception] - {}".format(e))
                     self.connection = None
                     self.data = None
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1)
                             
     
     def update_display(self):
