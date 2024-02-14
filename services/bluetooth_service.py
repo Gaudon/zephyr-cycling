@@ -7,13 +7,14 @@ import micropython
 from micropython import const
 
 from service_manager import service_locator
-from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
 from services.uart_service import UartService
+from services.input_service import InputService
+from services.base_service import BaseService
 
 
-class BluetoothService:
+class BluetoothService(BaseService):
     
     # Input/Output 
     _IO_CAPABILITY_NO_INPUT_OUTPUT = const(3)
@@ -25,10 +26,12 @@ class BluetoothService:
     _IRQ_PERIPHERAL_DISCONNECT = const(8)
     
     
-    def __init__(self):
+    def __init__(self, operation_mode, thread_sleep_time_ms):
+        BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
         self.configure()
-        self.display_service = service_locator.get(DisplayService)
         self.uart_service = service_locator.get(UartService)
+        self.input_service = service_locator.get(InputService)
+        self.config_service = service_locator.get(ConfigService)
         self.connection = None
         self.connected_device_name = ""
         self.data = None
@@ -49,13 +52,35 @@ class BluetoothService:
         
         # Register Services
         aioble.register_services(self.svc_device_info, self.svc_heart_rate)
+
+        # Register Button Callbacks
+        self.input_service.register_callback(
+            self.config_service.get(ConfigService.BTN_BLUETOOTH_SYNC_PIN),
+            self.on_bluetooth_btn_short_press, 
+            InputService.BTN_CALLBACK_SHORT_PRESS
+        )
+
+        self.input_service.register_callback(
+            self.config_service.get(ConfigService.BTN_BLUETOOTH_SYNC_PIN),
+            self.on_bluetooth_btn_long_press, 
+            InputService.BTN_CALLBACK_LONG_PRESS
+        )
         
+    
+    def on_bluetooth_btn_short_press():
+        pass
+
+
+    def on_bluetooth_btn_long_press():
+        pass
+
         
     async def start(self):
-        await asyncio.gather(
-            self.scan(),
-            self.get_data()
-        )
+        pass
+        # await asyncio.gather(
+        #     self.scan(),
+        #     self.get_data()
+        # )
 
     
     def configure(self):
@@ -76,10 +101,7 @@ class BluetoothService:
         hrm_char = None
         self.hrm_subscribed = False
         
-        while True:
-            # Update the display screen
-            self.update_display()
-            
+        while True:            
             if self.connection is not None:
                 try:
                    if hrm_service is None:
@@ -106,17 +128,7 @@ class BluetoothService:
                     self.connection = None
                     self.data = None
             await asyncio.sleep(1)
-                            
-    
-    def update_display(self):
-        if self.connected_device_name is "" or self.connected_device_name is None:
-            self.display_service.print("No Device")
-        else:
-            if self.data is not None:
-                self.display_service.print("{} [{}]".format(str(self.data), self.connected_device_name))
-            else:
-                self.display_service.print("0")
-    
+                                
     
     def get_bits(self, byte, start_bit, num_bits):
         mask = (1 << num_bits) - 1

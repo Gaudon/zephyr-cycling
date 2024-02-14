@@ -2,22 +2,32 @@ import uos
 import bluetooth
 
 
-class ConfigService:
+class ConfigService():
     
-    config_file_name = 'config.txt'
-    data = {}
-    
+    OP_MODE_PRIMARY = "PRIMARY"
+    OP_MODE_SECONDARY = "SECONDARY"
+    CONFIG_OPERATION_MODE = "OPERATION_MODE"
+    BTN_BLUETOOTH_SYNC_PIN = "BTN_BLUETOOTH_SYNC_PIN"
+
     
     def __init__(self):
+        self.config_file_name = 'config.txt'
+        self.data = {}
+        self.operation_mode = ConfigService.OP_MODE_PRIMARY
+
         if not self.file_exists(self.config_file_name):
             self.create_config_file()
         return self.load_config_file()
     
     
     async def start(self):
-        pass
+        self.operation_mode = self.get(ConfigService.CONFIG_OPERATION_MODE)
     
     
+    def get_operation_mode(self):
+        return self.operation_mode
+
+
     def file_exists(self, filename):
         try:
             # Try to get file information
@@ -26,16 +36,6 @@ class ConfigService:
         except OSError:
             # File does not exist or there was an error accessing it
             return False
-
-
-    def create_config_file(self):
-        with open(config_file_name, 'w') as file:
-            # Write data to the file
-            file.write('# NETWORKING\n')
-            file.write('NETWORK_SSID=\n')
-            file.write('NETWORK_PASSWORD=\n')
-            file.write('# PROFILE\n')
-            file.write('MAX_HEARTRATE=\n')
             
 
     def load_config_file(self):

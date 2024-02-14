@@ -2,31 +2,58 @@ import machine
 import asyncio
 
 from service_manager import service_locator
+from services.config_service import ConfigService
+from services.base_service import BaseService
+from data.button import Button
 
 
-class InputService:    
-    def __init__(self):
+class InputService(BaseService):
+
+    BTN_CALLBACK_SHORT_PRESS = "BTN_CALLBACK_SHORT_PRESS"
+    BTN_CALLBACK_LONG_PRESS = "BTN_CALLBACK_LONG_PRESS"
+
+    def __init__(self, operation_mode, thread_sleep_time_ms):
+        BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
+        self.config_service = service_locator.get(ConfigService)
         self.buttons = []
-        
-        for i in range(0, 4):
-            self.buttons.append(machine.Pin(i, machine.Pin.IN))
-    
+        self.buttons.append(
+            Button(
+                self.config_service.get("BTN_BLUETOOTH_SYNC_PIN"), 
+                machine.Pin(int(self.config_service.get("BTN_BLUETOOTH_SYNC_PIN")), machine.Pin.IN), 
+                200, 
+                3000
+            )
+        )
+        self.button_hold_count = 0.0
+
     
     async def start(self):
-        await asyncio.gather(
-            self.check_inputs()
-        )
-            
+        if self.config_service.get_operation_mode() == ConfigService.OP_MODE_PRIMARY:
+            await asyncio.gather(
+                self.check_inputs()
+            )
+        
     
+    def register_callback(self, pin, function_handler, button_callback_type):
+        for btn in self.buttons:
+            if btn.get_pin()[0] == pin:
+                if button_callback_type == InputService.BTN_CALLBACK_SHORT_PRESS:
+                    btn.register_short_press_callback(function_handler)
+                elif button_callback_type == InputService.BTN_CALLBACK_LONG_PRESS:
+                    btn.register_long_press_callback(function_handler)
+
+
+
     async def check_inputs(self):
         while True:
-            await asyncio.sleep(0.2)
-            if self.buttons[0].value() == 1:
-                print("Button Pressed: [1]")
-            if self.buttons[1].value() == 1:
-                print("Button Pressed: [2]")
-            if self.buttons[2].value() == 1:
-                print("Button Pressed: [3]")
-            if self.buttons[3].value() == 1:
-                print("Button Pressed: [4]")
-                machine.reset()
+            await asyncio.sleep_ms(self.thread_sleep_time_ms)
+            for btn in self.buttons:
+                if btn.get_pin()[1].value() == 1:
+                    # Button is being held
+                    self.button_hold_count += self.thread_sleep_time_ms
+                else:
+                    if self.button_hold_count != 0:
+                        # Button was pressed
+                        pass
+                    else:
+                        self.button_hold_count = 0.0
