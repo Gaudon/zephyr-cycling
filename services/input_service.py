@@ -15,6 +15,7 @@ class InputService(BaseService):
     def __init__(self, operation_mode, thread_sleep_time_ms):
         BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
         self.config_service = service_locator.get(ConfigService)
+        self.long_press_duration_ms = 3000
         self.buttons = []
         self.buttons.append(
             Button(
@@ -52,8 +53,8 @@ class InputService(BaseService):
                     # Button is being held
                     self.button_hold_count += self.thread_sleep_time_ms
                 else:
-                    if self.button_hold_count != 0:
-                        # Button was pressed
-                        pass
-                    else:
-                        self.button_hold_count = 0.0
+                    if self.button_hold_count >= self.long_press_duration_ms:
+                        print("Button Was Held For {0}ms".format(self.button_hold_count))
+                    elif self.button_hold_count != 0:
+                        print("Button Was Pressed")
+                    self.button_hold_count = 0.0

@@ -24,7 +24,7 @@ async def main():
     ############################
     
     # Input
-    service_locator.register(InputService(operation_mode, 5000))
+    service_locator.register(InputService(operation_mode, 200))
     
     # Output
     service_locator.register(LightService())

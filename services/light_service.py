@@ -1,37 +1,46 @@
 import machine
 import asyncio
 
-class LightService:
+from service_manager import service_locator
+from services.config_service import ConfigService
+from services.base_service import BaseService
+
+class LightService(BaseService):
+
     def __init__(self):
-        self.led_power_pin = machine.Pin(16, machine.Pin.OUT)
-        self.led_wlan_pin = machine.Pin(17, machine.Pin.OUT)
-        self.set_power(False)
+        self.config_service = service_locator.get(ConfigService)
+        self.led_power_pin = machine.Pin(int(self.config_service.get(ConfigService.LED_POWER_PIN)), machine.Pin.OUT)
+        self.led_bluetooth_pin = machine.Pin(int(self.config_service.get(ConfigService.LED_BLUETOOTH_PIN)), machine.Pin.OUT)
+        self.led_bluetooth_blinking = False
+        self.set_led_power(False)
+        self.set_led_bluetooth(False)
     
-    
+
     async def start(self):
-        await asyncio.gather(
-            self.toggle()
-        )
+        pass
             
     
-    def set_power(self, enabled):
+    def set_led_power(self, enabled):
         if enabled:
             self.led_power_pin.on()
         else:
             self.led_power_pin.off()
     
-    
-    async def toggle(self):
-        while True:
-            await asyncio.sleep(1)
-            if self.led_power_pin.value() == 1:
-                self.set_power(False)
-            else:
-                self.set_power(True)
-            
-         
-    def set_wlan(self, enabled):
+
+    def set_led_bluetooth(self, enabled):
         if enabled:
-            self.led_wlan_pin.on()
+            self.led_bluetooth_pin.on()
         else:
-            self.led_wlan_pin.off()
+            self.led_bluetooth_pin.off()
+
+    
+    async def led_bluetooth_blink(self, blinking=True, blink_rate_ms=500):
+        self.led_bluetooth_blinking = blinking
+        self.set_led_bluetooth(blinking)
+
+        while self.led_bluetooth_blinking:
+            await asyncio.sleep_ms(blink_rate_ms)
+            if self.led_bluetooth_blinking.value() == 1:
+                self.set_led_bluetooth(False)
+            else:
+                self.set_led_bluetooth(True)
