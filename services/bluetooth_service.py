@@ -67,11 +67,12 @@ class BluetoothService(BaseService):
         )
         
     
-    def on_bluetooth_btn_short_press():
-        pass
+    def on_bluetooth_btn_short_press(self):
+        print("[BluetoothService] - Scanning")
+        asyncio.run(self.scan())
 
 
-    def on_bluetooth_btn_long_press():
+    def on_bluetooth_btn_long_press(self):
         pass
 
         
@@ -161,7 +162,7 @@ class BluetoothService(BaseService):
 
 
     async def scan(self):
-        disconnect()
+        self.disconnect()
         self.nearby_hrms.clear()
         
         async with aioble.scan(10000, 1280000, 11250, True) as scanner:
@@ -171,7 +172,7 @@ class BluetoothService(BaseService):
                     if self._SVC_HEART_RATE in device_services:
                         self.nearby_hrms.append((result.name, result.device))
                     
-        if(self.nearby_hrms.size() == 0):
-            print('[BluetoothService][SLEEP]({}) - No heart rate monitor found.'.format(self.sleep_duration))
+        if(len(self.nearby_hrms) == 0):
+            print('[BluetoothService] - No heart rate monitor found.')
         else:
             self.connect(self, result.device)

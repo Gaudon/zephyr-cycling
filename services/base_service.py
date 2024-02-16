@@ -4,7 +4,6 @@ class BaseService:
 		self.operation_mode = operation_mode
 		self.thread_sleep_time_ms = thread_sleep_time_ms
 
-
 	def get_operation_mode(self):
 		return self.operation_mode
 

@@ -2,6 +2,7 @@ import utime
 import bluetooth
 import asyncio
 import aioble
+import time
 
 from service_manager import service_locator
 from services.config_service import ConfigService
@@ -18,13 +19,13 @@ async def main():
     ############################
     service_locator.register(ConfigService())
     operation_mode = service_locator.get(ConfigService).get_operation_mode()
-
+    
     ############################
     # Service Initialization
     ############################
     
     # Input
-    service_locator.register(InputService(operation_mode, 200))
+    service_locator.register(InputService(operation_mode, 50))
     
     # Output
     service_locator.register(LightService())

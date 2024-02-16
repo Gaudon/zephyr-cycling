@@ -1,5 +1,6 @@
 import machine
 import asyncio
+import time
 
 from service_manager import service_locator
 from services.config_service import ConfigService
@@ -25,7 +26,6 @@ class InputService(BaseService):
                 3000
             )
         )
-        self.button_hold_count = 0.0
 
     
     async def start(self):
@@ -44,17 +44,11 @@ class InputService(BaseService):
                     btn.register_long_press_callback(function_handler)
 
 
-
     async def check_inputs(self):
         while True:
             await asyncio.sleep_ms(self.thread_sleep_time_ms)
             for btn in self.buttons:
                 if btn.get_pin()[1].value() == 1:
-                    # Button is being held
-                    self.button_hold_count += self.thread_sleep_time_ms
+                    btn.pressed()
                 else:
-                    if self.button_hold_count >= self.long_press_duration_ms:
-                        print("Button Was Held For {0}ms".format(self.button_hold_count))
-                    elif self.button_hold_count != 0:
-                        print("Button Was Pressed")
-                    self.button_hold_count = 0.0
+                    btn.released()
