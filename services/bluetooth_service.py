@@ -35,6 +35,7 @@ class BluetoothService(BaseService):
         self.connection = None
         self.nearby_hrms = []
         self.data = None
+        self.scanning = False
         self.sleep_duration = 5
         self.reconnect_interval = 10
         
@@ -162,17 +163,21 @@ class BluetoothService(BaseService):
 
 
     async def scan(self):
-        self.disconnect()
-        self.nearby_hrms.clear()
-        
-        async with aioble.scan(10000, 1280000, 11250, True) as scanner:
-            async for result in scanner:
-                if result.connectable:
-                    device_services = result.services()
-                    if self._SVC_HEART_RATE in device_services:
-                        self.nearby_hrms.append((result.name, result.device))
-                    
-        if(len(self.nearby_hrms) == 0):
-            print('[BluetoothService] - No heart rate monitor found.')
-        else:
-            self.connect(self, result.device)
+        if not self.scanning:
+            self.scanning = True
+            self.disconnect()
+            self.nearby_hrms.clear()
+            
+            async with aioble.scan(10000, 1280000, 11250, True) as scanner:
+                async for result in scanner:
+                    if result.connectable:
+                        device_services = result.services()
+                        if self._SVC_HEART_RATE in device_services:
+                            self.nearby_hrms.append((result.name, result.device))
+            
+            self.scanning = False
+                  
+            if(len(self.nearby_hrms) == 0):
+                print('[BluetoothService] - No heart rate monitor found.')
+            else:
+                self.connect(self, result.device)
