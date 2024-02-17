@@ -122,9 +122,7 @@ class BluetoothService(BaseService):
                     data = await hrm_char.notified()
                     flag_data = data[0]
                     self.data = data[1]
-                   
-                    self.uart_service.transmit_heart_rate_data(data)
-
+                    self.uart_service.update_data(data)
                     print("HRM Data Received - {} bpm".format(self.data))
                 except Exception as e:
                     print(type(e).__name__)
