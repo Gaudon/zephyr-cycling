@@ -17,13 +17,13 @@ from services.base_service import BaseService
 class BluetoothService(BaseService):
     
     # Input/Output 
-    _IO_CAPABILITY_NO_INPUT_OUTPUT = const(3)
+    IO_CAPABILITY_NO_INPUT_OUTPUT = const(3)
     
     # IRQ Events
-    _IRQ_SCAN_RESULT = const(5)
-    _IRQ_SCAN_DONE = const(6)
-    _IRQ_PERIPHERAL_CONNECT = const(7)
-    _IRQ_PERIPHERAL_DISCONNECT = const(8)
+    IRQ_SCAN_RESULT = const(5)
+    IRQ_SCAN_DONE = const(6)
+    IRQ_PERIPHERAL_CONNECT = const(7)
+    IRQ_PERIPHERAL_DISCONNECT = const(8)
     
     
     def __init__(self, operation_mode, thread_sleep_time):

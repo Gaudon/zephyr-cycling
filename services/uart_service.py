@@ -43,6 +43,7 @@ class UartService(BaseService):
         # Data
         self.command = None
 
+
     async def start(self):       
         await asyncio.gather(
             self.run()

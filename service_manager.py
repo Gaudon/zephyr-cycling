@@ -11,7 +11,7 @@ class ServiceLocator:
     def get(self, service_class):
         for service in self.services:
             if isinstance(service, service_class):
-                return service
+                return service_class(service)
         return service_class(None)
     
     
