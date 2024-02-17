@@ -28,7 +28,7 @@ async def main():
     service_locator.register(InputService(operation_mode, 50))
     
     # Output
-    service_locator.register(LightService())
+    service_locator.register(LightService(operation_mode, 50))
     
     # Networking
     #service_locator.register(WirelessService())
