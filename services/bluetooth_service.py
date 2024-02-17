@@ -80,7 +80,8 @@ class BluetoothService(BaseService):
 
         await asyncio.gather(
             self.get_data(),
-            self.scan()
+            self.scan(),
+            self.update_bluetooth_led()
         )
 
     
@@ -161,14 +162,26 @@ class BluetoothService(BaseService):
     def stop_scanning(self):
         self.scanning = False
         self.scan_ready = False
-        self.light_service.set_led_bluetooth_blink_status(False)
+
+
+    async def update_bluetooth_led(self):
+        while True:
+            if not self.scanning:
+                if self.connection is not None:
+                    self.light_service.set_led_bluetooth(True)
+                else:
+                    self.light_service.set_led_bluetooth_blink_status(False)
+                    self.light_service.set_led_bluetooth(False)
+            else:
+                self.light_service.set_led_bluetooth_blink_status(True)
+
+            await asyncio.sleep_ms(self.thread_sleep_time_ms)
 
 
     async def scan(self):
         while True:
             if not self.scanning and self.scan_ready:
                 print("[BluetoothService] - Scanning")
-                self.light_service.set_led_bluetooth_blink_status(True)
                 self.scanning = True
                 self.scan_ready = False
                 await self.disconnect()

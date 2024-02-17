@@ -33,7 +33,7 @@ async def main():
     # Networking
     #service_locator.register(WirelessService())
     service_locator.register(BluetoothService(operation_mode, 1000))
-    #service_locator.register(UartService())
+    service_locator.register(UartService(operation_mode, 200))
       
     # Start Services
     coroutines = []
