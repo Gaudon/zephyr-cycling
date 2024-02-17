@@ -6,6 +6,7 @@ from machine import UART, Pin
 from data.command import Command
 from service_manager import service_locator
 from services.config_service import ConfigService
+from services.input_service import InputService
 from services.base_service import BaseService
 
 
@@ -24,6 +25,7 @@ class UartService(BaseService):
         
         #  Services
         self.config_service = service_locator.get(ConfigService)
+        self.input_service = service_locator.get(InputService)
 
         # Configuration
         self.uart_id = int(self.config_service.get(UartService.CONFIG_UART_ID))
@@ -41,12 +43,12 @@ class UartService(BaseService):
         # Data
         self.command = None
 
-    async def start(self):
+    async def start(self):       
         await asyncio.gather(
             self.run()
         )
-        
-    
+
+
     def update_data(self, command_data: Command):
         self.command = command_data
 
