@@ -31,7 +31,7 @@ async def main():
     service_locator.register(LightService(operation_mode, 0.05))
     
     # Networking
-    #service_locator.register(WirelessService())
+    service_locator.register(WirelessService(operation_mode, 1))
     service_locator.register(BluetoothService(operation_mode, 1))
     service_locator.register(UartService(operation_mode, 0.2))
       
