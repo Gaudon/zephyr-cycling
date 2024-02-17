@@ -25,15 +25,15 @@ async def main():
     ############################
     
     # Input
-    service_locator.register(InputService(operation_mode, 50))
+    service_locator.register(InputService(operation_mode, 0.05))
     
     # Output
-    service_locator.register(LightService(operation_mode, 50))
+    service_locator.register(LightService(operation_mode, 0.05))
     
     # Networking
     #service_locator.register(WirelessService())
-    service_locator.register(BluetoothService(operation_mode, 1000))
-    service_locator.register(UartService(operation_mode, 200))
+    service_locator.register(BluetoothService(operation_mode, 1))
+    service_locator.register(UartService(operation_mode, 0.2))
       
     # Start Services
     coroutines = []

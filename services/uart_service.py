@@ -17,8 +17,8 @@ class UartService(BaseService):
     CONFIG_UART_BAUD_RATE = "UART_BAUD_RATE"
 
 
-    def __init__(self, operation_mode, thread_sleep_time_ms):
-        BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
+    def __init__(self, operation_mode, thread_sleep_time):
+        BaseService.__init__(self, operation_mode, thread_sleep_time)
         
         #  Services
         self.config_service = service_locator.get(ConfigService)
@@ -45,9 +45,9 @@ class UartService(BaseService):
     
     def transmit_heart_rate_data(self, data):
         if self.uart_mode_primary:
-            self.uart.write(struct.pack('!B', value))
+            print("Transmitting Heart Rate Data")
             
     
     async def run(self):
         while True:    
-            await asyncio.sleep_ms(self.thread_sleep_time_ms)
+            await asyncio.sleep(self.thread_sleep_time)

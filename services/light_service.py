@@ -7,8 +7,8 @@ from services.base_service import BaseService
 
 class LightService(BaseService):
 
-    def __init__(self, operation_mode, thread_sleep_time_ms):
-        BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
+    def __init__(self, operation_mode, thread_sleep_time):
+        BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.config_service = service_locator.get(ConfigService)
         self.led_power_pin = machine.Pin(int(self.config_service.get(ConfigService.LED_POWER_PIN)), machine.Pin.OUT)
         self.led_bluetooth_pin = machine.Pin(int(self.config_service.get(ConfigService.LED_BLUETOOTH_PIN)), machine.Pin.OUT)
@@ -44,11 +44,11 @@ class LightService(BaseService):
     async def update_bluetooth_led(self, blink_rate_ms=250):
         while True:
             if self.led_bluetooth_blinking:
-                await asyncio.sleep_ms(blink_rate_ms)
+                await asyncio.sleep(blink_rate_ms/1000)
                 if self.led_bluetooth_pin.value() == 0:
                     self.set_led_bluetooth(False)
                 else:
                     self.set_led_bluetooth(True)
             else:
                 self.set_led_bluetooth(False)
-                await asyncio.sleep_ms(self.thread_sleep_time_ms)
+                await asyncio.sleep(self.thread_sleep_time)

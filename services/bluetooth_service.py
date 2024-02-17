@@ -26,8 +26,8 @@ class BluetoothService(BaseService):
     _IRQ_PERIPHERAL_DISCONNECT = const(8)
     
     
-    def __init__(self, operation_mode, thread_sleep_time_ms):
-        BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
+    def __init__(self, operation_mode, thread_sleep_time):
+        BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.configure()
         self.uart_service = service_locator.get(UartService)
         self.input_service = service_locator.get(InputService)
@@ -150,13 +150,13 @@ class BluetoothService(BaseService):
         if self.connection is not None:
             for device_data in self.nearby_hrms:
                 if device_data[1] is not self.connection.device:
-                    await self.connect(self, device_data[1])
+                    await self.connect(device_data[1])
 
 
     async def connect(self, device):
         await self.disconnect()
         try:
-            self.connection = await result.device.connect(timeout_ms=10000)
+            self.connection = await device.connect(timeout_ms=10000)
         except asyncio.TimeoutError:
             print('[BluetoothService][TIMEOUT] - Could not connect to device.')
 
@@ -177,7 +177,7 @@ class BluetoothService(BaseService):
             else:
                 self.light_service.set_led_bluetooth_blink_status(True)
 
-            await asyncio.sleep_ms(self.thread_sleep_time_ms)
+            await asyncio.sleep(self.thread_sleep_time)
 
 
     async def scan(self):
@@ -200,6 +200,6 @@ class BluetoothService(BaseService):
                 if(len(self.nearby_hrms) == 0):
                     print('[BluetoothService] - No heart rate monitor found.')
                 else:
-                    self.connect(self, result.device)
+                    await self.connect(result.device)
 
-            await asyncio.sleep_ms(self.thread_sleep_time_ms)
+            await asyncio.sleep(self.thread_sleep_time)

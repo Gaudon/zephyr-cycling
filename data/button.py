@@ -19,10 +19,6 @@ class Button:
 		self.long_press_listeners = []
 
 
-	def update(self):
-		self.state[2] += 0 - self.last_update
-
-
 	def get_pin(self):
 		return (self.pin_id, self.pin)
 
@@ -59,13 +55,3 @@ class Button:
 
 	def register_long_press_callback(self, callback):
 		self.long_press_listeners.append(callback)
-
-
-	def short_press(self):
-		for listener in short_press_listeners:
-			listener()
-
-
-	def long_press(self):
-		for listener in long_press_listeners:
-			listener()

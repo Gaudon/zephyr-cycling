@@ -1,16 +1,17 @@
 from machine import Pin, I2C
+from services.base_service import BaseService
 
-_MODE_OFF = 0
-_MODE_LOW_POWER = 1
-_MODE_NORMAL_POWER = 2
-_MODE_HIGH_POWER = 3
 
-class FanService:
+class FanService(BaseService):
+    
+    STATE_OFF = 0
+    STATE_LOW_POWER = 1
+    STATE_NORMAL_POWER = 2
+    STATE_HIGH_POWER = 3
+    
     def __init__(self):
-        self.
+        self.state = FanService.STATE_OFF
 
 
     async def start(self):
-        
-
-
+        pass

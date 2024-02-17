@@ -13,8 +13,8 @@ class InputService(BaseService):
     BTN_CALLBACK_SHORT_PRESS = "BTN_CALLBACK_SHORT_PRESS"
     BTN_CALLBACK_LONG_PRESS = "BTN_CALLBACK_LONG_PRESS"
 
-    def __init__(self, operation_mode, thread_sleep_time_ms):
-        BaseService.__init__(self, operation_mode, thread_sleep_time_ms)
+    def __init__(self, operation_mode, thread_sleep_time):
+        BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.config_service = service_locator.get(ConfigService)
         self.long_press_duration_ms = 3000
         self.buttons = []
@@ -46,7 +46,7 @@ class InputService(BaseService):
 
     async def check_inputs(self):
         while True:
-            await asyncio.sleep_ms(self.thread_sleep_time_ms)
+            await asyncio.sleep(self.thread_sleep_time)
             for btn in self.buttons:
                 if btn.get_pin()[1].value() == 1:
                     btn.pressed()

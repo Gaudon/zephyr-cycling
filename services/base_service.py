@@ -1,8 +1,11 @@
+from services.config_service import ConfigService
+
 class BaseService:
 
-	def __init__(self, operation_mode, thread_sleep_time_ms=1000):
+	def __init__(self, operation_mode, thread_sleep_time=1):
 		self.operation_mode = operation_mode
-		self.thread_sleep_time_ms = thread_sleep_time_ms
+		self.thread_sleep_time = thread_sleep_time
+
 
 	def get_operation_mode(self):
 		return self.operation_mode

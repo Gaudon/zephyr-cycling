@@ -18,9 +18,6 @@ class ConfigService():
         self.config_file_name = 'config.txt'
         self.data = {}
         self.operation_mode = ConfigService.OP_MODE_PRIMARY
-
-        if not self.file_exists(self.config_file_name):
-            self.create_config_file()
         return self.load_config_file()
     
     

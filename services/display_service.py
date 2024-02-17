@@ -1,5 +1,5 @@
 from machine import Pin, I2C
-import ssd1306
+from lib import ssd1306
 
 class DisplayService:
     def __init__(self):

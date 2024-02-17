@@ -4,39 +4,18 @@ from service_manager import service_locator
 from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
+from services.base_service import BaseService
 
 
-class WirelessService:
-    def __init__(self):
-        self.display_service = service_locator.get(DisplayService)
+class WirelessService(BaseService):
+    def __init__(self, operation_mode, thread_sleep_time):
+        BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.light_service = service_locator.get(LightService)
         self.config_service = service_locator.get(ConfigService)
         self.wlan = network.WLAN(network.STA_IF)        
-        
-    
-    async def start(self):
         self.wlan.active(False)
         self.wlan.deinit()
     
-    
-    def connect(self, ssid, password):   
-        if not self.wlan.isconnected():
-            self.wlan.connect(ssid, password)
-            
-            while not self.wlan.isconnected():
-                utime.sleep(3)
-                
-        self.light_service.set_wlan(True)
-    
-    
-    def disconnect(self):
-        if self.wlan.isconnected():
-            self.wlan.disconnect()
-            self.light_service.set_wlan(False)
 
-
-    def toggle(self):
-        if self.wlan.isconnected():
-            self.disconnect()
-        else:
-            self.connect(self.config_service.get('NETWORK_SSID'), self.config_service.get('NETWORK_PASSWORD'))
+    async def start(self):
+        pass
