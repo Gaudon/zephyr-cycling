@@ -34,10 +34,10 @@ class BluetoothService(BaseService):
         self.config_service = service_locator.get(ConfigService)
         self.light_service = service_locator.get(LightService)
         self.connection = None
+        self.scan_ready = False
         self.nearby_hrms = []
         self.data = None
         self.scanning = False
-        self.sleep_duration = 5
         self.reconnect_interval = 10
         
         # Device Info
@@ -57,11 +57,11 @@ class BluetoothService(BaseService):
 
         
     def on_bluetooth_btn_short_press(self):
-        print("[BluetoothService] - Connecting To Next Device")
+        self.scan_ready = True
 
 
     def on_bluetooth_btn_long_press(self):
-        print("[BluetoothService] - Scanning")
+        self.scan_ready = True
 
         
     async def start(self):
@@ -79,7 +79,8 @@ class BluetoothService(BaseService):
         )
 
         await asyncio.gather(
-            self.get_data()
+            self.get_data(),
+            self.scan()
         )
 
     
@@ -139,48 +140,50 @@ class BluetoothService(BaseService):
 
     async def disconnect(self):
         if self.connection is not None:
-            self.connection.disconnect()
+            await self.connection.disconnect()
 
 
     async def connect_next(self):
         if self.connection is not None:
             for device_data in self.nearby_hrms:
                 if device_data[1] is not self.connection.device:
-                    self.connect(self, device_data[1])
+                    await self.connect(self, device_data[1])
 
 
     async def connect(self, device):
-        self.disconnect()
+        await self.disconnect()
         try:
             self.connection = await result.device.connect(timeout_ms=10000)
         except asyncio.TimeoutError:
             print('[BluetoothService][TIMEOUT] - Could not connect to device.')
 
 
-    async def stop_scanning(self):
+    def stop_scanning(self):
         self.scanning = False
-        #self.light_service.set_led_bluetooth(False)
+        self.scan_ready = False
 
 
     async def scan(self):
-        if not self.scanning:
-            print("[BluetoothService] - Scanning")
-            #asyncio.run(self.light_service.led_bluetooth_blink(500))
-            self.scanning = True
-            self.disconnect()
-            self.nearby_hrms.clear()
-            
-            async with aioble.scan(10000, 1280000, 11250, True) as scanner:
-                async for result in scanner:
-                    if result.connectable:
-                        device_services = result.services()
-                        if self._SVC_HEART_RATE in device_services:
-                            self.nearby_hrms.append((result.name, result.device))
-            
-            self.stop_scanning()
-            if(len(self.nearby_hrms) == 0):
-                print('[BluetoothService] - No heart rate monitor found.')
-            else:
-                self.connect(self, result.device)
-        else:
-            print("[BluetoothService] - Scan Already In Progress")
+        while True:
+            if not self.scanning and self.scan_ready:
+                print("[BluetoothService] - Scanning")
+                #asyncio.run(self.light_service.led_bluetooth_blink(500))
+                self.scanning = True
+                self.scan_ready = False
+                await self.disconnect()
+                self.nearby_hrms.clear()
+                
+                async with aioble.scan(10000, 1280000, 11250, True) as scanner:
+                    async for result in scanner:
+                        if result.connectable:
+                            device_services = result.services()
+                            if self._SVC_HEART_RATE in device_services:
+                                self.nearby_hrms.append((result.name, result.device))
+                
+                self.stop_scanning()
+                if(len(self.nearby_hrms) == 0):
+                    print('[BluetoothService] - No heart rate monitor found.')
+                else:
+                    self.connect(self, result.device)
+
+            await asyncio.sleep_ms(self.thread_sleep_time_ms)
