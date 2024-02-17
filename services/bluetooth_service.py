@@ -106,24 +106,26 @@ class BluetoothService(BaseService):
         while True:            
             if self.connection is not None:
                 try:
-                   if hrm_service is None:
-                       hrm_service = await self.connection.service(self._SVC_HEART_RATE)
-                       print("Service : {}".format(hrm_service.uuid))
+                    if hrm_service is None:
+                        hrm_service = await self.connection.service(self._SVC_HEART_RATE)
+                        print("Service : {}".format(hrm_service.uuid))
                    
-                   if hrm_char is None:
-                       hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
-                       print("Characteristic : {}".format(hrm_char.uuid))
+                    if hrm_char is None:
+                        hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
+                        print("Characteristic : {}".format(hrm_char.uuid))
                      
-                   if self.hrm_subscribed is False: 
-                       await hrm_char.subscribe(notify=True)
-                       self.hrm_subscribed = True
+                    if self.hrm_subscribed is False: 
+                        await hrm_char.subscribe(notify=True)
+                        self.hrm_subscribed = True
                    
-                   # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
-                   data = await hrm_char.notified()
-                   flag_data = data[0]
-                   self.data = data[1]
+                    # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
+                    data = await hrm_char.notified()
+                    flag_data = data[0]
+                    self.data = data[1]
                    
-                   print("HRM Data Received - {} bpm".format(self.data))
+                    self.uart_service.transmit_heart_rate_data(data)
+
+                    print("HRM Data Received - {} bpm".format(self.data))
                 except Exception as e:
                     print(type(e).__name__)
                     print("[BluetoothService][Exception] - {}".format(e))

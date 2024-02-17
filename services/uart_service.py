@@ -43,7 +43,7 @@ class UartService(BaseService):
         )
         
     
-    def heart_rate_data_received(self, value):
+    def transmit_heart_rate_data(self, data):
         if self.uart_mode_primary:
             self.uart.write(struct.pack('!B', value))
             
