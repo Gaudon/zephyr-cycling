@@ -32,6 +32,7 @@ class BluetoothService(BaseService):
         self.uart_service = service_locator.get(UartService)
         self.input_service = service_locator.get(InputService)
         self.config_service = service_locator.get(ConfigService)
+        self.light_service = service_locator.get(LightService)
         self.connection = None
         self.nearby_hrms = []
         self.data = None
@@ -54,6 +55,16 @@ class BluetoothService(BaseService):
         # Register Services
         aioble.register_services(self.svc_device_info, self.svc_heart_rate)
 
+        
+    def on_bluetooth_btn_short_press(self):
+        print("[BluetoothService] - Connecting To Next Device")
+
+
+    def on_bluetooth_btn_long_press(self):
+        print("[BluetoothService] - Scanning")
+
+        
+    async def start(self):
         # Register Button Callbacks
         self.input_service.register_callback(
             self.config_service.get(ConfigService.BTN_BLUETOOTH_SYNC_PIN),
@@ -66,23 +77,10 @@ class BluetoothService(BaseService):
             self.on_bluetooth_btn_long_press, 
             InputService.BTN_CALLBACK_LONG_PRESS
         )
-        
-    
-    def on_bluetooth_btn_short_press(self):
-        print("[BluetoothService] - Scanning")
-        asyncio.run(self.scan())
 
-
-    def on_bluetooth_btn_long_press(self):
-        pass
-
-        
-    async def start(self):
-        pass
-        # await asyncio.gather(
-        #     self.scan(),
-        #     self.get_data()
-        # )
+        await asyncio.gather(
+            self.get_data()
+        )
 
     
     def configure(self):
@@ -149,9 +147,6 @@ class BluetoothService(BaseService):
             for device_data in self.nearby_hrms:
                 if device_data[1] is not self.connection.device:
                     self.connect(self, device_data[1])
-        else:
-            # No active connection, do a scan instead.
-            self.scan(self)
 
 
     async def connect(self, device):
@@ -162,8 +157,15 @@ class BluetoothService(BaseService):
             print('[BluetoothService][TIMEOUT] - Could not connect to device.')
 
 
+    async def stop_scanning(self):
+        self.scanning = False
+        #self.light_service.set_led_bluetooth(False)
+
+
     async def scan(self):
         if not self.scanning:
+            print("[BluetoothService] - Scanning")
+            #asyncio.run(self.light_service.led_bluetooth_blink(500))
             self.scanning = True
             self.disconnect()
             self.nearby_hrms.clear()
@@ -175,9 +177,10 @@ class BluetoothService(BaseService):
                         if self._SVC_HEART_RATE in device_services:
                             self.nearby_hrms.append((result.name, result.device))
             
-            self.scanning = False
-                  
+            self.stop_scanning()
             if(len(self.nearby_hrms) == 0):
                 print('[BluetoothService] - No heart rate monitor found.')
             else:
                 self.connect(self, result.device)
+        else:
+            print("[BluetoothService] - Scan Already In Progress")
