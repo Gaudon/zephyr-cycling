@@ -11,8 +11,8 @@ class ServiceLocator:
     def get(self, service_class):
         for service in self.services:
             if isinstance(service, service_class):
-                return service_class(service)
-        return service_class(None)
+                return service
+        raise Exception("[SYSTEM] - Critical Service Failure")
     
     
     def get_services(self):

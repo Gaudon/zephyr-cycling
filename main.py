@@ -19,7 +19,7 @@ async def main():
     ############################
     service_locator.register(ConfigService())
     operation_mode = service_locator.get(ConfigService).get_operation_mode()
-    
+
     ############################
     # Service Initialization
     ############################

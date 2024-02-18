@@ -60,8 +60,10 @@ class UartService(BaseService):
     
     
     async def receive_heart_rate_data(self):
-        print(json.loads(self.uart.read().decode()))
-        #print("Data Received: {0} [{1}]".format(self.command.get_command_type(), self.command.get_payload()))
+        self.data_rec = self.uart.read()
+        if self.data_rec is not None:
+            print(self.data_rec)
+            #print(json.loads(self.data_rec.decode()))
 
     
     async def run(self):
