@@ -41,7 +41,7 @@ class UartService(BaseService):
         self.uart.init(self.baud_rate, bits = self.buffer_size, parity = None, stop = 1)
 
         # Data
-        self.command = None
+        self.message = None
 
 
     async def start(self):       
@@ -50,23 +50,24 @@ class UartService(BaseService):
         )
 
 
-    def update_data(self, command_data: Command):
-        self.command = command_data
+    def update_data(self, message: str):
+        self.message = message
 
 
     async def transmit_heart_rate_data(self):
-        if self.command is not None:
-            print("Sending Command: {0}".format(self.command))
-            self.uart.write(bytearray(json.dumps(self.command).encode()))
-            self.command = None
+        if self.message is not None:
+            print("Sending Message: {0}".format(self.message))
+            self.uart.write(bytes(self.message + '\n', 'utf-8'))
+            self.message = None
     
     
     async def receive_heart_rate_data(self):
-        self.data_rec = self.uart.read()
+        while self.uart.any() > 0:
+            self.data_rec = self.uart.read()  
+        
         if self.data_rec is not None:
             print(self.data_rec)
             self.data_rec = None
-            #print(json.loads(self.data_rec.decode()))
 
     
     async def run(self):
