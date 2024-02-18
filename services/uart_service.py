@@ -1,6 +1,6 @@
 import machine
 import asyncio
-import pickle
+import json
 
 from machine import UART, Pin
 from data.command import Command
@@ -56,12 +56,12 @@ class UartService(BaseService):
 
     async def transmit_heart_rate_data(self):
         if self.command is not None:
-            self.uart.write(pickle.dump(self.command))
+            self.uart.write(bytearray(json.dumps(self.command).encode()))
     
     
     async def receive_heart_rate_data(self):
-        self.command = pickle.load(self.uart.read())
-        print("Data Received: {0} [{1}]".format(self.command.get_command_type(), self.command.get_payload()))
+        print(json.loads(self.uart.read().decode()))
+        #print("Data Received: {0} [{1}]".format(self.command.get_command_type(), self.command.get_payload()))
 
     
     async def run(self):

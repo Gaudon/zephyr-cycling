@@ -12,6 +12,7 @@ from services.config_service import ConfigService
 from services.uart_service import UartService
 from services.input_service import InputService
 from services.base_service import BaseService
+from data.command import Command
 
 
 class BluetoothService(BaseService):
@@ -57,7 +58,8 @@ class BluetoothService(BaseService):
 
         
     def on_bluetooth_btn_short_press(self):
-        self.scan_ready = True
+        data = Command(Command.COMMAND_TYPE_HEART_RATE, "test data")
+        self.uart_service.update_data(data)
 
 
     def on_bluetooth_btn_long_press(self):
