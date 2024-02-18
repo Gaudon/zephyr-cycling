@@ -61,18 +61,16 @@ class UartService(BaseService):
 
     async def transmit_heart_rate_data(self):
         if self.message is not None:
-            print("Sending Message: {0}".format(self.message))
-            self.uart.write(bytes(self.message + '\n', 'utf-8'))
+            self.uart.write(bytes(self.message, 'utf-8'))
             self.message = None
     
     
     async def receive_heart_rate_data(self):
         while self.uart.any() > 0:
-            print("Data Available")
             self.data_rec = self.uart.readline()  
         
         if self.data_rec is not None:
-            print(self.data_rec)
+            print("[UartService] : Data Received - {0}".format(self.data_rec))
             self.data_rec = None
 
     

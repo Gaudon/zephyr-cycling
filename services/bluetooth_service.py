@@ -3,6 +3,8 @@ import aioble
 import bluetooth
 import asyncio
 import micropython
+import random
+import json
 
 from micropython import const
 
@@ -58,8 +60,8 @@ class BluetoothService(BaseService):
 
         
     def on_bluetooth_btn_short_press(self):
-        #data = Command(Command.COMMAND_TYPE_HEART_RATE, "test data")
-        self.uart_service.update_data("This is a test")
+        command = Command(Command.COMMAND_TYPE_HEART_RATE, random.randint(60,100))
+        self.uart_service.update_data(str(json.dumps(command.__dict__)))
 
 
     def on_bluetooth_btn_long_press(self):
