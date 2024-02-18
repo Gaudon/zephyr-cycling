@@ -57,12 +57,14 @@ class UartService(BaseService):
     async def transmit_heart_rate_data(self):
         if self.command is not None:
             self.uart.write(bytearray(json.dumps(self.command).encode()))
+            self.command = None
     
     
     async def receive_heart_rate_data(self):
         self.data_rec = self.uart.read()
         if self.data_rec is not None:
             print(self.data_rec)
+            self.data_rec = None
             #print(json.loads(self.data_rec.decode()))
 
     
