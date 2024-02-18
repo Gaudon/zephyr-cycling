@@ -41,7 +41,10 @@ class UartService(BaseService):
             self.uart_id, 
             baudrate = self.baud_rate, 
             tx = int(self.config_service.get(UartService.CONFIG_UART_TX_PIN)),
-            rx = int(self.config_service.get(UartService.CONFIG_UART_RX_PIN))
+            rx = int(self.config_service.get(UartService.CONFIG_UART_RX_PIN)),
+            txbuf = 1024,
+            rxbuf = 1024,
+            timeout_char = 100
         )
         self.uart.init(self.baud_rate, bits = self.buffer_size)
 
@@ -61,7 +64,7 @@ class UartService(BaseService):
 
     async def transmit_heart_rate_data(self):
         if self.message is not None:
-            self.uart.write(self.message + '\n')
+            self.uart.write(self.message)
             self.message = None
     
     
