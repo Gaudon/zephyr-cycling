@@ -5,14 +5,14 @@ class ServiceLocator:
 
     def register(self, service):
         self.services.append(service)
-        print("Service Registered [{}]".format(type(service).__name__))
+        print("[ServiceLocator] : Service Registered [{}]".format(type(service).__name__))
         
         
     def get(self, service_class):
         for service in self.services:
             if isinstance(service, service_class):
                 return service
-        raise Exception("[SYSTEM] - Critical Service Failure")
+        raise Exception("[SYSTEM] : Service Failure - Required Service Missing")
     
     
     def get_services(self):

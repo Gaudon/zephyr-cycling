@@ -58,7 +58,6 @@ class BluetoothService(BaseService):
 
         
     def on_bluetooth_btn_short_press(self):
-        print("Sending Command")
         data = Command(Command.COMMAND_TYPE_HEART_RATE, "test data")
         self.uart_service.update_data(data)
 

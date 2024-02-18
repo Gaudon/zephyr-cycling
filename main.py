@@ -35,6 +35,8 @@ async def main():
     service_locator.register(UartService(operation_mode, 0.05))
     service_locator.register(BluetoothService(operation_mode, 1))
     
+    print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
+
     # Start Services
     coroutines = []
     for service in service_locator.get_services():
