@@ -17,9 +17,8 @@ class InputService(BaseService):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.config_service = service_locator.get(ConfigService)
         self.long_press_duration_ms = 3000
-        
+        self.buttons = []
         if self.operation_mode == ConfigService.OP_MODE_PRIMARY:
-            self.buttons = []
             self.buttons.append(
                 Button(
                     self.config_service.get("BTN_BLUETOOTH_SYNC_PIN"), 
