@@ -17,12 +17,12 @@ class ConfigService():
     def __init__(self):
         self.config_file_name = 'config.txt'
         self.data = {}
-        self.operation_mode = ConfigService.OP_MODE_PRIMARY
-        return self.load_config_file()
+        self.load_config_file()
+        self.operation_mode = self.get(ConfigService.CONFIG_OPERATION_MODE)
     
     
     async def start(self):
-        self.operation_mode = self.get(ConfigService.CONFIG_OPERATION_MODE)
+        pass
     
     
     def get_operation_mode(self):
