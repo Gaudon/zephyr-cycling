@@ -37,8 +37,13 @@ class UartService(BaseService):
         self.data_rec = [self.buffer_size]
 
         # Uart
-        self.uart = UART(self.uart_id, self.baud_rate)
-        self.uart.init(self.baud_rate, bits = self.buffer_size, parity = None, stop = 1)
+        self.uart = UART(
+            self.uart_id, 
+            baudrate = self.baud_rate, 
+            tx = int(self.config_service.get(UartService.CONFIG_UART_TX_PIN)),
+            rx = int(self.config_service.get(UartService.CONFIG_UART_RX_PIN))
+        )
+        self.uart.init(self.baud_rate, bits = self.buffer_size)
 
         # Data
         self.message = None
