@@ -196,7 +196,7 @@ class BluetoothService(BaseService):
                     # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
                     data = await hrm_char.notified()
                     print("HRM Data Received - {} bpm".format(data[1]))
-                    command.payload = data
+                    command.payload = data[1]
                     self.uart_service.update_data(str(json.dumps(command.__dict__)))
                 except Exception as e:
                     print(type(e).__name__)
