@@ -1,9 +1,9 @@
-class Command:
+class HeartRateCommand:
 
-    COMMAND_TYPE_HEART_RATE = "CMD_HR"
+    COMMAND_HEART_RATE = "HeartRateCommand"
 
     def __init__(self, command_type, payload):
-        self.command_type = command_type
+        self.command_type = HeartRateCommand.COMMAND_HEART_RATE
         self.payload = payload
 
 

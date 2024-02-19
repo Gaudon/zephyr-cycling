@@ -14,7 +14,7 @@ from services.config_service import ConfigService
 from services.uart_service import UartService
 from services.input_service import InputService
 from services.base_service import BaseService
-from data.command import Command
+from data.heart_rate_command import HeartRateCommand
 
 
 class BluetoothService(BaseService):
@@ -39,7 +39,6 @@ class BluetoothService(BaseService):
         self.connection = None
         self.scan_ready = False
         self.nearby_hrms = []
-        self.data = None
         self.scanning = False
         self.reconnect_interval = 10
         
@@ -60,7 +59,7 @@ class BluetoothService(BaseService):
 
         
     def on_bluetooth_btn_short_press(self):
-        command = Command(Command.COMMAND_TYPE_HEART_RATE, random.randint(60,100))
+        command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, random.randint(60,100))
         self.uart_service.update_data(str(json.dumps(command.__dict__)))
 
 
@@ -106,7 +105,7 @@ class BluetoothService(BaseService):
         hrm_service = None
         hrm_char = None
         self.hrm_subscribed = False
-        
+        command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, None)
         while True:            
             if self.connection is not None:
                 try:
@@ -124,10 +123,10 @@ class BluetoothService(BaseService):
                    
                     # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
                     data = await hrm_char.notified()
-                    flag_data = data[0]
-                    self.data = data[1]
-                    self.uart_service.update_data(data)
-                    print("HRM Data Received - {} bpm".format(self.data))
+                    print("HRM Data Received - {} bpm".format(data[1]))
+                    command.payload = data
+                    self.uart_service.update_data(str(json.dumps(command.__dict__)))
+                    print("HRM Data Received - {} bpm".format(data[1]))
                 except Exception as e:
                     print(type(e).__name__)
                     print("[BluetoothService][Exception] - {}".format(e))
