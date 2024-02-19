@@ -70,7 +70,7 @@ class UartService(BaseService):
     
     async def receive_heart_rate_data(self):
         while self.uart.any() > 0:
-            self.data_rec = self.uart.readline()
+            self.data_rec = self.uart.read()
         
         if self.data_rec is not None:
             print("[UartService] : Data Received - {0}".format(self.data_rec))
