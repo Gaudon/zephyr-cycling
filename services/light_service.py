@@ -42,7 +42,7 @@ class LightService(BaseService):
         self.led_bluetooth_blinking = enabled
 
 
-    async def update_bluetooth_led(self, blink_rate_ms=250):
+    async def update_bluetooth_led(self, blink_rate_ms=100):
         while True:
             if self.led_bluetooth_blinking:
                 await asyncio.sleep(blink_rate_ms/1000)
