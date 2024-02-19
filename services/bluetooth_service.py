@@ -51,7 +51,7 @@ class BluetoothService(BaseService):
         aioble.Characteristic(self.svc_device_info, self._CHAR_HARDWARE_REV_STR, read=True, initial='0.0.1')
         
         # Heart Rate
-        self.svc_heart_rate = aioble.Service(self._SVC_HEART_RATE)
+        self.svc_heart_rate = aioble.Service(self._UUID_HEART_RATE_SERVICE)
         aioble.Characteristic(self.svc_heart_rate, self._CHAR_HEART_RATE_MEASUREMENT, read=True)
         
         # Register Services
@@ -59,8 +59,9 @@ class BluetoothService(BaseService):
 
         
     def on_bluetooth_btn_short_press(self):
-        command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, random.randint(60,100))
-        self.uart_service.update_data(str(json.dumps(command.__dict__)))
+        #command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, random.randint(60,100))
+        #self.uart_service.update_data(str(json.dumps(command.__dict__)))
+        self.scan_ready = True
 
 
     def on_bluetooth_btn_long_press(self):
@@ -92,14 +93,17 @@ class BluetoothService(BaseService):
         self.ble = bluetooth.BLE()
         self.ble.active(True)
         self._SVC_DEVICE_INFO = bluetooth.UUID(0x180A)
-        self._SVC_HEART_RATE = bluetooth.UUID(0x180D)
+        self._UUID_HEART_RATE_SERVICE = bluetooth.UUID(0x180D)
+        self._UUID_CYCLING_SPEED_AND_CADENCE = bluetooth.UUID(0x1816)
         self._CHAR_HEART_RATE_MEASUREMENT = bluetooth.UUID(0x2A37)
         self._CHAR_MANUFACTURER_NAME_STR = bluetooth.UUID(0x2A29)
+
         self._CHAR_MODEL_NUMBER_STR = bluetooth.UUID(0x2A24)
         self._CHAR_SERIAL_NUMBER_STR = bluetooth.UUID(0x2A25)
         self._CHAR_FIRMWARE_REV_STR = bluetooth.UUID(0x2A26)
         self._CHAR_HARDWARE_REV_STR = bluetooth.UUID(0x2A27)
     
+        self.supported_services = [self._UUID_HEART_RATE_SERVICE, self._UUID_CYCLING_SPEED_AND_CADENCE]
     
     async def get_data(self):
         hrm_service = None
@@ -110,12 +114,10 @@ class BluetoothService(BaseService):
             if self.connection is not None:
                 try:
                     if hrm_service is None:
-                        hrm_service = await self.connection.service(self._SVC_HEART_RATE)
-                        print("Service : {}".format(hrm_service.uuid))
+                        hrm_service = await self.connection.service(self._UUID_HEART_RATE_SERVICE)
                    
                     if hrm_char is None:
                         hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
-                        print("Characteristic : {}".format(hrm_char.uuid))
                      
                     if self.hrm_subscribed is False: 
                         await hrm_char.subscribe(notify=True)
@@ -126,7 +128,6 @@ class BluetoothService(BaseService):
                     print("HRM Data Received - {} bpm".format(data[1]))
                     command.payload = data
                     self.uart_service.update_data(str(json.dumps(command.__dict__)))
-                    print("HRM Data Received - {} bpm".format(data[1]))
                 except Exception as e:
                     print(type(e).__name__)
                     print("[BluetoothService][Exception] - {}".format(e))
@@ -192,15 +193,13 @@ class BluetoothService(BaseService):
                 
                 async with aioble.scan(10000, 1280000, 11250, True) as scanner:
                     async for result in scanner:
-                        if result.connectable:
-                            device_services = result.services()
-                            if self._SVC_HEART_RATE in device_services:
-                                self.nearby_hrms.append((result.name, result.device))
+                        if any(service in result.services() for service in self.supported_services):
+                            self.nearby_hrms.append((result.name(), result.device))
                 
                 self.stop_scanning()
                 if(len(self.nearby_hrms) == 0):
                     print('[BluetoothService] - No heart rate monitor found.')
                 else:
-                    await self.connect(result.device)
+                    await self.connect(self.nearby_hrms[0][1])
 
             await asyncio.sleep(self.thread_sleep_time)

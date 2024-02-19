@@ -31,6 +31,7 @@ class LightService(BaseService):
     
 
     def set_led_bluetooth(self, enabled):
+        self.led_bluetooth_blinking = False
         if not enabled:
             self.led_bluetooth_pin.on()
         else:
@@ -50,5 +51,4 @@ class LightService(BaseService):
                 else:
                     self.set_led_bluetooth(True)
             else:
-                self.set_led_bluetooth(False)
                 await asyncio.sleep(self.thread_sleep_time)
