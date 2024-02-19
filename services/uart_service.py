@@ -34,7 +34,7 @@ class UartService(BaseService):
         self.rx_pin = machine.Pin(int(self.config_service.get(UartService.CONFIG_UART_RX_PIN)), machine.Pin.IN)
         self.buffer_size = int(self.config_service.get(UartService.CONFIG_UART_BUFFER_SIZE))
         self.baud_rate = int(self.config_service.get(UartService.CONFIG_UART_BAUD_RATE))
-        self.data_rec = [self.buffer_size]
+        self.data_rec = bytearray()
 
         # Uart
         self.uart = UART(
@@ -73,8 +73,8 @@ class UartService(BaseService):
             self.data_rec = self.uart.read()
         
         if self.data_rec is not None:
-            print(type(self.data_rec))
-            print("[UartService] : Data Received - {0}".format(self.data_rec))
+            heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
+            print("[UartService] : Data Received - {0} bpm - {1}".format(heart_rate_value, self.data_rec))
             self.data_rec = None
 
     
