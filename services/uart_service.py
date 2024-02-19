@@ -3,7 +3,7 @@ import asyncio
 import json
 
 from machine import UART, Pin
-from data.command import Command
+from data.heart_rate_command import HeartRateCommand
 from service_manager import service_locator
 from services.config_service import ConfigService
 from services.input_service import InputService
