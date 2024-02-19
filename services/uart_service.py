@@ -73,11 +73,13 @@ class UartService(BaseService):
             self.data_rec = self.uart.read()
         
         if self.data_rec is not None:
-            heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
-            print("[UartService] : Data Received - {0} bpm - {1}".format(heart_rate_value, self.data_rec))
-            self.data_rec = None
+            try:
+                heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
+                print("[UartService] : Data Received - {0} bpm - {1}".format(heart_rate_value, self.data_rec))
+                self.data_rec = None
+            except:
+                pass
 
-    
     async def run(self):
         while True:    
             if self.uart_mode_primary:
