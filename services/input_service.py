@@ -18,7 +18,7 @@ class InputService(BaseService):
         self.config_service = service_locator.get(ConfigService)
         self.long_press_duration_ms = 3000
         self.buttons = []
-        if self.operation_mode == ConfigService.OP_MODE_PRIMARY:
+        if self.operation_mode == ConfigService._OP_MODE_PRIMARY:
             self.buttons.append(
                 Button(
                     self.config_service.get("BTN_BLUETOOTH_SYNC_PIN"), 
@@ -30,7 +30,7 @@ class InputService(BaseService):
 
     
     async def start(self):
-        if self.config_service.get_operation_mode() == ConfigService.OP_MODE_PRIMARY:
+        if self.config_service.get_operation_mode() == ConfigService._OP_MODE_PRIMARY:
             await asyncio.gather(
                 self.check_inputs()
             )

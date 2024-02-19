@@ -12,8 +12,8 @@ class BaseService:
 
 
 	def is_primary_op_mode(self):
-		return self.operation_mode == ConfigService.OP_MODE_PRIMARY
+		return self.operation_mode == ConfigService._OP_MODE_PRIMARY
 
 
 	def is_secondary_op_mode(self):
-		return self.operation_mode == ConfigService.OP_MODE_SECONDARY
+		return self.operation_mode == ConfigService._OP_MODE_SECONDARY

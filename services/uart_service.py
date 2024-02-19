@@ -29,7 +29,7 @@ class UartService(BaseService):
 
         # Configuration
         self.uart_id = int(self.config_service.get(UartService.CONFIG_UART_ID))
-        self.uart_mode_primary = (operation_mode == ConfigService.OP_MODE_PRIMARY)
+        self.uart_mode_primary = (operation_mode == ConfigService._OP_MODE_PRIMARY)
         self.tx_pin = machine.Pin(int(self.config_service.get(UartService.CONFIG_UART_TX_PIN)), machine.Pin.OUT)
         self.rx_pin = machine.Pin(int(self.config_service.get(UartService.CONFIG_UART_RX_PIN)), machine.Pin.IN)
         self.buffer_size = int(self.config_service.get(UartService.CONFIG_UART_BUFFER_SIZE))

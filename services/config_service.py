@@ -1,24 +1,23 @@
 import uos
-import bluetooth
 
 
 class ConfigService():
     
-    OP_MODE_PRIMARY = "PRIMARY"
-    OP_MODE_SECONDARY = "SECONDARY"
-    CONFIG_OPERATION_MODE = "OPERATION_MODE"
+    _OP_MODE_PRIMARY = "PRIMARY"
+    _OP_MODE_SECONDARY = "SECONDARY"
+    _CONFIG_OPERATION_MODE = "OPERATION_MODE"
     
     # PIN DEFINITIONS
-    BTN_BLUETOOTH_SYNC_PIN = "BTN_BLUETOOTH_SYNC_PIN"
-    LED_POWER_PIN = "LED_POWER_PIN"
-    LED_BLUETOOTH_PIN = "LED_BLUETOOTH_PIN"
+    _BTN_BLUETOOTH_SYNC_PIN = "BTN_BLUETOOTH_SYNC_PIN"
+    _LED_POWER_PIN = "LED_POWER_PIN"
+    _LED_BLUETOOTH_PIN = "LED_BLUETOOTH_PIN"
 
     
     def __init__(self):
         self.config_file_name = 'config.txt'
         self.data = {}
         self.load_config_file()
-        self.operation_mode = self.get(ConfigService.CONFIG_OPERATION_MODE)
+        self.operation_mode = self.get(ConfigService._CONFIG_OPERATION_MODE)
     
     
     async def start(self):
