@@ -104,37 +104,7 @@ class BluetoothService(BaseService):
         self._CHAR_HARDWARE_REV_STR = bluetooth.UUID(0x2A27)
     
         self.supported_services = [self._UUID_HEART_RATE_SERVICE, self._UUID_CYCLING_SPEED_AND_CADENCE]
-    
-    async def get_data(self):
-        hrm_service = None
-        hrm_char = None
-        self.hrm_subscribed = False
-        command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, None)
-        while True:            
-            if self.connection is not None:
-                try:
-                    if hrm_service is None:
-                        hrm_service = await self.connection.service(self._UUID_HEART_RATE_SERVICE)
-                   
-                    if hrm_char is None:
-                        hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
-                     
-                    if self.hrm_subscribed is False: 
-                        await hrm_char.subscribe(notify=True)
-                        self.hrm_subscribed = True
-                   
-                    # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
-                    data = await hrm_char.notified()
-                    print("HRM Data Received - {} bpm".format(data[1]))
-                    command.payload = data
-                    self.uart_service.update_data(str(json.dumps(command.__dict__)))
-                except Exception as e:
-                    print(type(e).__name__)
-                    print("[BluetoothService][Exception] - {}".format(e))
-                    self.connection = None
-                    self.data = None
-            await asyncio.sleep(1)
-                                
+                                   
     
     def get_bits(self, byte, start_bit, num_bits):
         mask = (1 << num_bits) - 1
@@ -203,3 +173,33 @@ class BluetoothService(BaseService):
                     await self.connect(self.nearby_hrms[0][1])
 
             await asyncio.sleep(self.thread_sleep_time)
+
+    
+    async def get_data(self):
+        hrm_service = None
+        hrm_char = None
+        hrm_subscribed = False
+        command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, None)
+        while True:            
+            if self.connection is not None:
+                try:
+                    if hrm_service is None:
+                        hrm_service = await self.connection.service(self._UUID_HEART_RATE_SERVICE) # type: ignore
+                   
+                    if hrm_char is None:
+                        hrm_char = await hrm_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
+                     
+                    if hrm_subscribed is False: 
+                        await hrm_char.subscribe(notify=True)
+                        hrm_subscribed = True
+                   
+                    # HRM Specificiation States Heart Rate Measurements Must Be Notified (Not Read)
+                    data = await hrm_char.notified()
+                    print("HRM Data Received - {} bpm".format(data[1]))
+                    command.payload = data
+                    self.uart_service.update_data(str(json.dumps(command.__dict__)))
+                except Exception as e:
+                    print(type(e).__name__)
+                    print("[BluetoothService][Exception] - {}".format(e))
+                    await self.disconnect()
+            await asyncio.sleep(1)

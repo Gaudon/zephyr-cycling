@@ -73,6 +73,7 @@ class UartService(BaseService):
             self.data_rec = self.uart.read()
         
         if self.data_rec is not None:
+            print(type(self.data_rec))
             print("[UartService] : Data Received - {0}".format(self.data_rec))
             self.data_rec = None
 
