@@ -108,10 +108,7 @@ class BluetoothTransmitService(BaseService):
 
     async def connected(self):
         while True:
-            if self.data is not None:
-                print("[BluetoothTransmitService] : Writing Data - {0}".format(self.data))
-                self.char_heart_rate_measurement.write(self.data)
-            if self.connection is not None:
+            if self.connection is not None and self.data is not None:
                 print("[BluetoothTransmitService] : Notifying Data - {0}".format(self.data))
                 self.char_heart_rate_measurement.notify(self.connection, self.data)
                     

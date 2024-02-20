@@ -54,9 +54,6 @@ class UartService(BaseService):
         # Listeners
         self.listeners = []
 
-        # Data
-        self.message = None
-
 
     async def start(self):       
         await asyncio.gather(
@@ -64,8 +61,9 @@ class UartService(BaseService):
         )
 
 
-    def update_data(self, message):
-        self.message = message
+    def update_data(self, data):
+        self.data_rec = data
+        print("[UartService] : Data Updated - {0}".format(data))
 
 
     def register_callback(self, type, function_handler):
@@ -75,9 +73,9 @@ class UartService(BaseService):
 
 
     async def transmit_heart_rate_data(self):
-        if self.message is not None:
-            self.uart.write(self.message)
-            self.message = None
+        if self.data_rec is not None:
+            self.uart.write(self.data_rec)
+            self.data_rec = None
     
     
     async def receive_heart_rate_data(self):
@@ -86,7 +84,7 @@ class UartService(BaseService):
         
         if self.data_rec is not None:
             try:
-                #heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
+                heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
                 print("[UartService] : Data Received - {1}".format(self.data_rec))
                 
                 for listener in self.listeners:
