@@ -64,7 +64,7 @@ class UartService(BaseService):
         )
 
 
-    def update_data(self, message: str):
+    def update_data(self, message):
         self.message = message
 
 
@@ -86,8 +86,8 @@ class UartService(BaseService):
         
         if self.data_rec is not None:
             try:
-                heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
-                #print("[UartService] : Data Received - {0} bpm - {1}".format(heart_rate_value, self.data_rec))
+                #heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
+                print("[UartService] : Data Received - {1}".format(self.data_rec))
                 
                 for listener in self.listeners:
                     if listener[0] == UartService.CALLBACK_RX:
