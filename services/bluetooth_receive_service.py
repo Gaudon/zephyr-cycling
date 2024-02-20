@@ -191,5 +191,6 @@ class BluetoothReceiveService(BaseService):
             self.heart_rate_data = await self.heart_rate_characteristic.notified()
             print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
             self.command.payload = self.heart_rate_data[1]
-            self.uart_service.update_data(str(json.dumps(self.command.__dict__)))
+            #self.uart_service.update_data(str(json.dumps(self.command.__dict__)))
+            self.uart_service.update_data(self.heart_rate_data)
             await asyncio.sleep(self.thread_sleep_time)
