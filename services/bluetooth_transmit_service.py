@@ -18,12 +18,12 @@ class BluetoothTransmitService(BaseService):
     _STATE_BROADCASTING = "BROADCASTING"
     
     # Must be multiple of 0.625ms
-    BLUETOOTH_ADVERTISING_INTERVAL = 250
+    BLUETOOTH_ADVERTISING_INTERVAL = 120_000
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
         
-        self.state = BluetoothTransmitService._STATE_IDLE
+        self.__state = BluetoothTransmitService._STATE_IDLE
         self.data = None
 
         # Services
@@ -37,7 +37,9 @@ class BluetoothTransmitService(BaseService):
 
         # Configuration
         self._SVC_DEVICE_INFO = bluetooth.UUID(0x180A)
+        self._UUID_HEART_RATE_SERVICE = bluetooth.UUID(0x180D)
         self._UUID_HEART_RATE_SENSOR = bluetooth.UUID(0x037F)
+        self._UUID_GENERIC_HEART_RATE_SENSOR = bluetooth.UUID(0x0340)
         self._CHAR_HEART_RATE_MEASUREMENT = bluetooth.UUID(0x2A37)
         self._CHAR_MANUFACTURER_NAME_STR = bluetooth.UUID(0x2A29)
         self._CHAR_MODEL_NUMBER_STR = bluetooth.UUID(0x2A24)
@@ -54,9 +56,9 @@ class BluetoothTransmitService(BaseService):
         aioble.Characteristic(self.svc_device_info, self._CHAR_HARDWARE_REV_STR, read=True, initial='0.0.1')
 
         # Heart Rate
-        self.svc_heart_rate = aioble.Service(self._UUID_HEART_RATE_SENSOR)
-        self.char_heart_rate_measurement = aioble.Characteristic(self.svc_heart_rate, self._CHAR_HEART_RATE_MEASUREMENT, read=True, notify=True)
-        
+        self.svc_heart_rate = aioble.Service(self._UUID_HEART_RATE_SERVICE)
+        self.char_heart_rate_measurement = aioble.Characteristic(self.svc_heart_rate, self._CHAR_HEART_RATE_MEASUREMENT, notify=True)
+
         # Register Callbacks
         self.uart_service.register_callback(UartService.CALLBACK_RX, self.on_data_received)
 
@@ -67,7 +69,7 @@ class BluetoothTransmitService(BaseService):
     async def start(self):
         await asyncio.gather(
             self.run(),
-            self.disconnected()
+            self.connected()
         )
 
 
@@ -76,12 +78,12 @@ class BluetoothTransmitService(BaseService):
             async with await aioble.advertise(
                 BluetoothTransmitService.BLUETOOTH_ADVERTISING_INTERVAL,
                 name="Zephyr HRM",
-                services=[self._UUID_HEART_RATE_SENSOR],
+                services=[self._UUID_HEART_RATE_SERVICE, self._UUID_HEART_RATE_SENSOR, self._UUID_GENERIC_HEART_RATE_SENSOR],
                 appearance=0x037F,
             ) as connection:
                 print("[BluetoothTransmitService] : Accepted Connection - Device ({0})".format(connection.device))
                 self.connection = connection
-                self.set_state(BluetoothTransmitService._STATE_PAIRED)
+                await connection.disconnected()
             await asyncio.sleep(random.uniform(0.01, 0.1))
 
     
@@ -96,32 +98,35 @@ class BluetoothTransmitService(BaseService):
 
 
     def on_data_received(self, data):
+        print("[BluetoothTransmitService] : Data Received - {0}".format(data))
         self.data = data
 
 
     async def paired(self):
+        await asyncio.sleep(self.thread_sleep_time)
+
+
+    async def connected(self):
         while True:
-            if self.connection is not None:
+            if self.data is not None:
+                print("[BluetoothTransmitService] : Writing Data - {0}".format(self.data))
                 self.char_heart_rate_measurement.write(self.data)
-                await self.connection.disconnected()
-
-
-    async def disconnected(self):
-        if self.connection is not None:
-            await self.connection.disconnected()
-            self.connection = None
-            self.set_state(BluetoothTransmitService._STATE_IDLE)
+            if self.connection is not None:
+                print("[BluetoothTransmitService] : Notifying Data - {0}".format(self.data))
+                self.char_heart_rate_measurement.notify(self.connection, self.data)
+                    
+            await asyncio.sleep(self.thread_sleep_time)
 
 
     async def run(self):
         while True:
-            if self.state == BluetoothTransmitService._STATE_IDLE:
+            if self.__state == BluetoothTransmitService._STATE_IDLE:
                 # Idle state should transition to broadcasting afer a period of inactivity.
                 await self.idle()
-            elif self.state == BluetoothTransmitService._STATE_BROADCASTING:
+            elif self.__state == BluetoothTransmitService._STATE_BROADCASTING:
                 # Wait for a connection request
                 await self.broadcasting()
-            elif self.state == BluetoothTransmitService._STATE_PAIRED:
+            elif self.__state == BluetoothTransmitService._STATE_PAIRED:
                 # Ensure connection still exists and do nothing
                 await self.paired()
 
