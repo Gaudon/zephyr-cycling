@@ -34,8 +34,11 @@ async def main():
     # Networking
     service_locator.register(WirelessService(operation_mode, 1))
     service_locator.register(UartService(operation_mode, 0.05))
-    service_locator.register(BluetoothReceiveService(operation_mode, 1))
-    service_locator.register(BluetoothTransmitService(operation_mode, 1))
+    
+    if operation_mode == ConfigService._OP_MODE_PRIMARY:
+        service_locator.register(BluetoothReceiveService(operation_mode, 1))
+    else:
+        service_locator.register(BluetoothTransmitService(operation_mode, 1))
 
     print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
 

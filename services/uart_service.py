@@ -19,6 +19,9 @@ class UartService(BaseService):
     CONFIG_UART_BUFFER_SIZE = "UART_BUFFER_SIZE"
     CONFIG_UART_BAUD_RATE = "UART_BAUD_RATE"
 
+    CALLBACK_RX = "RX"
+    CALLBACK_TX = "TX"
+
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
@@ -48,6 +51,9 @@ class UartService(BaseService):
         )
         self.uart.init(self.baud_rate, bits = self.buffer_size)
 
+        # Listeners
+        self.listeners = []
+
         # Data
         self.message = None
 
@@ -60,6 +66,12 @@ class UartService(BaseService):
 
     def update_data(self, message: str):
         self.message = message
+
+
+    def register_callback(self, type, function_handler):
+        self.listeners.append(
+            (type, function_handler)
+        )
 
 
     async def transmit_heart_rate_data(self):
@@ -76,9 +88,15 @@ class UartService(BaseService):
             try:
                 heart_rate_value = json.loads(self.data_rec.decode('utf-8'))['payload']
                 print("[UartService] : Data Received - {0} bpm - {1}".format(heart_rate_value, self.data_rec))
+                
+                for listener in self.listeners:
+                    if listener[0] == UartService.CALLBACK_RX:
+                        listener[1](self.data_rec)
+                
                 self.data_rec = None
             except:
                 pass
+
 
     async def run(self):
         while True:    

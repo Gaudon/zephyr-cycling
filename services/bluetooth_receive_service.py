@@ -35,6 +35,7 @@ class BluetoothReceiveService(BaseService):
         self.heart_rate_characteristic = None
         self.heart_rate_subscription = False
         self.heart_rate_data = None
+        self.banned_device_names = ['Zephyr HRM']
         self.command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, None)
 
         # Services
@@ -63,9 +64,9 @@ class BluetoothReceiveService(BaseService):
 
         # Device Info
         self.svc_device_info = aioble.Service(self._SVC_DEVICE_INFO)        
-        aioble.Characteristic(self.svc_device_info, self._CHAR_MANUFACTURER_NAME_STR, read=True, initial='Pico Fan')
-        aioble.Characteristic(self.svc_device_info, self._CHAR_MODEL_NUMBER_STR, read=True, initial='PF-0001')
-        aioble.Characteristic(self.svc_device_info, self._CHAR_SERIAL_NUMBER_STR, read=True, initial='G-PF-982987')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_MANUFACTURER_NAME_STR, read=True, initial='Zephyr Fan')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_MODEL_NUMBER_STR, read=True, initial='ZF-0001')
+        aioble.Characteristic(self.svc_device_info, self._CHAR_SERIAL_NUMBER_STR, read=True, initial='G-ZF-982987')
         aioble.Characteristic(self.svc_device_info, self._CHAR_FIRMWARE_REV_STR, read=True, initial='0.0.1')
         aioble.Characteristic(self.svc_device_info, self._CHAR_HARDWARE_REV_STR, read=True, initial='0.0.1')
         
@@ -107,7 +108,7 @@ class BluetoothReceiveService(BaseService):
         )
 
     def set_state(self, state):
-        print("[BluetoothService] : State Changed - {0}".format(state))
+        print("[BluetoothReceiveService] : State Changed - {0}".format(state))
         self.__state = state
 
 
@@ -136,19 +137,21 @@ class BluetoothReceiveService(BaseService):
             async with aioble.scan(10000, 1280000, 11250, True) as scanner:
                 async for result in scanner:
                     if any(service in result.services() for service in self.supported_services):
-                        self.nearby_heart_rate_services.append((result.name(), result.device))
+                        # Do not pair with the transmission chip
+                        if result.name() not in self.banned_device_names:
+                            self.nearby_heart_rate_services.append((result.name(), result.device))
 
         self.set_state(BluetoothReceiveService._STATE_SCAN_STARTED)
 
         if(len(self.nearby_heart_rate_services) == 0):
-            print('[BluetoothService] : No Connection - Heart rate monitor not found.')
+            print('[BluetoothReceiveService] : No Connection - Heart rate monitor not found.')
             self.set_state(BluetoothReceiveService._STATE_IDLE)
         else:
             try:
                 self.connection = await self.nearby_heart_rate_services[0][1].connect(timeout_ms=10000)
                 self.set_state(BluetoothReceiveService._STATE_CONNECTING)
             except asyncio.TimeoutError:
-                print('[BluetoothService] : Connection Timeout - Could not connect to device.')
+                print('[BluetoothReceiveService] : Connection Timeout - Could not connect to device.')
                 self.set_state(BluetoothReceiveService._STATE_IDLE)
             
 
@@ -178,14 +181,15 @@ class BluetoothReceiveService(BaseService):
             self.set_state(BluetoothReceiveService._STATE_CONNECTED)
         except Exception as e:
                 print(type(e).__name__)
-                print("[BluetoothService] : Exception - {0}".format(e))
+                print("[BluetoothReceiveService] : Exception - {0}".format(e))
                 await self.disconnect()
 
 
     async def connected(self):      
         # HRM Specification States Heart Rate Measurements Cannot be Read Directly
-        self.heart_rate_data = await self.heart_rate_characteristic.notified()
-        print("[BluetoothService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
-        self.command.payload = self.heart_rate_data[1]
-        self.uart_service.update_data(str(json.dumps(self.command.__dict__)))
-        await asyncio.sleep(self.thread_sleep_time)
+        if self.heart_rate_characteristic is not None:
+            self.heart_rate_data = await self.heart_rate_characteristic.notified()
+            print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
+            self.command.payload = self.heart_rate_data[1]
+            self.uart_service.update_data(str(json.dumps(self.command.__dict__)))
+            await asyncio.sleep(self.thread_sleep_time)
