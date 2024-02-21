@@ -1,9 +1,7 @@
 import machine
 import asyncio
-import json
 
-from machine import UART, Pin
-from data.heart_rate_command import HeartRateCommand
+from machine import UART
 from service_manager import service_locator
 from services.config_service import ConfigService
 from services.input_service import InputService
@@ -62,6 +60,7 @@ class UartReceiveService(BaseService):
 
     def update_data(self, data):
         self.data = data
+        print("[UartReceiveService] : Data Updated - {0}".format(data))
 
 
     def register_callback(self, function_handler):
@@ -75,10 +74,8 @@ class UartReceiveService(BaseService):
         if self.data is not None:
             try:
                 print("[UartReceiveService] : Data Received - {1}".format(self.data))
-                
                 for listener in self.listeners:
                     await listener(self.data)
-                
                 self.data = None
             except:
                 pass
