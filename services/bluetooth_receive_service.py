@@ -183,6 +183,6 @@ class BluetoothReceiveService(BaseService):
         # HRM Specification States Heart Rate Measurements Cannot be Read Directly
         if self.heart_rate_characteristic is not None:
             self.heart_rate_data = await self.heart_rate_characteristic.notified()
-            print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
+            #print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
             self.uart_transmit_service.update_data(bytes(self.heart_rate_data))
             await asyncio.sleep(self.thread_sleep_time)
