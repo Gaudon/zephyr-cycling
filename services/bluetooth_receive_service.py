@@ -11,7 +11,7 @@ from micropython import const
 from service_manager import service_locator
 from services.light_service import LightService
 from services.config_service import ConfigService
-from services.uart_service import UartService
+from services.uart_transmit_service import UartTransmitService
 from services.input_service import InputService
 from services.base_service import BaseService
 from data.heart_rate_command import HeartRateCommand
@@ -39,7 +39,7 @@ class BluetoothReceiveService(BaseService):
         self.command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, None)
 
         # Services
-        self.uart_service = service_locator.get(UartService)
+        self.uart_transmit_service = service_locator.get(UartTransmitService)
         self.input_service = service_locator.get(InputService)
         self.config_service = service_locator.get(ConfigService)
         self.light_service = service_locator.get(LightService)
@@ -134,7 +134,7 @@ class BluetoothReceiveService(BaseService):
 
     async def scanning(self):
         if not self.__state == BluetoothReceiveService._STATE_SCAN_STARTED:
-            async with aioble.scan(10000, 1280000, 11250, True) as scanner:
+            async with aioble.scan(20000, 1280000, 11250, True) as scanner:
                 async for result in scanner:
                     if any(service in result.services() for service in self.supported_services):
                         # Do not pair with the transmission chip
@@ -191,6 +191,5 @@ class BluetoothReceiveService(BaseService):
             self.heart_rate_data = await self.heart_rate_characteristic.notified()
             print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
             self.command.payload = self.heart_rate_data[1]
-            #self.uart_service.update_data(str(json.dumps(self.command.__dict__)))
-            self.uart_service.update_data(self.heart_rate_data)
+            self.uart_transmit_service.update_data(self.heart_rate_data)
             await asyncio.sleep(self.thread_sleep_time)

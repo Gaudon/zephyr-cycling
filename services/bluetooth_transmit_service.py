@@ -7,7 +7,7 @@ from micropython import const
 
 from service_manager import service_locator
 from services.config_service import ConfigService
-from services.uart_service import UartService
+from services.uart_receive_service import UartReceiveService
 from services.base_service import BaseService
 
 
@@ -28,7 +28,7 @@ class BluetoothTransmitService(BaseService):
 
         # Services
         self.config_service = service_locator.get(ConfigService)
-        self.uart_service = service_locator.get(UartService)
+        self.uart_service = service_locator.get(UartReceiveService)
         self.connection = None
         
         # Bluetooth
@@ -60,7 +60,7 @@ class BluetoothTransmitService(BaseService):
         self.char_heart_rate_measurement = aioble.Characteristic(self.svc_heart_rate, self._CHAR_HEART_RATE_MEASUREMENT, notify=True)
 
         # Register Callbacks
-        self.uart_service.register_callback(UartService.CALLBACK_RX, self.on_data_received)
+        self.uart_service.register_callback(self.on_data_received)
 
         # Register Services
         aioble.register_services(self.svc_device_info, self.svc_heart_rate)

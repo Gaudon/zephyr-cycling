@@ -11,7 +11,8 @@ from services.bluetooth_receive_service import BluetoothReceiveService
 from services.bluetooth_transmit_service import BluetoothTransmitService
 from services.light_service import LightService
 from services.input_service import InputService
-from services.uart_service import UartService
+from services.uart_receive_service import UartReceiveService
+from services.uart_transmit_service import UartTransmitService
 
 
 async def main():
@@ -31,13 +32,12 @@ async def main():
     # Output
     service_locator.register(LightService(operation_mode, 0.05))
     
-    # Networking
-    service_locator.register(WirelessService(operation_mode, 1))
-    service_locator.register(UartService(operation_mode, 0.05))
-    
     if operation_mode == ConfigService._OP_MODE_PRIMARY:
+        service_locator.register(WirelessService(operation_mode, 1))
+        service_locator.register(UartTransmitService(operation_mode, 0.05))
         service_locator.register(BluetoothReceiveService(operation_mode, 1))
     else:
+        service_locator.register(UartReceiveService(operation_mode, 0.05))
         service_locator.register(BluetoothTransmitService(operation_mode, 1))
 
     print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
