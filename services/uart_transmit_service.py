@@ -61,6 +61,7 @@ class UartTransmitService(BaseService):
 
     async def transmit_heart_rate_data(self):
         if self.data is not None:
+            print("[UartTransmitService] : Sending Data - {0}".format(self.data))
             self.uart.write(self.data)
             self.data = None
     

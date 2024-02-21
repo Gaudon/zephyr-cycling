@@ -1,10 +1,6 @@
-import utime
 import aioble
 import bluetooth
 import asyncio
-import micropython
-import random
-import json
 
 from micropython import const
 
@@ -14,7 +10,6 @@ from services.config_service import ConfigService
 from services.uart_transmit_service import UartTransmitService
 from services.input_service import InputService
 from services.base_service import BaseService
-from data.heart_rate_command import HeartRateCommand
 
 
 class BluetoothReceiveService(BaseService):
@@ -36,7 +31,6 @@ class BluetoothReceiveService(BaseService):
         self.heart_rate_subscription = False
         self.heart_rate_data = None
         self.banned_device_names = ['Zephyr HRM']
-        self.command = HeartRateCommand(HeartRateCommand.COMMAND_HEART_RATE, None)
 
         # Services
         self.uart_transmit_service = service_locator.get(UartTransmitService)
@@ -169,13 +163,13 @@ class BluetoothReceiveService(BaseService):
 
     async def connecting(self):
         try:
-            if self.heart_rate_service is None:
-                self.heart_rate_service = await self.connection.service(self._UUID_HEART_RATE_SERVICE) # type: ignore
+            if not self.heart_rate_service and self.connection:
+                self.heart_rate_service = await self.connection.service(self._UUID_HEART_RATE_SERVICE)
             
-            if self.heart_rate_characteristic is None:
+            if not self.heart_rate_characteristic and self.heart_rate_service:
                 self.heart_rate_characteristic = await self.heart_rate_service.characteristic(self._CHAR_HEART_RATE_MEASUREMENT)
                 
-            if self.heart_rate_subscription is False: 
+            if not self.heart_rate_subscription and self.heart_rate_characteristic: 
                 await self.heart_rate_characteristic.subscribe(notify=True)
 
             self.set_state(BluetoothReceiveService._STATE_CONNECTED)
@@ -190,6 +184,5 @@ class BluetoothReceiveService(BaseService):
         if self.heart_rate_characteristic is not None:
             self.heart_rate_data = await self.heart_rate_characteristic.notified()
             print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
-            self.command.payload = self.heart_rate_data[1]
-            self.uart_transmit_service.update_data(self.heart_rate_data)
+            self.uart_transmit_service.update_data(bytes(self.heart_rate_data))
             await asyncio.sleep(self.thread_sleep_time)
