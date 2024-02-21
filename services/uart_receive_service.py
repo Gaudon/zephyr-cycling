@@ -49,7 +49,7 @@ class UartReceiveService(BaseService):
         self.listeners = []
 
         # Data
-        self.data = bytearray()
+        self.data = None
 
 
     async def start(self):       
@@ -58,22 +58,16 @@ class UartReceiveService(BaseService):
         )
 
 
-    def update_data(self, data):
-        self.data = data
-        print("[UartReceiveService] : Data Updated - {0}".format(data))
-
-
     def register_callback(self, function_handler):
         self.listeners.append(function_handler)
     
     
     async def receive_heart_rate_data(self):
-        while self.uart.any() > 0:
+        while self.uart.any():
             self.data = self.uart.read()
-        
-        if self.data is not None:
+
+        if self.data:
             try:
-                print("[UartReceiveService] : Data Received - {1}".format(self.data))
                 for listener in self.listeners:
                     await listener(self.data)
                 self.data = None

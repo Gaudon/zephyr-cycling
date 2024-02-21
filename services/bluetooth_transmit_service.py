@@ -98,7 +98,6 @@ class BluetoothTransmitService(BaseService):
 
 
     def on_data_received(self, data):
-        print("[BluetoothTransmitService] : Data Received - {0}".format(data))
         self.data = data
 
 
@@ -108,8 +107,7 @@ class BluetoothTransmitService(BaseService):
 
     async def connected(self):
         while True:
-            if self.connection is not None and self.data is not None:
-                print("[BluetoothTransmitService] : Notifying Data - {0}".format(self.data))
+            if self.connection and self.data:
                 self.char_heart_rate_measurement.notify(self.connection, self.data)
                     
             await asyncio.sleep(self.thread_sleep_time)
