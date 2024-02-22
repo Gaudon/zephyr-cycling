@@ -97,12 +97,12 @@ class BluetoothReceiveService(BaseService):
         )
 
         await asyncio.gather(
-            self.run()
-            #self.update_bluetooth_led()
+            self.run(),
+            self.update_bluetooth_led()
         )
 
+
     def set_state(self, state):
-        print("[BluetoothReceiveService] : State Changed - {0}".format(state))
         self.__state = state
 
 

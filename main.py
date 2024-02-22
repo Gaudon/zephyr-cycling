@@ -30,7 +30,7 @@ async def main():
     service_locator.register(InputService(operation_mode, 0.05))
     
     # Output
-    service_locator.register(LightService(operation_mode, 0.05))
+    service_locator.register(LightService(operation_mode, 0.5))
     
     if operation_mode == ConfigService._OP_MODE_PRIMARY:
         service_locator.register(WirelessService(operation_mode, 1))

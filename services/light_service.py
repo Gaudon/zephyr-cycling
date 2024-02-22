@@ -45,18 +45,19 @@ class LightService(BaseService):
         )
 
 
-    async def update_led_bluetooth(self, blink_rate_ms=50):
+    async def update_led_bluetooth(self, blink_rate_ms=500):
         while True:
             if self.led_bluetooth[2] == LightService._LED_STATE_OFF:
                 self.led_bluetooth[1].on()
+                await asyncio.sleep(self.thread_sleep_time)
             elif self.led_bluetooth[2] == LightService._LED_STATE_ON:
                 self.led_bluetooth[1].off() # Active Low
+                await asyncio.sleep(self.thread_sleep_time)
             elif self.led_bluetooth[2] == LightService._LED_STATE_BLINKING:
                 if self.led_bluetooth[1].value() == 0:
                     self.led_bluetooth[1].on()
                 else:
                     self.led_bluetooth[1].off()
-                await asyncio.sleep(blink_rate_ms)
-                continue
+                await asyncio.sleep(blink_rate_ms/1000)
 
-            await asyncio.sleep(self.thread_sleep_time)
+            
