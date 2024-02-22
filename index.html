@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zephyr</title>
+  <!-- Google Material Design Lite CSS -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+  <!-- Material Design Lite JavaScript -->
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  <style>
+    body {
+      background-color: #212121; /* Dark grey background */
+      color: white; /* White text */
+    }
+    .mdl-layout__header {
+      background-color: #424242; /* Dark grey header */
+    }
+    .mdl-layout-title {
+      color: white; /* White title text */
+    }
+    .mdl-textfield__label {
+      color: white; /* White label text */
+    }
+  </style>
+</head>
+<body>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title">Zephyr</span>
+      </div>
+    </header>
+    <main class="mdl-layout__content">
+      <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--12-col">
+          <form id="myForm">
+            <div class="mdl-grid">
+              <div class="mdl-cell mdl-cell--12-col">
+                <div class="mdl-textfield mdl-js-textfield">
+                  <input class="mdl-textfield__input" type="text" id="network-ssid" name="network-ssid">
+                  <label class="mdl-textfield__label" for="network-ssid">Network SSID</label>
+                </div>
+              </div>
+              <div class="mdl-cell mdl-cell--12-col">
+                <div class="mdl-textfield mdl-js-textfield">
+                  <input class="mdl-textfield__input" type="password" id="network-password" name="network-password">
+                  <label class="mdl-textfield__label" for="network-password">Network Password</label>
+                </div>
+              </div>
+              <div class="mdl-cell mdl-cell--12-col">
+                <div class="mdl-textfield mdl-js-textfield">
+                  <input class="mdl-textfield__input" type="number" id="max-heart-rate" name="max-heart-rate">
+                  <label class="mdl-textfield__label" for="max-heart-rate">Max Heart Rate</label>
+                </div>
+              </div>
+              <div class="mdl-cell mdl-cell--12-col">
+                <p>Max Fan Speed: <span id="fan-speed-value">50%</span></p>
+                <input type="range" id="max-fan-speed" name="max-fan-speed" min="0" max="100" value="50" class="mdl-slider mdl-js-slider" oninput="updateFanSpeed()">
+              </div>
+              <div class="mdl-cell mdl-cell--12-col">
+                <button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="margin-top: 20px;">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function updateFanSpeed() {
+      var slider = document.getElementById("max-fan-speed");
+      var value = document.getElementById("fan-speed-value");
+      value.innerText = slider.value + "%";
+    }
+  </script>
+</body>
+</html>
