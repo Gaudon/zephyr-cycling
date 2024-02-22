@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Configuration</title>
+    <!-- Include Google Material Design CSS -->
+    <link rel="stylesheet" href="../css/fonts.css">
+    <link rel="stylesheet" href="../css/materialize.css">
+    <style>
+        /* Dark theme styles */
+        body {
+            background: linear-gradient(to bottom, #151C2F, #010619);
+            color: #fff;
+        }
+        .container-box {
+            background-color: #444;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 0 auto;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Center the form */
+        .centered-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column; /* Added vertical spacing */
+        }
+        /* Add spacing between title and form */
+        h3 {
+            margin-bottom: 20px;
+        }
+        /* Style the image */
+        .logo-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="centered-form">
+        <div class="container-box">
+            <img src="../web/images/logo.jpg" alt="Zephyr Logo" class="logo-image">
+            <h3 class="center-align">Network Configuration</h3>
+            <form>
+                <div class="input-field">
+                    <input id="networkSSID" type="text" class="validate">
+                    <label for="networkSSID">Network SSID</label>
+                </div>
+                <div class="input-field">
+                    <input id="networkPassword" type="password" class="validate">
+                    <label for="networkPassword">Network Password</label>
+                </div>
+                <button class="btn waves-effect waves-light" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+    <!-- Include Materialize JS -->
+    <script src="../js/materialize.js"></script>
+</body>
+</html>

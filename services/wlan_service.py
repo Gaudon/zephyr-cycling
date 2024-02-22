@@ -10,8 +10,6 @@ from services.light_service import LightService
 from services.config_service import ConfigService
 from services.base_service import BaseService
 
-from microdot import Microdot
-
 
 class WirelessService(BaseService):
     
@@ -24,8 +22,7 @@ class WirelessService(BaseService):
         self.light_service = service_locator.get(LightService)
         self.config_service = service_locator.get(ConfigService)
 
-        # Wireless Interfaces
-        self.sta_if = network.WLAN(network.STA_IF)
+        # Wireless Access Point
         self.ap_if = network.WLAN(network.AP_IF)
         self.socket = None
         self.__state = WirelessService._STATE_DISCONNECTED
@@ -35,51 +32,40 @@ class WirelessService(BaseService):
 
 
     async def start(self):
-        self.sta_if = network.WLAN(network.STA_IF)
         self.ap_if = network.WLAN(network.AP_IF)
-        self.sta_if.active(True)
 
+        network.WLAN(network.STA_IF).active(False)
+
+        # Access Point Mode
+        self.ap_if.config(essid='Zephyr Wifi', password='Zephyr123', channel=11)
+        self.ap_if.active(True)
+        
+        
         await asyncio.gather(
             self.run() 
         )
 
 
     async def connected(self):
-        if self.socket is None:
-            self.address = socket.getaddrinfo('0.0.0.0', 80)[0][-1]
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.bind(self.address)
-            self.socket.listen(5)
-        else:
-            try:
-                client, addr = self.socket.accept()
-                request = client.recv(1024)
-                response = files.read_file_as_string("index.html")
-                client.send("HTTP/1.0 200 OK\r\n")
-                client.send("Content-Type: text/html\r\n\r\n")
-                client.send(response)
-                client.close()
-            except OSError as e:
-                client.close()
-                print("[WlanService] : Exception - {0}".format(e))
-
-
-    async def disconnected(self):
-        self.sta_if.connect(
-            self.ssid,
-            self.password
-        )
-
-        if self.sta_if.isconnected():
-            print("[WlanService] : Wireless Network Connected - {0} [{1}]".format(self.ssid, self.sta_if.ifconfig()[0]))
-            self.__state = WirelessService._STATE_CONNECTED
-        print("[WlanService] : Wireless Not Connected - Retrying...")
-
+        if self.ap_if.active:
+            if self.socket is None:
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.bind(('', 80))
+                self.socket.listen(5)
+            else:
+                try:
+                    connection, addr = self.socket.accept()
+                    print("Connection Accepted: {0}".format(addr))
+                    request = connection.recv(1024)
+                    response = files.read_file_as_string("../web/configuration.html")
+                    connection.send("HTTP/1.0 200 OK\r\n")
+                    connection.send("Content-Type: text/html\r\n\r\n")
+                    connection.send(response)
+                    connection.close()
+                except OSError as e:
+                    connection.close()
+                    print("[WlanService] : Exception - {0}".format(e))
 
     async def run(self):
         while True:
-            if self.__state == WirelessService._STATE_CONNECTED:
-                await self.connected()
-            elif self.__state == WirelessService._STATE_DISCONNECTED:
-                await self.disconnected()
-            await asyncio.sleep(self.thread_sleep_time)
+            await self.connected()
