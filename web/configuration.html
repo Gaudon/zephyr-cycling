@@ -56,8 +56,12 @@
         <div class="container-box">
             <img src="resources/media/logo.jpg" alt="Zephyr Logo" class="logo-image">
             <h3 class="center-align">Setup</h3>
-            <form action="#">
+            <form method="post" id="form">
                 <div class="container">
+                    <div class="input-field">
+                        <input id="password" type="password"/>
+                        <label for="password">Change Wifi Password</label>
+                    </div>
                     <table class="centered">
                         <thead>
                             <tr>
@@ -139,7 +143,7 @@
                     </table>
                 </div>
                 <div class="container align-items: center" >
-                    <button class="btn" type="submit">Save</button>
+                    <button class="btn" type="submit" formaction="/config">Save</button>
                 </div>
             </form>
         </div>

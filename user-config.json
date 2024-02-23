@@ -1,0 +1,37 @@
+{
+    "wifi_password": "Zephyr123",
+    "fan_config": [
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        },
+        {
+            "enabled": false,
+            "heart_rate": 0
+        }
+    ]
+}

@@ -2,14 +2,14 @@ import network
 import socket
 import asyncio 
 import files
-
+import json
 
 from service_manager import service_locator
 from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
 from services.base_service import BaseService
-from lib.microdot import Microdot, send_file
+from lib.microdot import Microdot, send_file, Request
 
 
 app = Microdot()
@@ -52,9 +52,18 @@ class WirelessService(BaseService):
         return files.read_file_as_string("../web/configuration.html"), 200, {'Content-Type': 'text/html'}
 
 
-    @app.route('/config', methods=['POST', 'PUT'])
+    @app.route('/config', methods=['POST', 'GET'])
     async def save(request):
-        return "Your shit's saved but not rly lul", 200, {'Content-Type': 'text/html'}
+        if request.method == 'GET':
+            return json.loads(files.read_file_as_string("../user-config.json")), 200, {'Content-Type': 'application/json'}
+        elif request.method == 'POST':
+            # Process the form data
+            form_data = []
+            print(request)
+            for i in range(1, 8):
+                form_data.append((request.form.get("enabled{0}".format(i)), request.form.get("heartRate{0}".format(i))))
+            print(form_data)
+            return str(form_data)
     
 
     @app.route('resources/<path:path>', methods=['GET'])
