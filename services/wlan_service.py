@@ -9,7 +9,10 @@ from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
 from services.base_service import BaseService
+from lib.microdot import Microdot, send_file
 
+
+app = Microdot()
 
 class WirelessService(BaseService):
     
@@ -39,33 +42,23 @@ class WirelessService(BaseService):
         # Access Point Mode
         self.ap_if.config(essid='Zephyr Wifi', password='Zephyr123', channel=11)
         self.ap_if.active(True)
+
+        # Start the web server
+        app.run(port=80, debug=True)
         
-        
-        await asyncio.gather(
-            self.run() 
-        )
+
+    @app.route('/', methods=['GET'])
+    async def root(request):
+        return files.read_file_as_string("../web/configuration.html"), 200, {'Content-Type': 'text/html'}
 
 
-    async def connected(self):
-        if self.ap_if.active:
-            if self.socket is None:
-                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.socket.bind(('', 80))
-                self.socket.listen(5)
-            else:
-                try:
-                    connection, addr = self.socket.accept()
-                    print("Connection Accepted: {0}".format(addr))
-                    request = connection.recv(1024)
-                    response = files.read_file_as_string("../web/configuration.html")
-                    connection.send("HTTP/1.0 200 OK\r\n")
-                    connection.send("Content-Type: text/html\r\n\r\n")
-                    connection.send(response)
-                    connection.close()
-                except OSError as e:
-                    connection.close()
-                    print("[WlanService] : Exception - {0}".format(e))
+    @app.route('/config', methods=['POST', 'PUT'])
+    async def save(request):
+        return "Your shit's saved but not rly lul", 200, {'Content-Type': 'text/html'}
+    
 
-    async def run(self):
-        while True:
-            await self.connected()
+    @app.route('resources/<path:path>', methods=['GET'])
+    async def resources(request, path):
+        if '..' in path:
+            return 'Not found', 404
+        return send_file('../web/resources/' + path, max_age=86400)
