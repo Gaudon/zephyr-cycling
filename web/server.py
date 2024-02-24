@@ -32,16 +32,16 @@ async def root(request):
         file.close()
     
 
-    @app.route('config', methods=['GET'])
-    async def get_user_config(request):
-        json_data = "{}"
-        with open("config/user.json", "r") as file:
-            json_data = json.load(file)
-        return json_data
+@app.route('config', methods=['GET'])
+async def get_user_config(request):
+    json_data = '{}'
+    with open("../config/user.json", "r") as file:
+        json_data = json.load(file)
+    return json_data
     
 
-    @app.route('resources/<path:path>', methods=['GET'])
-    async def resources(request, path):
-        if '..' in path:
-            return 'Not found', 404
-        return send_file('../web/resources/' + path, max_age=86400)
+@app.route('resources/<path:path>', methods=['GET'])
+async def resources(request, path):
+    if '..' in path:
+        return 'Not found', 404
+    return send_file('../web/resources/' + path, max_age=86400)
