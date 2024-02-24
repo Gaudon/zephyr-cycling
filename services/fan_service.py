@@ -1,17 +1,18 @@
 from machine import Pin, I2C
+
+from services.service_manager import service_locator
 from services.base_service import BaseService
+from services.config_service import ConfigService
 
 
 class FanService(BaseService):
-    
-    STATE_OFF = 0
-    STATE_LOW_POWER = 1
-    STATE_NORMAL_POWER = 2
-    STATE_HIGH_POWER = 3
+
     
     def __init__(self):
-        self.state = FanService.STATE_OFF
-
+        self.config_service = service_locator.get(ConfigService)
+        
+        for i in range(1, 9):
+            self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)
 
     async def start(self):
         pass

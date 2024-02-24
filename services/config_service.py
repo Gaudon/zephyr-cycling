@@ -19,6 +19,7 @@ class ConfigService():
     _BTN_BLUETOOTH_SYNC_PIN = "BTN_BLUETOOTH_SYNC_PIN"
     _LED_POWER_PIN = "LED_POWER_PIN"
     _LED_BLUETOOTH_PIN = "LED_BLUETOOTH_PIN"
+    _RELAY_PIN_PREFIX = "RELAY_PIN_"
 
     
     def __init__(self):
@@ -54,7 +55,10 @@ class ConfigService():
                     self.data[key.strip()] = value.strip()
 
 
-    def get(self, item):
+    def get(self, item, index=None):
         for key, value in self.data.items():
-            if key == item:
+            if index is not None:
+                if "{0}{1}".format(key, index) == item:
+                    return value
+            elif key == item:
                 return value       
