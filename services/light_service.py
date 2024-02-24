@@ -1,7 +1,7 @@
 import machine
 import asyncio
 
-from service_manager import service_locator
+from services.service_manager import service_locator
 from services.config_service import ConfigService
 from services.base_service import BaseService
 

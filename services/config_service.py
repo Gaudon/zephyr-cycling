@@ -1,5 +1,7 @@
 import uos
 
+from utils import files
+
 
 class ConfigService():
     
@@ -43,7 +45,7 @@ class ConfigService():
             
 
     def load_config_file(self):
-        with open(self.config_file_name, 'r') as file:
+        with open("config/{0}".format(self.config_file_name), 'r') as file:
             for line in file:
                 if line.strip() and not line.startswith('#'):
                     key, value = line.strip().split('=', 1)

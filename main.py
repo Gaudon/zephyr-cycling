@@ -4,7 +4,7 @@ import asyncio
 import aioble
 import time
 
-from service_manager import service_locator
+from services.service_manager import service_locator
 from services.config_service import ConfigService
 from services.wlan_service import WirelessService
 from services.bluetooth_receive_service import BluetoothReceiveService

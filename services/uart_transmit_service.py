@@ -2,7 +2,7 @@ import machine
 import asyncio
 
 from machine import UART
-from service_manager import service_locator
+from services.service_manager import service_locator
 from services.config_service import ConfigService
 from services.input_service import InputService
 from services.base_service import BaseService

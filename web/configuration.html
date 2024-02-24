@@ -1,161 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zephyr</title>
-    <!-- Include Google Material Design CSS -->
-    <!--Import materialize.css-->
-    <link type="text/css" rel="stylesheet" href="resources/css/materialize.css"  media="screen,projection"/>
-
-    <!--Let browser know website is optimized for mobile-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <style>
-        /* Dark theme styles */
-        .btn {
-            background-color: #F78634;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }       
-        body {
-            background: linear-gradient(to bottom, #151C2F, #010619);
-            color: #fff;
-        }
-        .container-box {
-            background-color: #2E2C5B;
-            padding: 0px;
-            border-radius: 10px;
-            margin: 0 auto;
-            max-width: 400px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        /* Center the form */
-        .centered-form {
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            flex-direction: column; /* Added vertical spacing */
-        }
-        /* Add spacing between title and form */
-        h3 {
-            margin-bottom: 60px;
-        }
-        /* Style the image */
-        .logo-image {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 5px;
-        }
-        .container {
-            width: 90%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings Page</title>
+  <!-- Materialize CSS -->
+  <link type="text/css" rel="stylesheet" href="resources/css/materialize.css"  media="screen,projection"/>
+  <!-- Custom Styles -->
+  <style>
+    body {
+      background-color: #212121; /* Dark background color */
+      color: #fff; /* Light text color */
+    }
+    .logo {
+      width: 200px; /* Adjust width as needed */
+      height: 200px; /* Adjust height as needed */
+      margin: 10px;
+    }
+    .center-align-form {
+      display: flex;
+      justify-content: center;
+    }
+    .valign-wrapper {
+      display: flex;
+      align-items: center;
+    }
+    .nav-wrapper {
+        display: flex;
+        background-color: #2BBBAD;
+    }
+  </style>
 </head>
-<body>
-    <div class="centered-form">
-        <div class="container-box">
-            <img src="resources/media/logo.jpg" alt="Zephyr Logo" class="logo-image">
-            <h3 class="center-align">Setup</h3>
-            <form method="post" id="form">
-                <div class="container">
-                    <div class="input-field">
-                        <input id="password" type="password"/>
-                        <label for="password">Change Wifi Password</label>
-                    </div>
-                    <table class="centered">
-                        <thead>
-                            <tr>
-                                <th>Fan Modes</th>
-                                <th>Enabled</th>
-                                <th>Target Heart Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <div class="switch">
-                                        <label>
-                                            <input type="checkbox" id="enabled1">
-                                            <span class="lever"></span>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="input-field">
-                                        <input id="heartRate1" type="number" placeholder="50"/>
-                                        <label for="heartRate1"></label>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>
-                                    <div class="switch">
-                                        <label>
-                                            <input type="checkbox" id="enabled2">
-                                            <span class="lever"></span>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="input-field">
-                                        <input id="heartRate2" type="number"/>
-                                        <label for="heartRate2"></label>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>
-                                    <div class="switch">
-                                        <label>
-                                            <input type="checkbox" id="enabled3">
-                                            <span class="lever"></span>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="input-field">
-                                        <input id="heartRate3" type="number" />
-                                        <label for="heartRate3"></label>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>
-                                    <div class="switch">
-                                        <label>
-                                            <input type="checkbox" id="enabled4">
-                                            <span class="lever"></span>
-                                        </label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="input-field">
-                                        <input id="heartRate4" type="number"/>
-                                        <label for="heartRate4"></label>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="container align-items: center" >
-                    <button class="btn" type="submit" formaction="/config">Save</button>
-                </div>
-            </form>
-        </div>
+<nav>
+    <div class="nav-wrapper">
+      <ul id="nav-mobile" class="right">
+        <li><a href="#">Settings</a></li>
+      </ul>
     </div>
-    <!-- Include Materialize JS -->
-    <script src="resources/js/materialize.js"></script>
-    <script>
-        // Initialize Materialize select
-        document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('select');
-            var instances = M.FormSelect.init(elems);
-        });
-    </script>
+</nav>
+<body>
+  <div class="container center-align">
+    <!-- Form with settings -->
+    <img class="logo" src="resources/media/logo.png"/>
+    <div class="row center-align-form">
+      <form class="col s12 center-align" method="post" action="">
+        <!-- Header row -->
+        <div class="row valign-wrapper">
+          <div class="col s3">Fan Mode</div>
+          <div class="col s3">Enabled</div>
+          <div class="col s6">Target Heart Rate</div>
+        </div>
+        <!-- Content Rows -->
+        <div class="row valign-wrapper">
+          <div class="col s3">
+            <label><h5>1</h5></label>
+          </div>
+          <div class="switch col s3">
+            <label>
+              <input type="checkbox" id="en1" name="en1">
+              <span class="lever"></span>
+            </label>
+          </div>
+          <div class="input-field col s6">
+            <input id="hr1" type="number" name="hr1" class="validate" min="0" max="255">
+            <label for="hr1"></label>
+          </div>
+        </div>
+        <div class="row valign-wrapper">
+          <div class="col s3">
+            <label><h5>2</h5></label>
+          </div>
+          <div class="switch col s3">
+            <label>
+              <input type="checkbox" id="en2" name="en2">
+              <span class="lever"></span>
+            </label>
+          </div>
+          <div class="input-field col s6">
+            <input id="hr2" type="number" name="hr2" class="validate" min="0" max="255">
+            <label for="hr2"></label>
+          </div>
+        </div>
+        <button class="btn waves-effect waves-light" type="submit" name="action">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Materialize JavaScript -->
+  <script src="resources/js/materialize.js"></script>
 </body>
 </html>

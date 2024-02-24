@@ -1,14 +1,15 @@
 import network
 import socket
 import asyncio 
-import files
+import utils.files as files
 import json
 
-from service_manager import service_locator
+from services.service_manager import service_locator
 from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
 from services.base_service import BaseService
+from data.user_config import UserConfig
 from lib.microdot import Microdot, send_file, Request
 
 
@@ -47,23 +48,23 @@ class WirelessService(BaseService):
         app.run(port=80, debug=True)
         
 
-    @app.route('/', methods=['GET'])
+    @app.route('/', methods=['GET', 'POST'])
     async def root(request):
-        return files.read_file_as_string("../web/configuration.html"), 200, {'Content-Type': 'text/html'}
-
-
-    @app.route('/config', methods=['POST', 'GET'])
-    async def save(request):
         if request.method == 'GET':
-            return json.loads(files.read_file_as_string("../user-config.json")), 200, {'Content-Type': 'application/json'}
+            return files.read_file_as_string("../web/configuration.html"), 200, {'Content-Type': 'text/html'}
         elif request.method == 'POST':
             # Process the form data
             form_data = []
-            print(request)
+            user_config = UserConfig()
             for i in range(1, 8):
-                form_data.append((request.form.get("enabled{0}".format(i)), request.form.get("heartRate{0}".format(i))))
-            print(form_data)
-            return str(form_data)
+                user_config.add_fan_mode(
+                    request.form.get("en{0}".format(i)), 
+                    request.form.get("hr{0}".format(i))
+                )
+
+            with open('..\\config\\user.json', 'w') as file:
+                file.write(json.dumps(user_config))
+                file.close()
     
 
     @app.route('resources/<path:path>', methods=['GET'])

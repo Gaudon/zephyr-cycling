@@ -4,7 +4,7 @@ import asyncio
 
 from micropython import const
 
-from service_manager import service_locator
+from services.service_manager import service_locator
 from services.light_service import LightService
 from services.config_service import ConfigService
 from services.uart_transmit_service import UartTransmitService
