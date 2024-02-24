@@ -1,6 +1,4 @@
 import network
-import socket
-import asyncio 
 import utils.files as files
 import json
 
@@ -54,17 +52,23 @@ class WirelessService(BaseService):
             return files.read_file_as_string("../web/configuration.html"), 200, {'Content-Type': 'text/html'}
         elif request.method == 'POST':
             # Process the form data
-            form_data = []
             user_config = UserConfig()
-            for i in range(1, 8):
+            hr_value = 0
+            for i in range(1, 9):
+                try:
+                    hr_value = int(request.form.get("hr{0}".format(i)))
+                except TypeError:
+                    hr_value = 0
+                
                 user_config.add_fan_mode(
-                    request.form.get("en{0}".format(i)), 
-                    request.form.get("hr{0}".format(i))
+                    i,
+                    request.form.get("en{0}".format(i)) == 'on', 
+                    hr_value
                 )
 
-            with open('..\\config\\user.json', 'w') as file:
-                file.write(json.dumps(user_config))
-                file.close()
+            file = open("config/user.json", "w")
+            file.write(json.dumps(user_config.__dict__))
+            file.close()
     
 
     @app.route('resources/<path:path>', methods=['GET'])
