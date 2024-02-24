@@ -1,8 +1,5 @@
-import utime
-import bluetooth
 import asyncio
-import aioble
-import time
+from web import server
 
 from services.service_manager import service_locator
 from services.config_service import ConfigService
@@ -41,6 +38,9 @@ async def main():
         service_locator.register(BluetoothTransmitService(operation_mode, 1))
 
     print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
+
+    # Start Web Server
+    server.app.run(port=80, debug=True)
 
     # Start Services
     coroutines = []

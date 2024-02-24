@@ -1,6 +1,8 @@
 import uos
+import json
 
 from utils import files
+from data.user_config import UserConfig
 
 
 class ConfigService():
@@ -22,7 +24,7 @@ class ConfigService():
     def __init__(self):
         self.config_file_name = 'config.txt'
         self.data = {}
-        self.load_config_file()
+        self.load_config()
         self.operation_mode = self.get(ConfigService._CONFIG_OPERATION_MODE)
     
     
@@ -44,7 +46,7 @@ class ConfigService():
             return False
             
 
-    def load_config_file(self):
+    def load_config(self):
         with open("config/{0}".format(self.config_file_name), 'r') as file:
             for line in file:
                 if line.strip() and not line.startswith('#'):

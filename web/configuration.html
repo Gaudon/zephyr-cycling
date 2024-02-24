@@ -178,5 +178,27 @@
 
   <!-- Materialize JavaScript -->
   <script src="resources/js/materialize.js"></script>
+  <script>
+    alert(getUserConfig())
+    function getUserConfig() {
+      fetch("config")
+        .then(response => {
+            // Check if the response is ok (status code in the range 200-299)
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            // Parse the JSON payload
+            return response.json();
+        })
+        .then(data => {
+            // Do something with the JSON data
+            console.log('API response:', data);
+        })
+        .catch(error => {
+            // Handle any errors
+            console.error('Error fetching data:', error);
+        });
+    }
+  </script>
 </body>
 </html>
