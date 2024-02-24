@@ -57,7 +57,7 @@ class WirelessService(BaseService):
             for i in range(1, 9):
                 try:
                     hr_value = int(request.form.get("hr{0}".format(i)))
-                except TypeError:
+                except:
                     hr_value = 0
                 
                 user_config.add_fan_mode(
