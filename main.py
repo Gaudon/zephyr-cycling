@@ -10,6 +10,7 @@ from services.light_service import LightService
 from services.input_service import InputService
 from services.uart_receive_service import UartReceiveService
 from services.uart_transmit_service import UartTransmitService
+from services.fan_service import FanService
 
 
 async def main():
@@ -33,6 +34,7 @@ async def main():
         service_locator.register(WirelessService(operation_mode, 1))
         service_locator.register(UartTransmitService(operation_mode, 0.05))
         service_locator.register(BluetoothReceiveService(operation_mode, 1))
+        service_locator.register(FanService(operation_mode, 2))
     else:
         service_locator.register(UartReceiveService(operation_mode, 0.05))
         service_locator.register(BluetoothTransmitService(operation_mode, 1))
