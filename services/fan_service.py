@@ -15,8 +15,5 @@ class FanService(BaseService):
         
 
     async def start(self):
-        print("ran")
         for i in range(1, 9):
             self.fan_settings.append((i, self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)))
-        
-        print(self.fan_settings)

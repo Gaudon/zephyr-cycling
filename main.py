@@ -41,14 +41,14 @@ async def main():
 
     print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
 
-    # Start Web Server
-    server.app.run(port=80, debug=True)
-
     # Start Services
     coroutines = []
     for service in service_locator.get_services():
         coroutines.append(service.start())
-    
+
+    # Start Web Server
+    coroutines.append(server.app.start_server(port=80, debug=True))
+
     await asyncio.gather(*coroutines)
 
         

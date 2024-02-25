@@ -58,9 +58,7 @@ class ConfigService():
     def get(self, item, index=None):
         for key, value in self.data.items():
             if index is not None:
-                value = "{0}{1}".format(key, index)
-                print(value)
-                if "{0}{1}".format(key, index) == item:
+                if "{0}{1}".format(item, index) == key:
                     return value
             elif key == item:
                 return value       
