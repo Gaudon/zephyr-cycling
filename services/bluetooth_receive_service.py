@@ -7,7 +7,6 @@ from micropython import const
 from services.service_manager import service_locator
 from services.light_service import LightService
 from services.config_service import ConfigService
-from services.uart_transmit_service import UartTransmitService
 from services.input_service import InputService
 from services.base_service import BaseService
 
@@ -20,6 +19,8 @@ class BluetoothReceiveService(BaseService):
     _STATE_CONNECTING = "CONNECTING"
     _STATE_CONNECTED = "CONNECTED"
 
+    _EVENT_HEART_RATE_RECEIVED = "HEART_RATE_RECEIVED"
+
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
 
@@ -30,10 +31,10 @@ class BluetoothReceiveService(BaseService):
         self.heart_rate_characteristic = None
         self.heart_rate_subscription = False
         self.heart_rate_data = None
+        self.listeners = []
         self.banned_device_names = ['Zephyr HRM']
 
         # Services
-        self.uart_transmit_service = service_locator.get(UartTransmitService)
         self.input_service = service_locator.get(InputService)
         self.config_service = service_locator.get(ConfigService)
         self.light_service = service_locator.get(LightService)
@@ -105,6 +106,10 @@ class BluetoothReceiveService(BaseService):
     def set_state(self, state):
         self.__state = state
 
+
+    def register_callback(self, event, function_handler):
+        self.listeners.append((event, function_handler))
+        
 
     async def disconnect(self):
         if self.connection is not None:
@@ -180,9 +185,11 @@ class BluetoothReceiveService(BaseService):
 
 
     async def connected(self):      
-        # HRM Specification States Heart Rate Measurements Cannot be Read Directly
         if self.heart_rate_characteristic is not None:
             self.heart_rate_data = await self.heart_rate_characteristic.notified()
-            #print("[BluetoothReceiveService] : Data Received - {} bpm".format(self.heart_rate_data[1]))
-            self.uart_transmit_service.update_data(bytes(self.heart_rate_data))
+            
+            for listener in self.listeners:
+                if listener[0] == self._EVENT_HEART_RATE_RECEIVED:
+                    listener(bytes(self.heart_rate_data))
+            
             await asyncio.sleep(self.thread_sleep_time)

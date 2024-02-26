@@ -37,6 +37,7 @@ async def get_user_config(request):
     json_data = '{}'
     with open("../config/user.json", "r") as file:
         json_data = json.load(file)
+        file.close()
     return json_data
     
 

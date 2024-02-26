@@ -5,6 +5,7 @@ from machine import UART
 from services.service_manager import service_locator
 from services.config_service import ConfigService
 from services.input_service import InputService
+from services.bluetooth_receive_service import BluetoothReceiveService
 from services.base_service import BaseService
 
 
@@ -24,6 +25,7 @@ class UartTransmitService(BaseService):
         #  Services
         self.config_service = service_locator.get(ConfigService)
         self.input_service = service_locator.get(InputService)
+        self.bluetooth_receive_service = service_locator.get(BluetoothReceiveService)
 
         # Configuration
         self.uart_id = int(self.config_service.get(UartTransmitService.CONFIG_UART_ID))
@@ -49,7 +51,8 @@ class UartTransmitService(BaseService):
         self.data = None
 
 
-    async def start(self):       
+    async def start(self):  
+        self.bluetooth_receive_service.register_callback(BluetoothReceiveService._EVENT_HEART_RATE_RECEIVED, self.update_data)
         await asyncio.gather(
             self.run()
         )
@@ -61,7 +64,6 @@ class UartTransmitService(BaseService):
 
     async def transmit_heart_rate_data(self):
         if self.data is not None:
-            #print("[UartTransmitService] : Sending Data - {0}".format(self.data))
             self.uart.write(self.data)
             self.data = None
     

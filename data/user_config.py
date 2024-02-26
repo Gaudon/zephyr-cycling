@@ -11,6 +11,11 @@ class UserConfig:
                 return
         self.fan_config.append((relay_number, status, heart_rate))
 
+
+    def update_from_json(self, json_config_data):
+        # Implement
+        return self
     
+
     def get_fan_config(self):
         return self.fan_config
