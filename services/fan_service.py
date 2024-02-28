@@ -11,6 +11,8 @@ from services.bluetooth_receive_service import BluetoothReceiveService
 
 class FanService(BaseService):
 
+    _STATE_CURRENT = None
+    _STATE_PREV = None
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
@@ -18,7 +20,6 @@ class FanService(BaseService):
         self.bluetooth_receive_service = service_locator.get(BluetoothReceiveService)
         self.heart_rate_value = 0
         self.fan_config = []
-        self.user_config = UserConfig()
 
 
     async def start(self):
@@ -26,26 +27,36 @@ class FanService(BaseService):
         for i in range(1, 9):
             self.fan_config.append((i, Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)))))
         
+        # Initialize the user configuration settings
+        with open("../config/user.json", "r") as file:
+            json_data = json.load(file)
+            self.user_config.update_from_json(json_data)
+            file.close()
+        
         await asyncio.gather(
-            self.run(),
-            self.update_user_heart_rate_settings()
+            self.run()
         )
 
     
     async def run(self):
+        # TODO(Gaudon) : Implement
+        # Compare current heart rate values to user settings and relay indexes
         await asyncio.sleep(self.thread_sleep_time)
     
 
-    async def update_user_heart_rate_settings(self):
-        json_data = None
-        with open("../config/user.json", "r") as file:
-            json_data = json.load(file)
-            file.close()
-        
-        if json_data is not None:
-            self.user_config.update_from_json(json_data)
-        
-        await asyncio.sleep(120)
+    def enable_relay(self, relay_pin):
+        # Disable all other relays
+        for config in self.fan_config:
+            config[1].off()
+
+        # Enable the target relay
+        for config in self.fan_config:
+            if config[0] == relay_pin:
+                config[1].on()
+
+
+    def update_user_config(self, user_config):
+        self.user_config = user_config
         
 
     def on_heart_rate_received(self, data):

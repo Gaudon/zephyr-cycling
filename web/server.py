@@ -3,6 +3,9 @@ import json
 from utils import files
 from lib.microdot import Microdot, send_file, Request
 from data.user_config import UserConfig
+from services.service_manager import ServiceLocator
+from services.fan_service import FanService
+
 
 app = Microdot()
 
@@ -30,7 +33,10 @@ async def root(request):
         file = open("config/user.json", "w")
         file.write(json.dumps(user_config.__dict__))
         file.close()
-    
+
+        # Notify the fan controller that the heart rate configuration settings have been changed.
+        ServiceLocator.get(FanService).update_user_config(user_config)
+
 
 @app.route('config', methods=['GET'])
 async def get_user_config(request):
