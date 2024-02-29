@@ -9,6 +9,7 @@ from services.light_service import LightService
 from services.config_service import ConfigService
 from services.input_service import InputService
 from services.base_service import BaseService
+from data.led import Led
 
 
 class BluetoothReceiveService(BaseService):
@@ -88,13 +89,13 @@ class BluetoothReceiveService(BaseService):
         self.input_service.register_callback(
             self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN),
             self.on_bluetooth_btn_short_press, 
-            InputService.BTN_CALLBACK_SHORT_PRESS
+            InputService._BTN_CALLBACK_SHORT_PRESS
         )
 
         self.input_service.register_callback(
             self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN),
             self.on_bluetooth_btn_long_press, 
-            InputService.BTN_CALLBACK_LONG_PRESS
+            InputService._BTN_CALLBACK_LONG_PRESS
         )
 
         await asyncio.gather(
@@ -157,11 +158,11 @@ class BluetoothReceiveService(BaseService):
     async def update_bluetooth_led(self):
         while True:
             if self.__state == BluetoothReceiveService._STATE_SCANNING:
-                self.light_service.set_led_bluetooth_state(LightService._LED_STATE_BLINKING)
+                self.light_service.set_led_state(LightService._LED_BLUETOOTH, Led._STATE_BLINKING)
             elif self.__state == BluetoothReceiveService._STATE_CONNECTED:
-                self.light_service.set_led_bluetooth_state(LightService._LED_STATE_ON)
+                self.light_service.set_led_state(LightService._LED_BLUETOOTH, Led._STATE_ON)
             else:
-                self.light_service.set_led_bluetooth_state(LightService._LED_STATE_OFF)
+                self.light_service.set_led_state(LightService._LED_BLUETOOTH, Led._STATE_OFF)
             
             await asyncio.sleep(self.thread_sleep_time)
 

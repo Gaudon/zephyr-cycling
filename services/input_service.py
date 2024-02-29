@@ -10,8 +10,8 @@ from data.button import Button
 
 class InputService(BaseService):
 
-    BTN_CALLBACK_SHORT_PRESS = "BTN_CALLBACK_SHORT_PRESS"
-    BTN_CALLBACK_LONG_PRESS = "BTN_CALLBACK_LONG_PRESS"
+    _BTN_CALLBACK_SHORT_PRESS = "BTN_CALLBACK_SHORT_PRESS"
+    _BTN_CALLBACK_LONG_PRESS = "BTN_CALLBACK_LONG_PRESS"
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
@@ -19,14 +19,25 @@ class InputService(BaseService):
         self.long_press_duration_ms = 3000
         self.buttons = []
         if self.operation_mode == ConfigService._OP_MODE_PRIMARY:
+            # Add Bluetooth Button
             self.buttons.append(
                 Button(
-                    self.config_service.get("BTN_BLUETOOTH_SYNC_PIN"), 
-                    machine.Pin(int(self.config_service.get("BTN_BLUETOOTH_SYNC_PIN")), machine.Pin.IN), 
+                    self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN), 
+                    machine.Pin(int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), machine.Pin.IN), 
                     200, 
                     3000
                 )
-        )
+            )
+
+            # Add Manual Mode Operation Button
+            self.buttons.append(
+                Button(
+                    self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN), 
+                    machine.Pin(int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), machine.Pin.IN), 
+                    200, 
+                    3000
+                )
+            )
 
     
     async def start(self):
@@ -39,9 +50,9 @@ class InputService(BaseService):
     def register_callback(self, pin, function_handler, button_callback_type):
         for btn in self.buttons:
             if btn.get_pin()[0] == pin:
-                if button_callback_type == InputService.BTN_CALLBACK_SHORT_PRESS:
+                if button_callback_type == InputService._BTN_CALLBACK_SHORT_PRESS:
                     btn.register_short_press_callback(function_handler)
-                elif button_callback_type == InputService.BTN_CALLBACK_LONG_PRESS:
+                elif button_callback_type == InputService._BTN_CALLBACK_LONG_PRESS:
                     btn.register_long_press_callback(function_handler)
 
 
