@@ -24,13 +24,11 @@ async def main():
     # Service Initialization
     ############################
     
-    # Input
+    # Common Services
     service_locator.register(InputService(operation_mode, 0.05))
-    
-    # Output
-    service_locator.register(LightService(operation_mode, 0.5))
-    
+
     if operation_mode == ConfigService._OP_MODE_PRIMARY:
+        service_locator.register(LightService(operation_mode, 0.5))
         service_locator.register(WirelessService(operation_mode, 1))
         service_locator.register(BluetoothReceiveService(operation_mode, 1))
         service_locator.register(UartTransmitService(operation_mode, 0.05))
