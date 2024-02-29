@@ -15,8 +15,6 @@ class FanService(BaseService):
     __MODE_HEARTRATE = "MODE_HEARTRATE"
     __MODE_MANUAL = "MODE_MANUAL"
 
-    _STATE_CURRENT = None
-    _STATE_PREV = None
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
@@ -25,14 +23,14 @@ class FanService(BaseService):
         self.input_service = service_locator.get(InputService)
         self.mode = FanService.__MODE_HEARTRATE
         self.heart_rate_value = 0
-        self.fan_config = []
+        self.relays = []
 
 
     async def start(self):
         await self.register_callbacks()
 
         for i in range(1, 9):
-            self.fan_config.append((i, Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)))))
+            self.relays.append((i, Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)))))
         
         await asyncio.gather(
             self.run()
@@ -66,13 +64,14 @@ class FanService(BaseService):
 
     def enable_relay(self, relay_pin):
         # Disable all other relays
-        for config in self.fan_config:
-            config[1].off()
+        for relay in self.relays:
+            relay[1].off()
+
 
         # Enable the target relay
-        for config in self.fan_config:
-            if config[0] == relay_pin:
-                config[1].on()
+        for relay in self.relays:
+            if relay[0] == relay_pin:
+                relay[1].on()
         
 
     def on_heart_rate_received(self, data):
@@ -80,7 +79,22 @@ class FanService(BaseService):
 
 
     def on_manual_mode_button_short_press(self):
+        # TODO(Gaudon): Update this code to only look at configured relays in user settings.
         if self.mode == FanService.__MODE_MANUAL:
+            for i in range(0, len(self.relays)):
+                # Find the active relay
+                if self.relays[i][1].value() == 1:
+                    # Disable the current active relay
+                    self.relays[i][1].off()
+
+                    # Enable the next relay
+                    if i == (len(self.relays) - 1):
+                        self.relays[i][1].on()
+                    else:
+                        self.relays[i+1][1].on()
+                    break
+        elif self.mode == FanService.__MODE_HEARTRATE:
+            # We probably don't want any functionality here.
             pass
 
 
