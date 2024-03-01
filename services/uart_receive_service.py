@@ -10,12 +10,12 @@ from services.base_service import BaseService
 
 class UartReceiveService(BaseService):
     
-    CONFIG_UART_ID = "UART_ID"
-    CONFIG_UART_MODE_PRIMARY = "UART_MODE"
-    CONFIG_UART_TX_PIN = "UART_TX_PIN"
-    CONFIG_UART_RX_PIN = "UART_RX_PIN"
-    CONFIG_UART_BUFFER_SIZE = "UART_BUFFER_SIZE"
-    CONFIG_UART_BAUD_RATE = "UART_BAUD_RATE"
+    _CONFIG_UART_ID = "UART_ID"
+    _CONFIG_UART_MODE_PRIMARY = "UART_MODE"
+    _CONFIG_UART_TX_PIN = "UART_TX_PIN"
+    _CONFIG_UART_RX_PIN = "UART_RX_PIN"
+    _CONFIG_UART_BUFFER_SIZE = "UART_BUFFER_SIZE"
+    _CONFIG_UART_BAUD_RATE = "UART_BAUD_RATE"
 
 
     def __init__(self, operation_mode, thread_sleep_time):
@@ -26,19 +26,19 @@ class UartReceiveService(BaseService):
         self.input_service = service_locator.get(InputService)
 
         # Configuration
-        self.uart_id = int(self.config_service.get(UartReceiveService.CONFIG_UART_ID))
+        self.uart_id = int(self.config_service.get(UartReceiveService._CONFIG_UART_ID))
         self.uart_mode_primary = (operation_mode == ConfigService._OP_MODE_PRIMARY)
-        self.tx_pin = machine.Pin(int(self.config_service.get(UartReceiveService.CONFIG_UART_TX_PIN)), machine.Pin.OUT)
-        self.rx_pin = machine.Pin(int(self.config_service.get(UartReceiveService.CONFIG_UART_RX_PIN)), machine.Pin.IN)
-        self.buffer_size = int(self.config_service.get(UartReceiveService.CONFIG_UART_BUFFER_SIZE))
-        self.baud_rate = int(self.config_service.get(UartReceiveService.CONFIG_UART_BAUD_RATE))
+        self.tx_pin = machine.Pin(int(self.config_service.get(UartReceiveService._CONFIG_UART_TX_PIN)), machine.Pin.OUT)
+        self.rx_pin = machine.Pin(int(self.config_service.get(UartReceiveService._CONFIG_UART_RX_PIN)), machine.Pin.IN)
+        self.buffer_size = int(self.config_service.get(UartReceiveService._CONFIG_UART_BUFFER_SIZE))
+        self.baud_rate = int(self.config_service.get(UartReceiveService._CONFIG_UART_BAUD_RATE))
 
         # Uart
         self.uart = UART(
             self.uart_id, 
             baudrate = self.baud_rate, 
-            tx = int(self.config_service.get(UartReceiveService.CONFIG_UART_TX_PIN)),
-            rx = int(self.config_service.get(UartReceiveService.CONFIG_UART_RX_PIN)),
+            tx = int(self.config_service.get(UartReceiveService._CONFIG_UART_TX_PIN)),
+            rx = int(self.config_service.get(UartReceiveService._CONFIG_UART_RX_PIN)),
             txbuf = 1024,
             rxbuf = 1024,
             timeout_char = 100

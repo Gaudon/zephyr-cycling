@@ -3,6 +3,7 @@ from web import server
 
 from services.service_manager import service_locator
 from services.config_service import ConfigService
+from services.user_service import UserService
 from services.wlan_service import WirelessService
 from services.bluetooth_receive_service import BluetoothReceiveService
 from services.bluetooth_transmit_service import BluetoothTransmitService
@@ -32,6 +33,7 @@ async def main():
         service_locator.register(WirelessService(operation_mode, 1))
         service_locator.register(BluetoothReceiveService(operation_mode, 1))
         service_locator.register(UartTransmitService(operation_mode, 0.05))
+        service_locator.register(UserService(operation_mode, 1))
         service_locator.register(FanService(operation_mode, 2))
     else:
         service_locator.register(BluetoothTransmitService(operation_mode, 1))
