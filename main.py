@@ -1,4 +1,6 @@
 import asyncio
+import machine
+import traceback
 from web import server
 
 from services.service_manager import service_locator
@@ -53,4 +55,11 @@ async def main():
 
         
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print(traceback)
+    except:
+        machine.reset()
+    finally: 
+        asyncio.new_event_loop()

@@ -45,13 +45,11 @@ class FanService(BaseService):
             )
 
         coroutines = []
+        coroutines.append(self.run())
         for relay in self.relays:
             coroutines.append(relay.update())
-        
-        await asyncio.gather(
-            self.run(),
-            *coroutines
-        )
+
+        await asyncio.gather(*coroutines)
 
 
     async def register_callbacks(self):
