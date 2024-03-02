@@ -36,8 +36,8 @@ async def main():
         service_locator.register(UserService(operation_mode, 1))
         service_locator.register(FanService(operation_mode, 2))
     else:
-        service_locator.register(BluetoothTransmitService(operation_mode, 1))
         service_locator.register(UartReceiveService(operation_mode, 0.05))
+        service_locator.register(BluetoothTransmitService(operation_mode, 1))
 
     print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
 
