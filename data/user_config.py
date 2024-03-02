@@ -17,12 +17,12 @@ class UserConfig:
         self.relay_config.append((relay_number, status, heart_rate))
     
 
-    def get_fan_config(self, enabled_only=False):
+    def get_relay_config(self, enabled_only=False):
         if enabled_only:
-            enabled_fan_config = []
+            enabled_relay_config = []
             for config in self.relay_config:
                 if config[1]:
-                    enabled_fan_config.append(config)
-            return enabled_fan_config
+                    enabled_relay_config.append(config)
+            return enabled_relay_config
         else:
             return self.relay_config

@@ -31,7 +31,7 @@ async def root(request):
             )
 
         file = open("config/user.json", "w")
-        file.write(json.dumps(user_config.__dict__, indent=4))
+        file.write(json.dumps(user_config.__dict__))
         file.close()
 
         # Notify the user service that the user settings have been changed.
