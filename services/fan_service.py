@@ -66,6 +66,8 @@ class FanService(BaseService):
     
     async def run(self):
         while True:
+            if self.mode == FanService.__MODE_HEARTRATE:
+                await asyncio.sleep(self.thread_sleep_time)
             # TODO(Gaudon) : Implement
             # Compare current heart rate values to user settings and relay indexes
             await asyncio.sleep(self.thread_sleep_time)
@@ -101,7 +103,7 @@ class FanService(BaseService):
                         self.relays[int(self.active_relays[i+1][0] - 1)][1].on()
                     break
         elif self.mode == FanService.__MODE_HEARTRATE:
-            # We probably don't want any functionality here.
+            # Reserved for future functionality.
             pass
 
 
