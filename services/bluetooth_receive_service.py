@@ -191,6 +191,6 @@ class BluetoothReceiveService(BaseService):
             
             for listener in self.listeners:
                 if listener[0] == self._EVENT_HEART_RATE_RECEIVED:
-                    listener(bytes(self.heart_rate_data))
+                    listener[1](bytes(self.heart_rate_data))
             
             await asyncio.sleep(self.thread_sleep_time)

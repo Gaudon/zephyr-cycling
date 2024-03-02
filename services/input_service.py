@@ -42,25 +42,17 @@ class InputService(BaseService):
     
     async def start(self):
         if self.config_service.get_operation_mode() == ConfigService._OP_MODE_PRIMARY:
-            await asyncio.gather(
-                self.check_inputs()
-            )
+            coroutines = []
+            for button in self.buttons:
+                coroutines.append(button.update())
+            
+            await asyncio.gather(*coroutines)
         
     
-    def register_callback(self, pin, function_handler, button_callback_type):
+    def register_callback(self, pin_id, function_handler, button_callback_type):
         for btn in self.buttons:
-            if btn.get_pin()[0] == pin:
+            if int(btn.pin_id) == int(pin_id):
                 if button_callback_type == InputService._BTN_CALLBACK_SHORT_PRESS:
                     btn.register_short_press_callback(function_handler)
                 elif button_callback_type == InputService._BTN_CALLBACK_LONG_PRESS:
                     btn.register_long_press_callback(function_handler)
-
-
-    async def check_inputs(self):
-        while True:
-            await asyncio.sleep(self.thread_sleep_time)
-            for btn in self.buttons:
-                if btn.get_pin()[1].value() == 1:
-                    btn.pressed()
-                else:
-                    btn.released()
