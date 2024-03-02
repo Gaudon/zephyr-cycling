@@ -82,8 +82,9 @@ class FanService(BaseService):
                 current_relay = self.get_current_relay()
 
                 if current_relay is not None and target_relay is not None:
-                    if (target_relay.heart_rate_threshold < current_relay.heart_rate_threshold) and (time.ticks_ms() - self.last_relay_change >= 15000):
-                        self.enable_relay(target_relay)
+                    if target_relay.pin_id is not current_relay.pin_id:
+                        if (target_relay.heart_rate_threshold < current_relay.heart_rate_threshold) and (time.ticks_ms() - self.last_relay_change >= 15000):
+                            self.enable_relay(target_relay)
 
             await asyncio.sleep(self.thread_sleep_time)
     
