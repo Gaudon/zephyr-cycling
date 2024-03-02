@@ -1,9 +1,8 @@
 import asyncio
-import json
 import time
 
-from machine import Pin, I2C
-from data.user_config import UserConfig
+from machine import Pin
+from data.relay import Relay
 from services.service_manager import service_locator
 from services.base_service import BaseService
 from services.config_service import ConfigService
@@ -27,19 +26,31 @@ class FanService(BaseService):
         self.mode = FanService.__MODE_HEARTRATE
         self.heart_rate_value = 0
         self.relays = []
-        self.active_relays = []
         self.last_relay_change = time.ticks_ms()
-        self.user_config = None
 
 
     async def start(self):
         await self.register_callbacks()
 
         for i in range(1, 9):
-            self.relays.append((i, Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)))))
+            self.relays.append(
+                Relay(
+                    i,
+                    int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)),
+                    Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i))),
+                    Relay._STATE_OFF,
+                    None,
+                    False
+                )
+            )
+
+        coroutines = []
+        for relay in self.relays:
+            coroutines.append(relay.update())
         
         await asyncio.gather(
-            self.run()
+            self.run(),
+            *coroutines
         )
 
 
@@ -64,24 +75,27 @@ class FanService(BaseService):
         self.user_service.register_callback(self.update_user_config)
         
     
-    async def run(self):
+    async def run(self):       
         while True:
             if self.mode == FanService.__MODE_HEARTRATE:
-                await asyncio.sleep(self.thread_sleep_time)
-            # TODO(Gaudon) : Implement
-            # Compare current heart rate values to user settings and relay indexes
+                target_relay = self.get_relay_for_heartrate()
+                current_relay = self.get_current_relay()
+
+                if current_relay is not None and target_relay is not None:
+                    if (target_relay.heart_rate_threshold < current_relay.heart_rate_threshold) and (time.ticks_ms() - self.last_relay_change >= 15000):
+                        self.enable_relay(target_relay)
+
             await asyncio.sleep(self.thread_sleep_time)
     
 
-    def enable_relay(self, relay_pin):
+    def enable_relay(self, relay):
         # Disable all other relays
         for relay in self.relays:
-            relay[1].off()
+            relay.state = Relay._STATE_OFF
 
         # Enable the target relay
-        for relay in self.relays:
-            if relay[0] == relay_pin:
-                relay[1].on()
+        relay.state = Relay._STATE_ON
+        self.last_relay_change = time.ticks_ms()
         
 
     def on_heart_rate_received(self, data):
@@ -90,18 +104,13 @@ class FanService(BaseService):
 
     def on_manual_mode_button_short_press(self):
         if self.mode == FanService.__MODE_MANUAL:
-            for i in range(0, len(self.active_relays)):
-                # Find the active relay
-                if self.relays[i][1].value() == 1:
-                    # Disable the current active relay
-                    self.relays[i][1].off()
+            for current_relay in self.relays:
+                if current_relay.state == Relay._STATE_ON:
+                    next_relay = self.find_next_enabled_relay(current_relay)
 
-                    # Enable the next relay
-                    if i == (len(self.active_relays) - 1):
-                        self.relays[int(self.active_relays[0][0]) - 1][1].on()
-                    else:
-                        self.relays[int(self.active_relays[i+1][0] - 1)][1].on()
-                    break
+                    if next_relay is not current_relay:
+                        self.enable_relay(next_relay)
+
         elif self.mode == FanService.__MODE_HEARTRATE:
             # Reserved for future functionality.
             pass
@@ -115,5 +124,44 @@ class FanService(BaseService):
 
     
     def update_user_config(self, user_config):
-        self.user_config = user_config
-        self.active_relays = self.user_config.get_fan_config(True)
+        for relay_config in user_config.get_relay_config():
+            for relay in self.relays:
+                if int(relay_config[0]) == relay.index_id:
+                    relay.enabled = bool(relay_config[1])
+                    relay.heart_rate_threshold = int(relay_config[2])
+                    break
+                    
+
+    def filter_active(self, relay):
+        return relay.enabled
+    
+
+    def get_current_relay(self):
+        for relay in self.relays:
+            if relay.enabled and relay.state == Relay._STATE_ON:
+                return relay
+            
+
+    def get_relay_for_heartrate(self):
+        target_relay = None
+        for relay in self.relays:
+            if relay.enabled:
+                if target_relay is None or self.heart_rate_value >= relay.heart_rate_threshold:
+                    target_relay = relay
+        
+        return target_relay
+
+
+    def find_next_enabled_relay(self, current_relay):
+        # Find the index of the current relay
+        current_index = self.relays.index(current_relay)
+
+        # Search for the next enabled relay
+        for i in range(1, len(self.relays)):
+            next_index = (current_index + i) % len(self.relays)
+            next_relay = self.relays[next_index]
+            if next_relay.enabled:
+                return next_relay
+
+        # If no next enabled relay found, return the current relay
+        return current_relay

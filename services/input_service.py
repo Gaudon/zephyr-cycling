@@ -22,7 +22,7 @@ class InputService(BaseService):
             # Add Bluetooth Button
             self.buttons.append(
                 Button(
-                    self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN), 
+                    int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), 
                     machine.Pin(int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), machine.Pin.IN), 
                     200, 
                     3000
@@ -32,7 +32,7 @@ class InputService(BaseService):
             # Add Manual Mode Operation Button
             self.buttons.append(
                 Button(
-                    self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN), 
+                    int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), 
                     machine.Pin(int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), machine.Pin.IN), 
                     200, 
                     3000

@@ -12,8 +12,8 @@ class UserService(BaseService):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.config_file_name = 'user.json'
         self.user_config = None
-        self.update_user_config()
         self.user_config_update_listeners = []
+        self.update_user_config()
 
     
     async def start(self):
@@ -39,7 +39,7 @@ class UserService(BaseService):
 
 
     def update_user_config(self):
-        with open("../config/user.json", "r") as file:
+        with open("/config/user.json", "r") as file:
             json_data = json.load(file)
             self.user_config = UserConfig(json_data)
             file.close()

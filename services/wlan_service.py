@@ -3,7 +3,6 @@ import utils.files as files
 import json
 
 from services.service_manager import service_locator
-from services.display_service import DisplayService
 from services.light_service import LightService
 from services.config_service import ConfigService
 from services.base_service import BaseService
