@@ -55,11 +55,4 @@ async def main():
 
         
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print(traceback)
-    except:
-        machine.reset()
-    finally: 
-        asyncio.new_event_loop()
+    asyncio.run(main())
