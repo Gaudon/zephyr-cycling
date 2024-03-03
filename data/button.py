@@ -1,12 +1,23 @@
 import time
 import asyncio
 
+from machine import Pin
+
 class Button:
+
+	pin_id: int
+	pin: Pin
+	last_update: int
+	init_time_ms: int
+	state: tuple
+	prev_state: tuple
+	short_press_time_ms: int
+	long_press_time_ms: int
 
 	STATE_UP = "STATE_UP"
 	STATE_DOWN = "STATE_DOWN"
 
-	def __init__(self, pin_id, pin, short_press_time_ms=200, long_press_time_ms=3000):
+	def __init__(self, pin_id: int, pin: Pin, short_press_time_ms: int=200, long_press_time_ms: int=3000):
 		self.pin_id = pin_id
 		self.pin = pin
 		self.last_update = 0

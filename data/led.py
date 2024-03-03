@@ -1,32 +1,27 @@
 import asyncio
+from machine import Pin
+
 
 class Led:
+
+    pin_id: int
+    pin: Pin
+    state: str
+    blink_time_ms: int
 
     _STATE_ON = "ON"
     _STATE_OFF = "OFF"
     _STATE_BLINKING = "BLINKING"
+        
 
-
-    def __init__(self, pin_id, pin, state, blink_time_ms=500):
+    def __init__(self, pin_id: int, pin: Pin, state: str, blink_time_ms: int=500):
         self.pin_id = pin_id
         self.pin = pin
         self.state = state
         self.blink_time_ms = blink_time_ms
 
 
-    def get_pin(self):
-        return (self.pin_id, self.pin)
-
-
-    def set_state(self, state):
-        self.state = state
-
-
-    def get_state(self):
-        return self.state
-    
-
-    async def update(self, sleep_time_ms=1000):
+    async def update(self, sleep_time_ms: int=1000):
         while True:
             if self.state == Led._STATE_OFF:
                 self.pin.on()

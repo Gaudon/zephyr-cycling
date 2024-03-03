@@ -1,11 +1,22 @@
 import asyncio
 
+from machine import Pin
+
+
 class Relay:
+
+    index: int
+    pin_id: int
+    pin: Pin
+    state: str
+    heart_rate_threshold: int
+    enabled: bool
 
     _STATE_ON = "ON"
     _STATE_OFF = "OFF"
 
-    def __init__(self, index, pin_id, pin, state, heart_rate_threshold, enabled):
+
+    def __init__(self, index: int, pin_id: int, pin: Pin, state: str, heart_rate_threshold: int, enabled: bool):
         self.index = index
         self.pin_id = pin_id
         self.pin = pin
@@ -14,7 +25,7 @@ class Relay:
         self.enabled = enabled
     
     
-    async def update(self, sleep_time_ms=100):
+    async def update(self, sleep_time_ms: int=100):
         while True:
             if self.state == Relay._STATE_OFF:
                 if self.pin.value() == 1:

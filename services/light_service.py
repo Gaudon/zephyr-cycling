@@ -64,6 +64,6 @@ class LightService(BaseService):
             elif led == LightService._LED_FAN_MODE:
                 target_pin_id = self.config_service.get(ConfigService._LED_MANUAL_FAN_PIN)
 
-            if target_pin_id is not None and l.get_pin()[0] == target_pin_id:
-                l.set_state(state)
+            if target_pin_id is not None and l.pin_id == target_pin_id:
+                l.state = state
                 break
