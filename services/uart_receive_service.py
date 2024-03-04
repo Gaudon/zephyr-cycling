@@ -35,16 +35,19 @@ class UartReceiveService(BaseService):
         self.baud_rate = int(self.config_service.get(UartReceiveService._CONFIG_UART_BAUD_RATE))
 
         # Uart
-        self.uart = UART(
-            self.uart_id, 
-            baudrate = self.baud_rate, 
-            tx = int(self.config_service.get(UartReceiveService._CONFIG_UART_TX_PIN)),
-            rx = int(self.config_service.get(UartReceiveService._CONFIG_UART_RX_PIN)),
-            txbuf = 1024,
-            rxbuf = 1024,
-            timeout_char = 100
-        )
-        self.uart.init(self.baud_rate, bits = self.buffer_size)
+        try:
+            self.uart = UART(
+                self.uart_id, 
+                baudrate = self.baud_rate, 
+                tx = int(self.config_service.get(UartReceiveService._CONFIG_UART_TX_PIN)),
+                rx = int(self.config_service.get(UartReceiveService._CONFIG_UART_RX_PIN)),
+                txbuf = 1024,
+                rxbuf = 1024,
+                timeout_char = 100
+            )
+            self.uart.init(self.baud_rate, bits = self.buffer_size)
+        except:
+            logging.error("[UartReceiveService] : Unable to initialize UART module.")
 
         # Listeners
         self.listeners = []
@@ -53,7 +56,7 @@ class UartReceiveService(BaseService):
         self.data = None
 
 
-    async def start(self):       
+    async def start(self):
         await asyncio.gather(
             self.run()
         )
@@ -68,7 +71,6 @@ class UartReceiveService(BaseService):
             self.data = self.uart.read()
 
         if self.data:
-            logging.debug("[UartReceiveService] : Heart Rate Data - {0}".format(self.data))
             try:
                 for listener in self.listeners:
                     await listener(self.data)
@@ -78,6 +80,6 @@ class UartReceiveService(BaseService):
 
 
     async def run(self):
-        while True:    
+        while True: 
             await self.receive_heart_rate_data()
             await asyncio.sleep(self.thread_sleep_time)

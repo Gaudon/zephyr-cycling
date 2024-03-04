@@ -2,6 +2,7 @@ import aioble
 import bluetooth
 import asyncio
 import random
+import logging
 
 from micropython import const
 
@@ -30,7 +31,7 @@ class BluetoothTransmitService(BaseService):
         self.config_service = service_locator.get(ConfigService)
         self.uart_service = service_locator.get(UartReceiveService)
         self.connection = None
-        
+
         # Bluetooth
         self.ble = bluetooth.BLE()
         self.ble.active(True)
@@ -67,10 +68,8 @@ class BluetoothTransmitService(BaseService):
 
         
     async def start(self):
-        await asyncio.gather(
-            self.run(),
-            self.connected()
-        )
+        coroutines = [self.run(), self.connected()]
+        await asyncio.gather(*coroutines)
 
 
     async def broadcasting(self):
@@ -81,14 +80,14 @@ class BluetoothTransmitService(BaseService):
                 services=[self._UUID_HEART_RATE_SERVICE, self._UUID_HEART_RATE_SENSOR, self._UUID_GENERIC_HEART_RATE_SENSOR],
                 appearance=0x037F,
             ) as connection:
-                print("[BluetoothTransmitService] : Accepted Connection - Device ({0})".format(connection.device))
+                logging.info("[BluetoothTransmitService] : Accepted Connection - Device ({0})".format(connection.device))
                 self.connection = connection
                 await connection.disconnected()
             await asyncio.sleep(random.uniform(0.01, 0.1))
 
     
     def set_state(self, state):
-        print("[BluetoothTransmitService] : State Changed - {0}".format(state))
+        logging.debug("[BluetoothTransmitService] : State Changed - {0}".format(state))
         self.__state = state
 
 
@@ -107,7 +106,7 @@ class BluetoothTransmitService(BaseService):
 
     async def connected(self):
         while True:
-            if self.connection and self.data:
+            if self.connection and self.data is not None:
                 self.char_heart_rate_measurement.notify(self.connection, self.data)
                     
             await asyncio.sleep(self.thread_sleep_time)
