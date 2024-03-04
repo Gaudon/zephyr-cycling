@@ -1,6 +1,5 @@
 import asyncio
-import machine
-import traceback
+import logging
 from web import server
 
 from services.service_manager import service_locator
@@ -16,12 +15,20 @@ from services.uart_transmit_service import UartTransmitService
 from services.fan_service import FanService
 
 
+class LogHandler:
+    def emit(self, record):
+        print("[%(levelname)s] : %(message)s" % record.__dict__)
+
+
 async def main():
     ############################
     # Configuration
     ############################
     service_locator.register(ConfigService())
     operation_mode = service_locator.get(ConfigService).get_operation_mode()
+
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger().addHandler(LogHandler())
 
     ############################
     # Service Initialization
@@ -41,7 +48,7 @@ async def main():
         service_locator.register(UartReceiveService(operation_mode, 0.05))
         service_locator.register(BluetoothTransmitService(operation_mode, 1))
 
-    print("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
+    logging.info("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
 
     # Start Services
     coroutines = []

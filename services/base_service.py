@@ -1,8 +1,13 @@
+import logging
+
 from services.config_service import ConfigService
 
 class BaseService:
 
-	def __init__(self, operation_mode, thread_sleep_time=1):
+	operation_mode: str
+	thread_sleep_time: float
+
+	def __init__(self, operation_mode: str, thread_sleep_time: float=1):
 		self.operation_mode = operation_mode
 		self.thread_sleep_time = thread_sleep_time
 

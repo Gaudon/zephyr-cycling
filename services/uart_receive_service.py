@@ -1,5 +1,6 @@
 import machine
 import asyncio
+import logging
 
 from machine import UART
 from services.service_manager import service_locator
@@ -67,6 +68,7 @@ class UartReceiveService(BaseService):
             self.data = self.uart.read()
 
         if self.data:
+            logging.debug("[UartReceiveService] : Heart Rate Data - {0}".format(self.data))
             try:
                 for listener in self.listeners:
                     await listener(self.data)

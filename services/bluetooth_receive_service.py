@@ -1,6 +1,7 @@
 import aioble
 import bluetooth
 import asyncio
+import logging
 
 from micropython import const
 
@@ -134,6 +135,7 @@ class BluetoothReceiveService(BaseService):
 
     async def scanning(self):
         if not self.__state == BluetoothReceiveService._STATE_SCAN_STARTED:
+            logging.info("[BluetoothReceiveService] : Scanning for devices...")
             async with aioble.scan(20000, 1280000, 11250, True) as scanner:
                 async for result in scanner:
                     if any(service in result.services() for service in self.supported_services):
@@ -144,14 +146,14 @@ class BluetoothReceiveService(BaseService):
         self.set_state(BluetoothReceiveService._STATE_SCAN_STARTED)
 
         if(len(self.nearby_heart_rate_services) == 0):
-            print('[BluetoothReceiveService] : No Connection - Heart rate monitor not found.')
+            logging.info("[BluetoothReceiveService] : No Connection - Heart rate monitor not found.")
             self.set_state(BluetoothReceiveService._STATE_IDLE)
         else:
             try:
                 self.connection = await self.nearby_heart_rate_services[0][1].connect(timeout_ms=10000)
                 self.set_state(BluetoothReceiveService._STATE_CONNECTING)
             except asyncio.TimeoutError:
-                print('[BluetoothReceiveService] : Connection Timeout - Could not connect to device.')
+                logging.info("[BluetoothReceiveService] : Connection Timeout - Could not connect to device.")
                 self.set_state(BluetoothReceiveService._STATE_IDLE)
             
 
@@ -180,8 +182,7 @@ class BluetoothReceiveService(BaseService):
 
             self.set_state(BluetoothReceiveService._STATE_CONNECTED)
         except Exception as e:
-                print(type(e).__name__)
-                print("[BluetoothReceiveService] : Exception - {0}".format(e))
+                logging.error("[BluetoothReceiveService] : Exception - {0}".format(e))
                 await self.disconnect()
 
 
