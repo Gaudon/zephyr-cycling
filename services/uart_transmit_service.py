@@ -1,5 +1,6 @@
 import machine
 import asyncio
+import logging
 
 from machine import UART
 from services.service_manager import service_locator
@@ -64,6 +65,7 @@ class UartTransmitService(BaseService):
 
     async def transmit_heart_rate_data(self):
         if self.data is not None:
+            logging.debug("[UartTransmitService] : Sending Heart Rate Data - {0}".format(self.data))
             self.uart.write(self.data)
             self.data = None
     

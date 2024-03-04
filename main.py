@@ -28,7 +28,6 @@ async def main():
     operation_mode = service_locator.get(ConfigService).get_operation_mode()
 
     logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger().addHandler(LogHandler())
 
     ############################
     # Service Initialization

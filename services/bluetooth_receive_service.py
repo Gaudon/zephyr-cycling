@@ -189,7 +189,7 @@ class BluetoothReceiveService(BaseService):
     async def connected(self):      
         if self.heart_rate_characteristic is not None:
             self.heart_rate_data = await self.heart_rate_characteristic.notified()
-            
+            logging.debug("[BluetoothReceiveService] : Heart Rate Received - {0}".format(self.heart_rate_data))
             for listener in self.listeners:
                 if listener[0] == self._EVENT_HEART_RATE_RECEIVED:
                     listener[1](bytes(self.heart_rate_data))
