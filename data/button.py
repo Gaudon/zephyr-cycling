@@ -46,7 +46,7 @@ class Button:
 					else:
 						for listener in self.short_press_listeners:
 							listener()
-			await asyncio.sleep(0.2)
+			await asyncio.sleep(0.005)
 
 
 	def register_short_press_callback(self, callback):

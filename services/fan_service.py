@@ -153,7 +153,7 @@ class FanService(BaseService):
         for relay in self.relays:
             if relay.enabled:
                 if self.heart_rate_value >= relay.heart_rate_threshold:
-                    logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR {2}".format(relay.index, relay.heart_rate_threshold, self.heart_rate_value))
+                    logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR ({2})".format(relay.index, relay.heart_rate_threshold, self.heart_rate_value))
                     target_relay = relay
         
         return target_relay
