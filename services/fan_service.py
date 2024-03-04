@@ -1,5 +1,6 @@
 import asyncio
 import time
+import logging
 
 from machine import Pin
 from data.relay import Relay
@@ -30,8 +31,6 @@ class FanService(BaseService):
 
 
     async def start(self):
-        await self.register_callbacks()
-
         for i in range(1, 9):
             self.relays.append(
                 Relay(
@@ -39,10 +38,12 @@ class FanService(BaseService):
                     int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)),
                     Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i))),
                     Relay._STATE_OFF,
-                    None,
+                    0,
                     False
                 )
             )
+
+        await self.register_callbacks()
 
         coroutines = []
         coroutines.append(self.run())
@@ -78,19 +79,22 @@ class FanService(BaseService):
             if self.mode == FanService.__MODE_HEARTRATE:
                 target_relay = self.get_relay_for_heartrate()
                 current_relay = self.get_current_relay()
-
-                if current_relay is not None and target_relay is not None:
-                    if target_relay.pin_id is not current_relay.pin_id:
-                        if (target_relay.heart_rate_threshold < current_relay.heart_rate_threshold) and (time.ticks_ms() - self.last_relay_change >= 15000):
-                            self.enable_relay(target_relay)
+                
+                if target_relay is not None:
+                    if current_relay is None:
+                        self.enable_relay(target_relay)
+                    else:
+                        if target_relay.pin_id is not current_relay.pin_id:
+                            if (target_relay.heart_rate_threshold < current_relay.heart_rate_threshold) and (time.ticks_ms() - self.last_relay_change >= 15000):
+                                self.enable_relay(target_relay)
 
             await asyncio.sleep(self.thread_sleep_time)
     
 
     def enable_relay(self, relay):
         # Disable all other relays
-        for relay in self.relays:
-            relay.state = Relay._STATE_OFF
+        for r in self.relays:
+            r.state = Relay._STATE_OFF
 
         # Enable the target relay
         relay.state = Relay._STATE_ON
@@ -123,14 +127,17 @@ class FanService(BaseService):
 
     
     def update_user_config(self, user_config):
-        for relay_config in user_config.get_relay_config():
-            for relay in self.relays:
-                if int(relay_config[0]) == relay.index_id:
+        relays_configured = []
+        for relay in self.relays:
+            for relay_config in user_config.get_relay_config():
+                if int(relay_config[0]) == int(relay.index) and relay.index not in relays_configured:
                     relay.enabled = bool(relay_config[1])
                     relay.heart_rate_threshold = int(relay_config[2])
+                    relays_configured.append(relay.index)
+                    logging.debug("[FanService] : Relay Updated - {0}".format(relay))
                     break
+    
                     
-
     def filter_active(self, relay):
         return relay.enabled
     
@@ -145,7 +152,8 @@ class FanService(BaseService):
         target_relay = None
         for relay in self.relays:
             if relay.enabled:
-                if target_relay is None or self.heart_rate_value >= relay.heart_rate_threshold:
+                if self.heart_rate_value >= relay.heart_rate_threshold:
+                    logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR {2}".format(relay.index, relay.heart_rate_threshold, self.heart_rate_value))
                     target_relay = relay
         
         return target_relay

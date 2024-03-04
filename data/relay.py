@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from machine import Pin
 
@@ -23,6 +24,7 @@ class Relay:
         self.state = state
         self.heart_rate_threshold = heart_rate_threshold
         self.enabled = enabled
+        logging.debug("[Relay] : Initialized - {0}".format(self))
     
     
     async def update(self, sleep_time_ms: int=100):
@@ -33,6 +35,7 @@ class Relay:
                 await asyncio.sleep(sleep_time_ms/1000)
             elif self.state == Relay._STATE_ON:
                 if self.pin.value() == 0:
+                    logging.debug("[Relay] : Enabled - Pin [{0}] Index [{1}]".format(self.pin_id, self.index))
                     self.pin.on()
                 await asyncio.sleep(sleep_time_ms/1000)
             else:
@@ -40,3 +43,7 @@ class Relay:
                 if self.pin.value() == 1:
                     self.pin.off()
                 await asyncio.sleep(sleep_time_ms/1000)
+
+
+    def __repr__(self) -> str:
+        return "[Relay] : index({0}) pin({1}) state({2}) enabled({3}) target({4})".format(self.index, self.pin_id, self.state, self.enabled, self.heart_rate_threshold)

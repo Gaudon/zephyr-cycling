@@ -1,3 +1,5 @@
+import logging
+
 class UserConfig:
 
     wifi_password: str
@@ -8,8 +10,9 @@ class UserConfig:
 
         if json_data is not None:
             self.wifi_password = json_data['wifi_password']
-            # TODO(Gaudon) : Implement
-            self.relay_config = []
+            for config_data in json_data['fan_config']:
+                self.relay_config.append((int(config_data[0]), bool(config_data[1]), int(config_data[2])))
+            logging.debug("[UserConfig] : Loaded Config - {0}".format(self.relay_config))
 
 
     def add_fan_mode(self, relay_number: int, status: bool, heart_rate: int):
@@ -28,3 +31,7 @@ class UserConfig:
             return enabled_relay_config
         else:
             return self.relay_config
+        
+
+    def __repr__(self) -> str:
+        return "Wifi Password: {0} - Relay Config: {1}".format(self.wifi_password, self.relay_config)

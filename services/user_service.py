@@ -1,5 +1,6 @@
 import json
 import asyncio
+import logging
 
 from services.base_service import BaseService
 from data.user_config import UserConfig
@@ -43,6 +44,6 @@ class UserService(BaseService):
             json_data = json.load(file)
             self.user_config = UserConfig(json_data)
             file.close()
-        
+
         for listener in self.user_config_update_listeners:
             listener(self.user_config)
