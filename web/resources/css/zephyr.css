@@ -1,0 +1,21 @@
+body {
+    background-color: #3f3b3b; /* Dark background color */
+    color: #fff; /* Light text color */
+  }
+  .logo {
+    width: 200px; /* Adjust width as needed */
+    height: 200px; /* Adjust height as needed */
+    margin: 10px;
+  }
+  .center-align-form {
+    display: flex;
+    justify-content: center;
+  }
+  .valign-wrapper {
+    display: flex;
+    align-items: center;
+  }
+  .nav-wrapper {
+      display: flex;
+      background-color: #2BBBAD;
+  }

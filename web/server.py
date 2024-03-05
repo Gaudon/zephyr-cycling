@@ -13,7 +13,7 @@ app = Microdot()
 @app.route('/', methods=['GET', 'POST'])
 async def root(request):
     if request.method == 'GET':
-        return files.read_file_as_string("../web/configuration.html"), 200, {'Content-Type': 'text/html'}
+        return send_file('../web/configuration.html')
     elif request.method == 'POST':
         # Process the form data
         user_config = UserConfig()

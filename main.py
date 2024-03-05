@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import gc
 from web import server
 
 from services.service_manager import service_locator
@@ -54,11 +55,20 @@ async def main():
     for service in service_locator.get_services():
         coroutines.append(service.start())
 
+    coroutines.append(cleanup())
+
     # Start Web Server
     coroutines.append(server.app.start_server(port=80, debug=True))
 
     await asyncio.gather(*coroutines)
 
-        
+
+async def cleanup():
+    while True:
+        gc.collect()
+        print(f"[SYSTEM] : Memory - {gc.mem_alloc()} of {gc.mem_free()} bytes used ({int(gc.mem_alloc() / gc.mem_free() * 100)}%).")
+        await asyncio.sleep(3)
+
+
 if __name__ == "__main__":
     asyncio.run(main())
