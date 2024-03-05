@@ -36,7 +36,7 @@ class FanService(BaseService):
                 Relay(
                     i,
                     int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)),
-                    Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i))),
+                    Pin(int(self.config_service.get(ConfigService._RELAY_PIN_PREFIX, i)), mode=Pin.OUT),
                     Relay._STATE_OFF,
                     0,
                     False
@@ -85,7 +85,10 @@ class FanService(BaseService):
                         self.enable_relay(target_relay)
                     else:
                         if target_relay.pin_id is not current_relay.pin_id:
-                            if (target_relay.heart_rate_threshold < current_relay.heart_rate_threshold) and (time.ticks_ms() - self.last_relay_change >= 15000):
+                            if target_relay.heart_rate_threshold < current_relay.heart_rate_threshold: 
+                                if time.ticks_ms() - self.last_relay_change >= 15000:
+                                    self.enable_relay(target_relay)
+                            else:
                                 self.enable_relay(target_relay)
 
             await asyncio.sleep(self.thread_sleep_time)
@@ -107,12 +110,20 @@ class FanService(BaseService):
 
     def on_manual_mode_button_short_press(self):
         if self.mode == FanService.__MODE_MANUAL:
+            relay_on = False
             for current_relay in self.relays:
                 if current_relay.state == Relay._STATE_ON:
+                    relay_on = True
+                    logging.debug("[FanService] : Current Relay - {0}".format(current_relay.pin_id))
                     next_relay = self.find_next_enabled_relay(current_relay)
-
-                    if next_relay is not current_relay:
+                    logging.debug("[FanService] : Next Relay - {0}".format(next_relay.pin_id))
+                    if next_relay.pin_id is not current_relay.pin_id:
                         self.enable_relay(next_relay)
+                        break
+
+            # No relays are active, enable the first.
+            if not relay_on:
+                self.enable_relay(self.relays[0])
 
         elif self.mode == FanService.__MODE_HEARTRATE:
             # Reserved for future functionality.
@@ -121,11 +132,21 @@ class FanService(BaseService):
 
     def on_manual_mode_button_long_press(self):
         if self.mode == FanService.__MODE_HEARTRATE:
-            self.mode = FanService.__MODE_MANUAL
+            self.change_fan_mode(FanService.__MODE_MANUAL)
         else:
-            self.mode = FanService.__MODE_HEARTRATE
+            self.change_fan_mode(FanService.__MODE_HEARTRATE)
+        
 
-    
+    def change_fan_mode(self, mode):
+        self.mode = mode
+
+        # Disable all relays
+        for r in self.relays:
+            r.state = Relay._STATE_OFF
+
+        logging.debug("[FanService] : Mode Changed - {0}".format(self.mode))
+
+
     def update_user_config(self, user_config):
         relays_configured = []
         for relay in self.relays:
@@ -153,9 +174,11 @@ class FanService(BaseService):
         for relay in self.relays:
             if relay.enabled:
                 if self.heart_rate_value >= relay.heart_rate_threshold:
-                    logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR ({2})".format(relay.index, relay.heart_rate_threshold, self.heart_rate_value))
                     target_relay = relay
         
+        if target_relay is not None:
+            logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR ({2})".format(relay.index, relay.heart_rate_threshold, self.heart_rate_value))
+
         return target_relay
 
 

@@ -27,7 +27,7 @@ class Relay:
         logging.debug("[Relay] : Initialized - {0}".format(self))
     
     
-    async def update(self, sleep_time_ms: int=100):
+    async def update(self, sleep_time_ms: int=150):
         while True:
             if self.state == Relay._STATE_OFF:
                 if self.pin.value() == 1:
@@ -35,7 +35,7 @@ class Relay:
                 await asyncio.sleep(sleep_time_ms/1000)
             elif self.state == Relay._STATE_ON:
                 if self.pin.value() == 0:
-                    logging.debug("[Relay] : Enabled - Pin [{0}] Index [{1}]".format(self.pin_id, self.index))
+                    logging.debug("[Relay] : Enabled - PinID [{0}] Index [{1}]".format(self.pin_id, self.index))
                     self.pin.on()
                 await asyncio.sleep(sleep_time_ms/1000)
             else:
