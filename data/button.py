@@ -14,39 +14,45 @@ class Button:
 	short_press_time_ms: int
 	long_press_time_ms: int
 
-	STATE_UP = "STATE_UP"
-	STATE_DOWN = "STATE_DOWN"
+	_STATE_UP = "STATE_UP"
+	_STATE_DOWN = "STATE_DOWN"
 
-	def __init__(self, pin_id: int, pin: Pin, short_press_time_ms: int=200, long_press_time_ms: int=3000):
+	def __init__(self, pin_id: int, pin: Pin, short_press_time_ms: int=200, long_press_time_ms: int=3000, between_presses_time_ms: int=1000):
 		self.pin_id = pin_id
 		self.pin = pin
-		self.last_update = 0
+		self.last_update = time.ticks_ms()
 		self.init_time_ms = time.ticks_ms()
-		self.state = (Button.STATE_UP, self.init_time_ms)
-		self.prev_state = (Button.STATE_UP, self.init_time_ms)
+		self.__state = (Button._STATE_UP, self.init_time_ms)
+		self.__prev_state = (Button._STATE_UP, self.init_time_ms)
 		self.short_press_time_ms = short_press_time_ms
 		self.long_press_time_ms = long_press_time_ms
+		self.between_presses_time_ms = between_presses_time_ms
 		self.short_press_listeners = []
 		self.long_press_listeners = []
 
 
 	async def update(self):
 		while True:
-			if self.pin.value() == 1:
-				if self.state[0] == Button.STATE_UP:
-					self.prev_state = self.state
-					self.state = (Button.STATE_DOWN, time.ticks_ms())
-			else:
-				if self.state[0] == Button.STATE_DOWN:
-					self.prev_state = self.state
-					self.state = (Button.STATE_UP, time.ticks_ms())
-					if self.state[1] - self.prev_state[1] >= self.long_press_time_ms:
-						for listener in self.long_press_listeners:
-							listener()
-					else:
-						for listener in self.short_press_listeners:
-							listener()
-			await asyncio.sleep(0.005)
+			if time.ticks_ms() - self.last_update >= self.between_presses_time_ms:
+				if self.pin.value() == 1:
+					if self.__state[0] == Button._STATE_UP:
+						self.set_state(Button._STATE_DOWN)
+				else:
+					if self.__state[0] == Button._STATE_DOWN:
+						self.set_state(Button._STATE_UP)
+						if self.__state[1] - self.__prev_state[1] >= self.long_press_time_ms:
+							for listener in self.long_press_listeners:
+								listener()
+						else:
+							for listener in self.short_press_listeners:
+								listener()
+			await asyncio.sleep(0.01)
+
+
+	def set_state(self, state):
+		self.__prev_state = self.__state
+		self.__state = (state, time.ticks_ms())
+		self.last_update = time.ticks_ms()
 
 
 	def register_short_press_callback(self, callback):
