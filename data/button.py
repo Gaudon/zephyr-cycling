@@ -17,7 +17,7 @@ class Button:
 	_STATE_UP = "STATE_UP"
 	_STATE_DOWN = "STATE_DOWN"
 
-	def __init__(self, pin_id: int, pin: Pin, short_press_time_ms: int=200, long_press_time_ms: int=3000, between_presses_time_ms: int=1000):
+	def __init__(self, pin_id: int, pin: Pin, short_press_time_ms: int=200, long_press_time_ms: int=1500, between_presses_time_ms: int=1000):
 		self.pin_id = pin_id
 		self.pin = pin
 		self.last_update = time.ticks_ms()

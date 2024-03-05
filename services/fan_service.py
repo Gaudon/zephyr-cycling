@@ -4,11 +4,13 @@ import logging
 
 from machine import Pin
 from data.relay import Relay
+from data.led import Led
 from services.service_manager import service_locator
 from services.base_service import BaseService
 from services.config_service import ConfigService
 from services.user_service import UserService
 from services.input_service import InputService
+from services.light_service import LightService
 from services.bluetooth_receive_service import BluetoothReceiveService
 
 
@@ -24,6 +26,7 @@ class FanService(BaseService):
         self.bluetooth_receive_service = service_locator.get(BluetoothReceiveService)
         self.input_service = service_locator.get(InputService)
         self.user_service = service_locator.get(UserService)
+        self.light_service = service_locator.get(LightService)
         self.mode = FanService.__MODE_HEARTRATE
         self.heart_rate_value = 0
         self.relays = []
@@ -114,9 +117,7 @@ class FanService(BaseService):
             for current_relay in self.relays:
                 if current_relay.state == Relay._STATE_ON:
                     relay_on = True
-                    logging.debug("[FanService] : Current Relay - {0}".format(current_relay.pin_id))
                     next_relay = self.find_next_enabled_relay(current_relay)
-                    logging.debug("[FanService] : Next Relay - {0}".format(next_relay.pin_id))
                     if next_relay.pin_id is not current_relay.pin_id:
                         self.enable_relay(next_relay)
                         break
@@ -144,6 +145,10 @@ class FanService(BaseService):
         for r in self.relays:
             r.state = Relay._STATE_OFF
 
+        self.light_service.set_led_state(
+            LightService._LED_FAN_MODE, 
+            Led._STATE_OFF if (mode == FanService.__MODE_HEARTRATE) else Led._STATE_ON
+        )
         logging.debug("[FanService] : Mode Changed - {0}".format(self.mode))
 
 
