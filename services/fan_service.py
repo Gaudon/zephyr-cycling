@@ -97,10 +97,15 @@ class FanService(BaseService):
             await asyncio.sleep(self.thread_sleep_time)
     
 
-    def enable_relay(self, relay):
+    def disable_all_relays(self):
         # Disable all other relays
         for r in self.relays:
             r.state = Relay._STATE_OFF
+
+
+    def enable_relay(self, relay):
+        # Disable all other relays
+        self.disable_all_relays()
 
         # Enable the target relay
         relay.state = Relay._STATE_ON
@@ -118,7 +123,11 @@ class FanService(BaseService):
                 if current_relay.state == Relay._STATE_ON:
                     relay_on = True
                     next_relay = self.find_next_enabled_relay(current_relay)
-                    if next_relay.pin_id is not current_relay.pin_id:
+
+                    if next_relay is None:
+                        self.disable_all_relays()
+                        return
+                    elif next_relay.pin_id is not current_relay.pin_id:
                         self.enable_relay(next_relay)
                         break
 
@@ -196,7 +205,10 @@ class FanService(BaseService):
             next_index = (current_index + i) % len(self.relays)
             next_relay = self.relays[next_index]
             if next_relay.enabled:
-                return next_relay
+                if self.relays.index(next_relay) > current_index:
+                    return next_relay
+                else:
+                    return None
 
         # If no next enabled relay found, return the current relay
         return current_relay
