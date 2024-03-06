@@ -10,7 +10,7 @@ class UserConfig:
 
         if json_data is not None:
             self.wifi_password = json_data['wifi_password']
-            for config_data in json_data['fan_config']:
+            for config_data in json_data['relay_config']:
                 self.relay_config.append((int(config_data[0]), bool(config_data[1]), int(config_data[2])))
             logging.debug("[UserConfig] : Loaded Config - {0}".format(self.relay_config))
 

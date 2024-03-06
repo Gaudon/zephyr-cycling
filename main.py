@@ -15,11 +15,6 @@ from services.uart_transmit_service import UartTransmitService
 from services.fan_service import FanService
 
 
-class LogHandler:
-    def emit(self, record):
-        print("[%(levelname)s] : %(message)s" % record.__dict__)
-
-
 async def main():
     ############################
     # Configuration
@@ -67,7 +62,7 @@ async def main():
 async def cleanup():
     while True:
         gc.collect()
-        print(f"[SYSTEM] : Memory - {gc.mem_alloc()} of {gc.mem_free()} bytes used ({int(gc.mem_alloc() / gc.mem_free() * 100)}%).")
+        logging.debug(f"[SYSTEM] : Memory - {gc.mem_alloc()} of {gc.mem_free()} bytes used ({int(gc.mem_alloc() / gc.mem_free() * 100)}%).")
         await asyncio.sleep(10)
 
 
