@@ -69,20 +69,24 @@ class BluetoothTransmitService(BaseService):
         
     async def start(self):
         coroutines = [self.run(), self.connected()]
-        await asyncio.gather(*coroutines)
+        await asyncio.gather(*coroutines, return_exceptions=True)
 
 
     async def broadcasting(self):
         while True:
-            async with await aioble.advertise(
-                BluetoothTransmitService.BLUETOOTH_ADVERTISING_INTERVAL,
-                name="Zephyr HRM",
-                services=[self._UUID_HEART_RATE_SERVICE, self._UUID_HEART_RATE_SENSOR, self._UUID_GENERIC_HEART_RATE_SENSOR],
-                appearance=0x037F,
-            ) as connection:
-                logging.info("[BluetoothTransmitService] : Accepted Connection - Device ({0})".format(connection.device))
-                self.connection = connection
-                await connection.disconnected()
+            try:
+                async with await aioble.advertise(
+                    BluetoothTransmitService.BLUETOOTH_ADVERTISING_INTERVAL,
+                    name="Zephyr HRM",
+                    services=[self._UUID_HEART_RATE_SERVICE, self._UUID_HEART_RATE_SENSOR, self._UUID_GENERIC_HEART_RATE_SENSOR],
+                    appearance=0x037F,
+                ) as connection:
+                    logging.info("[BluetoothTransmitService] : Accepted Connection - Device ({0})".format(connection.device))
+                    self.connection = connection
+                    await connection.disconnected()
+            except Exception as e:
+                logging.debug("[BluetoothTransmitService] : An exception has occurred - {0}".format(e))
+
             await asyncio.sleep(random.uniform(0.01, 0.1))
 
     
@@ -106,22 +110,28 @@ class BluetoothTransmitService(BaseService):
 
     async def connected(self):
         while True:
-            if self.connection and self.data is not None:
-                self.char_heart_rate_measurement.notify(self.connection, self.data)
-                    
+            try:
+                if self.connection and self.data is not None:
+                    self.char_heart_rate_measurement.notify(self.connection, self.data)
+            except Exception as e:
+                logging.debug("[BluetoothTransmitService] : An exception has occurred - {0}".format(e))
+                self.set_state(BluetoothTransmitService._STATE_BROADCASTING)
             await asyncio.sleep(self.thread_sleep_time)
 
 
     async def run(self):
         while True:
-            if self.__state == BluetoothTransmitService._STATE_IDLE:
-                # Idle state should transition to broadcasting afer a period of inactivity.
-                await self.idle()
-            elif self.__state == BluetoothTransmitService._STATE_BROADCASTING:
-                # Wait for a connection request
-                await self.broadcasting()
-            elif self.__state == BluetoothTransmitService._STATE_PAIRED:
-                # Ensure connection still exists and do nothing
-                await self.paired()
+            try:
+                if self.__state == BluetoothTransmitService._STATE_IDLE:
+                    # Idle state should transition to broadcasting afer a period of inactivity.
+                    await self.idle()
+                elif self.__state == BluetoothTransmitService._STATE_BROADCASTING:
+                    # Wait for a connection request
+                    await self.broadcasting()
+                elif self.__state == BluetoothTransmitService._STATE_PAIRED:
+                    # Ensure connection still exists and do nothing
+                    await self.paired()
+            except Exception as e:
+                logging.debug("[BluetoothTransmitService] : An exception has occurred - {0}".format(e))
 
             await asyncio.sleep(self.thread_sleep_time)
