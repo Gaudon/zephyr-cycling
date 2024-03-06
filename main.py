@@ -53,6 +53,7 @@ async def main():
 
     # Start Web Server
     if operation_mode == ConfigService._OP_MODE_PRIMARY:
+        gc.collect()
         from web import server
         coroutines.append(server.app.start_server(port=80, debug=True))
 

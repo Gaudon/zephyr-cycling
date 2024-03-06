@@ -191,7 +191,7 @@ class FanService(BaseService):
                     target_relay = relay
         
         if target_relay is not None:
-            logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR ({2})".format(relay.index, relay.heart_rate_threshold, self.heart_rate_value))
+            logging.debug("[FanService] : Target Relay ({0}) HRT ({1}) HR ({2})".format(target_relay.pin_id, target_relay.heart_rate_threshold, self.heart_rate_value))
 
         return target_relay
 
