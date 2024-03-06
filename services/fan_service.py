@@ -52,7 +52,6 @@ class FanService(BaseService):
 
         coroutines = []
         coroutines.append(self.run())
-        coroutines.append(self.check_for_stale_data())
         for relay in self.relays:
             coroutines.append(relay.update())
 
@@ -95,9 +94,7 @@ class FanService(BaseService):
                                 if self.time_in_lower_hr_zone >= 15000:
                                     self.enable_relay(target_relay)
                                 else:
-
-                                if time.ticks_ms() - self.last_relay_change >= 15000:
-                                    self.enable_relay(target_relay)
+                                    self.time_in_lower_hr_zone += (time.ticks_ms() - self.last_relay_update)
                             else:
                                 self.enable_relay(target_relay)
                         else:
@@ -107,22 +104,6 @@ class FanService(BaseService):
             self.last_relay_update = time.ticks_ms()
             await asyncio.sleep(self.thread_sleep_time)
     
-
-    async def check_for_stale_data(self):
-        max_hrt = 0
-
-        while True:
-            if self.heart_rate_value[1] is not 0:
-                # Stale heart rate data detected
-                if time.ticks_ms() - self.heart_rate_value[1] >= 30000:
-                    for r in self.relays:
-                        if r.enabled:
-                            if r.heart_rate_threshold >= max_hrt or max_hrt == 0:
-                                max_hrt = r.heart_rate_threshold
-            
-                self.heart_rate_value = (int(0.75 * max_hrt), 0)
-            await asyncio.sleep(self.thread_sleep_time)
-
 
     def disable_all_relays(self):
         # Disable all other relays
