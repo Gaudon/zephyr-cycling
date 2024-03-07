@@ -114,7 +114,13 @@ class BluetoothReceiveService(BaseService):
     async def disconnect(self):
         if self.connection is not None:
             await self.connection.disconnect()
-            self.set_state(BluetoothReceiveService._STATE_IDLE)
+            self.connection = None
+            self.nearby_heart_rate_services = []
+            self.heart_rate_service = None
+            self.heart_rate_characteristic = None
+            self.heart_rate_subscription = False
+            self.heart_rate_data = None
+            self.set_state(BluetoothReceiveService._STATE_SCANNING)
 
         
     async def run(self):
@@ -187,13 +193,13 @@ class BluetoothReceiveService(BaseService):
     async def connected(self):      
         try:
             if self.heart_rate_characteristic is not None:
-                self.heart_rate_data = await self.heart_rate_characteristic.notified()
+                self.heart_rate_data = await self.heart_rate_characteristic.notified(timeout_ms=5000)
                 logging.debug("[BluetoothReceiveService] : Heart Rate Received - {0}".format(self.heart_rate_data))
                 for listener in self.listeners:
                     if listener[0] == self._EVENT_HEART_RATE_RECEIVED:
                         listener[1](bytes(self.heart_rate_data))
                 
-                await asyncio.sleep(self.thread_sleep_time)
-        except aioble.DeviceDisconnectedError as e:
+            await asyncio.sleep(self.thread_sleep_time)
+        except Exception as e:
             logging.debug("[BluetoothReceiveService] : Device Disconnected - {0}".format(e))
-            self.set_state(BluetoothReceiveService._STATE_CONNECTING)
+            await self.disconnect()
