@@ -99,11 +99,8 @@ class BluetoothReceiveService(BaseService):
             InputService._BTN_CALLBACK_LONG_PRESS
         )
 
-        await asyncio.gather(
-            self.run(),
-            self.update_bluetooth_led(),
-            return_exceptions=True
-        )
+        coroutines = [self.run(), self.update_bluetooth_led()]
+        await asyncio.gather(*coroutines, return_exceptions=True)
 
 
     def set_state(self, state):
