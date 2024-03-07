@@ -34,8 +34,7 @@ class LightService(BaseService):
                 self.config_service.get(ConfigService._LED_BLUETOOTH_PIN), 
                 machine.Pin(int(self.config_service.get(ConfigService._LED_BLUETOOTH_PIN)), machine.Pin.OUT),
                 Led._STATE_OFF,
-                250,
-                True
+                250
             )
         )
 
