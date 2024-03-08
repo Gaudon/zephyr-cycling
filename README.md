@@ -14,6 +14,17 @@ While the features and functionality are somewhat straight forward, here's a sho
 
 This project was built using 2 [Raspberry Pi PicoW](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) microcontrollers, a set of 120V relays, buttons and 5mm LEDs.
 
+The components used in this MVP came from a Canadian supplier called [PiShop](https://www.pishop.ca). 
+
+Component | Quantity | Description | Unit Price (CAD) |
+|:-:|:-:|:-:|:-:|
+[PicoW](https://www.pishop.ca/product/raspberry-pi-pico-wh-pre-soldered-headers/) | 2 | Microcontrollers for the project. | ~$9
+[Breadboard Wiring Kit](https://www.pishop.ca/product/breadboard-wiring-kit/) | 1 | Misc length wires for building out the breadboard. | ~$8
+[Breadboards](https://www.pishop.ca/product/half-size-400-pin-electronics-diy-breadboard/) | 1 | Breadboards to build the project on. | ~$8
+[Component Kit](https://www.pishop.ca/product/component-kit-for-arduino/) | 1 | Misc components (buttons, switches, resistors) for the project. | ~$8
+[8 Channel Relay Module](https://www.pishop.ca/product/8-channel-relay-module/) | 1 | Allows the low voltage microcontrollers to drive and direct the flow of higher voltage (120v) load lines to the fan. | ~$10
+
+
 ### Software
 
 This project uses Micropython to implement the 'smart' functionality. It depends on several other incredible projects/works from other developers to help make this possible.
