@@ -28,6 +28,7 @@ class BluetoothReceiveService(BaseService):
 
         self.__state = BluetoothReceiveService._STATE_IDLE
         self.connection = None
+        self.__always_scan = False
         self.nearby_heart_rate_services = []
         self.heart_rate_service = None
         self.heart_rate_characteristic = None
@@ -126,6 +127,8 @@ class BluetoothReceiveService(BaseService):
     async def run(self):
         while True:
             if self.__state == BluetoothReceiveService._STATE_IDLE:
+                if self.__always_scan:
+                    self.set_state(BluetoothReceiveService._STATE_SCANNING)
                 await asyncio.sleep(self.thread_sleep_time)
             elif self.__state in [BluetoothReceiveService._STATE_SCANNING, BluetoothReceiveService._STATE_SCAN_STARTED]:
                 await self.scanning()
