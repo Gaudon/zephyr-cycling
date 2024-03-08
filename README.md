@@ -8,6 +8,14 @@ While the features and functionality are somewhat straight forward, here's a sho
 
 [Video Overview: How it Works](https://youtu.be/IWAn6BZootY)
 
+### Can I see it in action?
+
+The production value of these videos is quite low 😂. But here's some initial testing of the unit running for my own purposes. I did complete the first ride using it on March 7th, 2024 and it worked a treat!
+
+[Treadmill Example](https://youtu.be/G-9pirc2J4w)
+
+[Cycling Example](https://youtube.com/shorts/M7jgy0t9K8Y?feature=share)
+
 ## How was this built?
 
 ### Hardware
@@ -31,14 +39,6 @@ This project uses Micropython to implement the 'smart' functionality. It depends
 
 [MicroPython](https://github.com/micropython/micropython) | [MicroDot](https://github.com/miguelgrinberg/microdot) | [CSC_BLE_Bridge](https://github.com/starryalley/CSC_BLE_Bridge) (Debug Tool)
 
-## Can I see it in action?
-
-The production value of these videos is quite low 😂. But here's some initial testing of the unit running for my own purposes. I did complete the first ride using it on March 7th, 2024 and it worked a treat!
-
-[Treadmill Example](https://youtu.be/G-9pirc2J4w)
-
-[Cycling Example](https://youtube.com/shorts/M7jgy0t9K8Y?feature=share)
-
-## What's Next?
+## Future Plans?
 
 I'd love to be able to put some time into learning KiCAD (or similar software) to provision a schematic or PCB to make adapting this project for DIYers a little less cumbersome. I have limited experience in EDA tools but it's on my list of things I'd like to get more familiar with!
