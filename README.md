@@ -28,7 +28,7 @@ Component | Quantity | Description | Unit Price (CAD) |
 |:-:|:-:|:-:|:-:|
 [PicoW](https://www.pishop.ca/product/raspberry-pi-pico-wh-pre-soldered-headers/) | 2 | Microcontrollers for the project. | ~$9
 [Breadboard Wiring Kit](https://www.pishop.ca/product/breadboard-wiring-kit/) | 1 | Misc length wires for building out the breadboard. | ~$8
-[Breadboards](https://www.pishop.ca/product/half-size-400-pin-electronics-diy-breadboard/) | 1 | Breadboards to build the project on. | ~$8
+[Breadboard](https://www.pishop.ca/product/half-size-400-pin-electronics-diy-breadboard/) | 2 | Breadboards to build the project on. | ~$8
 [Component Kit](https://www.pishop.ca/product/component-kit-for-arduino/) | 1 | Misc components (buttons, switches, resistors) for the project. | ~$8
 [8 Channel Relay Module](https://www.pishop.ca/product/8-channel-relay-module/) | 1 | Allows the low voltage microcontrollers to drive and direct the flow of higher voltage (120v) load lines to the fan. | ~$10
 
