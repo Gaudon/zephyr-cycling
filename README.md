@@ -22,7 +22,7 @@ This project uses Micropython to implement the 'smart' functionality. It depends
 
 ## Can I see it in action?
 
-The production values of these videos is quite low 😂. But here's some initial testing of the unit running for my own purposes. I did complete the first ride using it on March 7th, 2024 and it worked a treat!
+The production value of these videos is quite low 😂. But here's some initial testing of the unit running for my own purposes. I did complete the first ride using it on March 7th, 2024 and it worked a treat!
 
 [Treadmill Example](https://youtu.be/G-9pirc2J4w)
 
