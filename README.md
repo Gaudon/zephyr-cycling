@@ -18,7 +18,7 @@ This project was built using 2 [Raspberry Pi PicoW](https://www.raspberrypi.com/
 
 This project uses Micropython to implement the 'smart' functionality. It depends on several other incredible projects/works from other developers to help make this possible.
 
-[MicroPython](https://github.com/micropython/micropython) | [MicroDot](https://github.com/miguelgrinberg/microdot) | [CSC_BLE_Bridge](https://github.com/starryalley/CSC_BLE_Bridge)
+[MicroPython](https://github.com/micropython/micropython) | [MicroDot](https://github.com/miguelgrinberg/microdot) | [CSC_BLE_Bridge](https://github.com/starryalley/CSC_BLE_Bridge) (Debug Tool)
 
 ## Can I see it in action?
 
