@@ -197,7 +197,6 @@ class BluetoothReceiveService(BaseService):
         # After achieveing a successful connection, always look for a connection incase a dropout occurs.
         if not self.__always_scan:
             self.__always_scan = True
-            
         try:
             if self.heart_rate_characteristic is not None:
                 self.heart_rate_data = await self.heart_rate_characteristic.notified(timeout_ms=5000)

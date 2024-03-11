@@ -111,7 +111,26 @@ class FanService(BaseService):
             r.state = Relay._STATE_OFF
 
 
-    def enable_relay(self, relay):
+    def set_relay_by_id(self, relay: int, enabled: bool):
+        if self.mode == FanService.__MODE_MANUAL:
+            for r in self.relays:
+                if r.index == relay:
+                    # Valid relay found.
+                    if enabled and r.state is not Relay._STATE_ON:
+                        self.enable_relay(r)
+                    elif not enabled and r.state is Relay._STATE_ON:
+                        self.disable_all_relays()
+                    return
+
+
+    def toggle_relay(self, relay: Relay):
+        if relay.state == Relay._STATE_ON:
+            relay.state = Relay._STATE_OFF
+        else:
+            relay.state = Relay._STATE_ON
+
+
+    def enable_relay(self, relay: Relay):
         # Disable all other relays
         self.disable_all_relays()
 
@@ -157,17 +176,18 @@ class FanService(BaseService):
         
 
     def change_fan_mode(self, mode):
-        self.mode = mode
+        if self.mode is not mode:
+            self.mode = mode
 
-        # Disable all relays
-        for r in self.relays:
-            r.state = Relay._STATE_OFF
+            # Disable all relays
+            for r in self.relays:
+                r.state = Relay._STATE_OFF
 
-        self.light_service.set_led_state(
-            LightService._LED_FAN_MODE, 
-            Led._STATE_OFF if (mode == FanService.__MODE_HEARTRATE) else Led._STATE_ON
-        )
-        logging.debug("[FanService] : Mode Changed - {0}".format(self.mode))
+            self.light_service.set_led_state(
+                LightService._LED_FAN_MODE, 
+                Led._STATE_OFF if (mode == FanService.__MODE_HEARTRATE) else Led._STATE_ON
+            )
+            logging.debug("[FanService] : Mode Changed - {0}".format(self.mode))
 
 
     def update_user_config(self, user_config):

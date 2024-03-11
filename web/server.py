@@ -1,14 +1,14 @@
 import json
+import logging
 
 from utils import files
-from lib.microdot import Microdot, send_file, Request
+from lib.microdot import Microdot, send_file, Request, Response
 from data.user_config import UserConfig
 from services.service_manager import service_locator
 from services.user_service import UserService
-
+from services.fan_service import FanService
 
 app = Microdot()
-
 
 @app.route('/', methods=['GET', 'POST'])
 async def root(request):
@@ -52,3 +52,13 @@ async def resources(request, path):
     if '..' in path:
         return 'Not found', 404
     return send_file('../web/resources/' + path, max_age=86400)
+
+
+@app.route('relay', methods=['GET'])
+async def set_relay(request):
+    if request.args is not None:
+        logging.debug("[WebServer] : Request Args - {0}".format(request.args))
+        logging.debug("[WebServer] : Updated Relay - {0}, {1}".format(int(request.args['id'][0]), bool(int(request.args['status'][0]))))
+        service_locator.get(FanService).change_fan_mode(FanService.__MODE_MANUAL)
+        service_locator.get(FanService).set_relay_by_id(int(request.args['id'][0]), bool(int(request.args['status'][0])))  
+    return Response()
