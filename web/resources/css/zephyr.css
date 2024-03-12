@@ -1,7 +1,19 @@
 body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
     background-color: #3f3b3b; /* Dark background color */
     color: #fff; /* Light text color */
   }
+main {
+  flex: 1 0 auto;
+}
+.page-footer {
+  background-color: #2BBBAD
+}
+.page-footer .btn {
+  width: 100%;
+}
 .logo {
   width: auto; /* Adjust width as needed */
   height: 85%; /* Adjust height as needed */

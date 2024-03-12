@@ -15,87 +15,103 @@
     </div>
 </nav>
 <body>
-  <div class="container center-align">
-    <!-- Form with settings -->
-    <div class="row center-align-form">
-      <form class="col s12 center-align" id="user_settings_form" method="post" action="">
-        <!-- Header row -->
-        <div class="row valign-wrapper">
-          <div class="col s3">Fan Mode</div>
-          <div class="col s3">Enabled</div>
-          <div class="col s6">Target Heart Rate</div>
-        </div>
-        <!-- Content Rows -->
-        <div class="row valign-wrapper">
-          <div class="col s3">
-            <label><h5>1</h5></label>
-          </div>
-          <div class="switch col s3">
-            <label>
-              <input type="checkbox" id="en1" name="en1">
-              <span class="lever"></span>
-            </label>
-          </div>
-          <div class="input-field col s6">
-            <input id="hr1" type="number" name="hr1" class="validate" min="0" max="255">
-            <label for="hr1"></label>
-          </div>
-        </div>
-        <div class="row valign-wrapper">
-          <div class="col s3">
-            <label><h5>2</h5></label>
-          </div>
-          <div class="switch col s3">
-            <label>
-              <input type="checkbox" id="en2" name="en2">
-              <span class="lever"></span>
-            </label>
-          </div>
-          <div class="input-field col s6">
-            <input id="hr2" type="number" name="hr2" class="validate" min="0" max="255">
-            <label for="hr2"></label>
-          </div>
-        </div>
-        <div class="row valign-wrapper">
-          <div class="col s3">
-            <label><h5>3</h5></label>
-          </div>
-          <div class="switch col s3">
-            <label>
-              <input type="checkbox" id="en3" name="en3">
-              <span class="lever"></span>
-            </label>
-          </div>
-          <div class="input-field col s6">
-            <input id="hr3" type="number" name="hr3" class="validate" min="0" max="255">
-            <label for="hr3"></label>
-          </div>
-        </div>
-        <div class="row valign-wrapper">
-          <div class="col s3">
-            <label><h5>4</h5></label>
-          </div>
-          <div class="switch col s3">
-            <label>
-              <input type="checkbox" id="en4" name="en4">
-              <span class="lever"></span>
-            </label>
-          </div>
-          <div class="input-field col s6">
-            <input id="hr4" type="number" name="hr4" class="validate" min="0" max="255">
-            <label for="hr4"></label>
-          </div>
-        </div>
-        <button class="btn waves-effect waves-light" onclick="saveUserConfig(); return false" id="settings_save_button">Save</button>
-      </form>
-    </div>
-  </div>
+  <main>
 
-  <!-- Materialize JavaScript -->
-  <script src="resources/js/materialize.js"></script>
-  <script src="resources/js/zephyr.js"></script>
-  <script>
-    loadUserConfig()
-  </script>
+    <div class="container center-align">
+      <!-- Form with settings -->
+      <div class="row center-align-form">
+        <form class="col s12 center-align" id="user_settings_form" method="post" action="">
+          <!-- Header row -->
+          <div class="row valign-wrapper">
+            <div class="col s3">Fan Mode</div>
+            <div class="col s3">Enabled</div>
+            <div class="col s6">Target Heart Rate</div>
+          </div>
+          <!-- Content Rows -->
+          <div class="row valign-wrapper">
+            <div class="col s3">
+              <label><h5>1</h5></label>
+            </div>
+            <div class="switch col s3">
+              <label>
+                <input type="checkbox" id="en1" name="en1">
+                <span class="lever"></span>
+              </label>
+            </div>
+            <div class="input-field col s6">
+              <input id="hr1" type="number" name="hr1" class="validate" min="0" max="255">
+              <label for="hr1"></label>
+            </div>
+          </div>
+          <div class="row valign-wrapper">
+            <div class="col s3">
+              <label><h5>2</h5></label>
+            </div>
+            <div class="switch col s3">
+              <label>
+                <input type="checkbox" id="en2" name="en2">
+                <span class="lever"></span>
+              </label>
+            </div>
+            <div class="input-field col s6">
+              <input id="hr2" type="number" name="hr2" class="validate" min="0" max="255">
+              <label for="hr2"></label>
+            </div>
+          </div>
+          <div class="row valign-wrapper">
+            <div class="col s3">
+              <label><h5>3</h5></label>
+            </div>
+            <div class="switch col s3">
+              <label>
+                <input type="checkbox" id="en3" name="en3">
+                <span class="lever"></span>
+              </label>
+            </div>
+            <div class="input-field col s6">
+              <input id="hr3" type="number" name="hr3" class="validate" min="0" max="255">
+              <label for="hr3"></label>
+            </div>
+          </div>
+          <div class="row valign-wrapper">
+            <div class="col s3">
+              <label><h5>4</h5></label>
+            </div>
+            <div class="switch col s3">
+              <label>
+                <input type="checkbox" id="en4" name="en4">
+                <span class="lever"></span>
+              </label>
+            </div>
+            <div class="input-field col s6">
+              <input id="hr4" type="number" name="hr4" class="validate" min="0" max="255">
+              <label for="hr4"></label>
+            </div>
+          </div>
+          <button class="btn waves-effect waves-light" onclick="saveUserConfig(); return false" id="settings_save_button">Save</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <footer class="page-footer">
+    <div class="container">
+      <div class="row s12 center-align">
+        <div class="col s4 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_1" onclick="onFanModeButtonClick(0)">OFF</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_1" onclick="onFanModeButtonClick(1)">1</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_2" onclick="onFanModeButtonClick(2)">2</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_3" onclick="onFanModeButtonClick(3)">3</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_4" onclick="onFanModeButtonClick(4)">4</button></div>
+      </div>
+    </div>
+  </footer>
 </body>
+
+
+<!-- Materialize JavaScript -->
+<script src="resources/js/materialize.js"></script>
+<script src="resources/js/zephyr.js"></script>
+<script>
+  M.AutoInit();
+  loadUserConfig()
+</script>
 </html>

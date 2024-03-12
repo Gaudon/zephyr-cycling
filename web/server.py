@@ -61,6 +61,10 @@ async def set_relay(request):
     if request.args is not None:
         logging.debug("[WebServer] : Request Args - {0}".format(request.args))
         logging.debug("[WebServer] : Updated Relay - {0}, {1}".format(int(request.args['id'][0]), bool(int(request.args['status'][0]))))
-        service_locator.get(FanService).change_fan_mode(FanService.__MODE_MANUAL)
-        service_locator.get(FanService).set_relay_by_id(int(request.args['id'][0]), bool(int(request.args['status'][0])))  
+        if int(request.args['id'][0]) == 0:
+            service_locator.get(FanService).disable_all_relays()
+            service_locator.get(FanService).change_fan_mode(FanService.__MODE_HEARTRATE)
+        else:
+            service_locator.get(FanService).change_fan_mode(FanService.__MODE_MANUAL)
+            service_locator.get(FanService).set_relay_by_id(int(request.args['id'][0]), bool(int(request.args['status'][0])))  
     return Response()
