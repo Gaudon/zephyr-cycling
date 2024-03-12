@@ -15,18 +15,20 @@ async def root(request):
     if request.method == 'GET':
         return send_file('../web/configuration.html')
     elif request.method == 'POST':
+        logging.debug("[WebServer] : Json Request - {0}".format(request.json))
+        
         # Process the form data
         user_config = UserConfig()
         hr_value = 0
-        for i in range(1, 9):
+        for i in range(0, 4):
             try:
-                hr_value = int(request.form.get("hr{0}".format(i)))
+                hr_value = int(request.json[i]['hr'])
             except:
                 hr_value = 0
             
             user_config.add_fan_mode(
-                i,
-                request.form.get("en{0}".format(i)) == 'on', 
+                i+1,
+                request.json[i]['en'] == True, 
                 hr_value
             )
 
