@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import gc
+import sys
 
 from services.service_manager import service_locator
 from services.config_service import ConfigService
@@ -23,6 +24,7 @@ async def main():
     operation_mode = service_locator.get(ConfigService).get_operation_mode()
 
     logging.basicConfig(level=logging.DEBUG)
+    logging.debug("[SYSTEM] : Version - {0}".format(sys.version))
 
     ############################
     # Service Initialization
