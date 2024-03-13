@@ -8,6 +8,8 @@ While the features and functionality are somewhat straight forward, here's a sho
 
 [Video Overview: How it Works](https://youtu.be/IWAn6BZootY)
 
+<img src="https://github.com/Gaudon/zephyr-cycling/assets/1593839/de3a3f4c-01c9-478f-87c0-9325d2caedf5" width="50%">
+
 ### Can I see it in action?
 
 The production value of these videos is quite low 😂. But here's some initial testing of the unit running for my own purposes. I did complete the first ride using it on March 7th, 2024 and it worked a treat!
