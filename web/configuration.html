@@ -16,7 +16,6 @@
 </nav>
 <body>
   <main>
-
     <div class="container center-align">
       <!-- Form with settings -->
       <div class="row center-align-form">
@@ -91,16 +90,20 @@
           <button class="btn waves-effect waves-light" onclick="saveUserConfig(); return false" id="settings_save_button">Save</button>
         </form>
       </div>
-    </div>
+    </div> 
   </main>
   <footer class="page-footer">
     <div class="container">
       <div class="row s12 center-align">
-        <div class="col s4 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_1" onclick="onFanModeButtonClick(0)">OFF</button></div>
-        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_1" onclick="onFanModeButtonClick(1)">1</button></div>
-        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_2" onclick="onFanModeButtonClick(2)">2</button></div>
-        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_3" onclick="onFanModeButtonClick(3)">3</button></div>
-        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manul_mode_4" onclick="onFanModeButtonClick(4)">4</button></div>
+        <div class="col s4 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_1" style="background-color: #3F3B3B" onclick="onFanModeButtonClick(0)">OFF</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_1" style="background-color: #F7994E" onclick="onFanModeButtonClick(1)">1</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_2" style="background-color: #F7994E" onclick="onFanModeButtonClick(2)">2</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_3" style="background-color: #F7994E" onclick="onFanModeButtonClick(3)">3</button></div>
+        <div class="col s2 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_4" style="background-color: #F7994E" onclick="onFanModeButtonClick(4)">4</button></div>
+        </div>
+      <div class="row s12 center-align">
+        <div class="col s6 center-align"><button class="btn waves-effect waves-light" id="btn_ble_scan" style="background-color: #0076F7" onclick="onBleScanButtonClick()">SCAN</button></div>
+        <div class="col s6 center-align"><button class="btn waves-effect waves-light" id="btn_reset" style="background-color: #a72525" onclick="onResetButtonClick()">RESET</button></div>
       </div>
     </div>
   </footer>
@@ -110,7 +113,7 @@
 <!-- Materialize JavaScript -->
 <script src="resources/js/materialize.js"></script>
 <script src="resources/js/zephyr.js"></script>
-<script>
+<script defer>
   M.AutoInit();
   loadUserConfig()
 </script>

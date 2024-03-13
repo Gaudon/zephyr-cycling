@@ -5,7 +5,7 @@ function loadUserConfig() {
     }
     return response.json()
   }).then(data => {
-    if (data != null && data.relat_config != null) {
+    if (data != null && data.relay_config != null) {
       for (let i = 1; i <= 8; i++) { 
         document.getElementById('hr' + i.toString()).value = data.relay_config[i-1][2]
         document.getElementById('en' + i.toString()).checked = (Boolean(data.relay_config[i-1][1]) == true)
@@ -19,6 +19,18 @@ function loadUserConfig() {
 function onFanModeButtonClick(relay_id) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", "relay?id=" + relay_id + "&status=1", true); 
+  xhr.send();  
+}
+
+function onBleScanButtonClick() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "scan"); 
+  xhr.send();  
+}
+
+function onResetButtonClick() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "reset"); 
   xhr.send();  
 }
 
