@@ -32,7 +32,8 @@ class FanService(BaseService):
         self.relays = []
         self.last_relay_change = time.ticks_ms()
         self.last_relay_update = time.ticks_ms()
-        self.time_in_lower_hr_zone = 0
+        self.time_in_lower_hr_zone_ms = 0
+        self.time_limit_in_lower_hr_zone_ms = 60000
 
 
     async def start(self):
@@ -91,15 +92,15 @@ class FanService(BaseService):
                     else:
                         if target_relay.pin_id is not current_relay.pin_id:
                             if target_relay.heart_rate_threshold < current_relay.heart_rate_threshold: 
-                                if self.time_in_lower_hr_zone >= 15000:
+                                if self.time_in_lower_hr_zone_ms >= self.time_limit_in_lower_hr_zone_ms:
                                     self.enable_relay(target_relay)
                                 else:
-                                    self.time_in_lower_hr_zone += (time.ticks_ms() - self.last_relay_update)
+                                    self.time_in_lower_hr_zone_ms += (time.ticks_ms() - self.last_relay_update)
                             else:
                                 self.enable_relay(target_relay)
                         else:
                             # if the target relay is the currently active one, reset the internal counter.
-                            self.time_in_lower_hr_zone = 0
+                            self.time_in_lower_hr_zone_ms = 0
             
             self.last_relay_update = time.ticks_ms()
             await asyncio.sleep(self.thread_sleep_time)
@@ -137,7 +138,7 @@ class FanService(BaseService):
         # Enable the target relay
         relay.state = Relay._STATE_ON
         self.last_relay_change = time.ticks_ms()
-        self.time_in_lower_hr_zone = 0
+        self.time_in_lower_hr_zone_ms = 0
         
 
     def on_heart_rate_received(self, data):
