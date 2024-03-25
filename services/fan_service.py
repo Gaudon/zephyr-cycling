@@ -37,7 +37,7 @@ class FanService(BaseService):
 
 
     async def start(self):
-        for i in range(1, 9):
+        for i in range(1, 5):
             self.relays.append(
                 Relay(
                     i,
