@@ -2,10 +2,6 @@ function setup() {
   document.getElementById('settings_save_button').disabled = true
 
   var user_config = {}
-  var xhr = new XMLHttpRequest();
-
-  xhr.open("POST", "/", true);
-  xhr.setRequestHeader("Content-Type", "application/json");
 
   user_config.wifi_settings = {}
   user_config.wifi_settings.ssid = document.getElementById('wifi_ssid').value
@@ -18,5 +14,12 @@ function setup() {
     relay_setting.hr = document.getElementById('hr' + i).value
     user_config.relay_settings.push(relay_setting)
   }
-  xhr.send(JSON.stringify(user_config));
+
+  fetch("http://192.168.4.1/setup", {
+    method: "POST",
+    body: JSON.stringify(user_config),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    }
+  });
 }

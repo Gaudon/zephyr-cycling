@@ -13,7 +13,7 @@ from services.bluetooth_receive_service import BluetoothReceiveService
 
 app = Microdot()
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 async def root(request):
     if request.method == 'GET':
         return send_file('../web/index.html')
@@ -52,6 +52,30 @@ async def setup(request):
         return send_file('../web/setup.html')
     elif request.method == 'POST':
         logging.debug("[WebServer] : Json Request - {0}".format(request.json))
+
+        user_config = UserConfig()
+        hr_value = 0
+
+        user_config.set_wifi_info(request.json['wifi_settings']['ssid'], request.json['wifi_settings']['password'])
+
+        for i in range(0, 4):
+            try:
+                hr_value = int(request.json['relay_settings'][i]['hr'])
+            except:
+                hr_value = 0
+            
+            user_config.add_fan_mode(
+                i+1,
+                request.json['relay_settings'][i]['en'] == True, 
+                hr_value
+            )
+
+        file = open("config/user.json", "w")
+        file.write(json.dumps(user_config.__dict__))
+        file.close()
+
+        # Notify the user service that the user settings have been changed.
+        service_locator.get(UserService).update_user_config()
         
 
 @app.route('config', methods=['GET'])

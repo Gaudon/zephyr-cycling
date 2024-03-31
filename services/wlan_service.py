@@ -38,6 +38,7 @@ class WirelessService(BaseService):
             if self.ssid:
                 # Station Mode
                 if not self.interface_station.active():
+                    logging.debug("[WLanService] : Activating Station Interface")
                     network.WLAN(network.STA_IF).active(True)
                     await asyncio.sleep(3)
                 
@@ -46,6 +47,7 @@ class WirelessService(BaseService):
             else:
                 # Access Point Mode
                 if not self.interface_access_point.active():
+                    logging.debug("[WLanService] : Activating Access Point Interface")
                     self.interface_access_point.config(essid='Zephyr Wifi', password='Zephyr123', channel=11)
                     self.interface_access_point.active(True)
             await asyncio.sleep(self.thread_sleep_time)
