@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Zephyr Setup</title>
+    <!-- Compiled and minified CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <form id="user_settings_form" method="post" action="/setup.html">
+        <p>Wireless Settings</p>
+        <table>
+            <tr>
+                <td>
+                    <label for="wifi_ssid">SSID:</label>
+                </td>
+                <td>
+                    <input type="text" id="wifi_ssid" name="wifi_ssid" placeholder="Wifi SSID">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="wifi_password">Password:</label>
+                </td>
+                <td>
+                    <input type="password" id="wifi_password" name="wifi_password" placeholder="Password">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="wifi_password_confirm">Confirm Password:</label>
+                </td>
+                <td>
+                    <input type="password" id="wifi_password_confirm" name="wifi_password_confirm" placeholder="Confirm Password">
+                </td>
+            </tr>
+        </table>
+        
+        <p>Fan Settings</p>
+
+        <label for="hr1">Mode 1 : </label>
+        <input type="checkbox" id="en1" name="en1">
+        <input type="number" id="hr1" name="hr1" placeholder="Heart Rate Trigger (bpm)">
+        <br>
+        
+        <label for="hr2">Mode 2 : </label>
+        <input type="checkbox" id="en2" name="en2">
+        <input type="number" id="hr2" name="hr2" placeholder="Heart Rate Trigger (bpm)">
+        <br>
+
+        <label for="hr3">Mode 3 : </label>
+        <input type="checkbox" id="en3" name="en3">
+        <input type="number" id="hr3" name="hr3" placeholder="Heart Rate Trigger (bpm)">
+        <br>
+
+        <label for="hr4">Mode 4 : </label>
+        <input type="checkbox" id="en4" name="en4">
+        <input type="number" id="hr4" name="hr4" placeholder="Heart Rate Trigger (bpm)">
+        <br>
+        <p>
+            <button onclick="setup(); return false" id="settings_save_button">Save & Reboot</button>
+        </p> 
+    </form>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="resources/js/jquery.js"></script>
+    <script src="resources/js/setup.js"></script>
+</body>
+</html>

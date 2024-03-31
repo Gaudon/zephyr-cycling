@@ -1,11 +1,12 @@
 import network
 import utils.files as files
-import json
+import asyncio
+import logging
 
 from services.service_manager import service_locator
 from services.light_service import LightService
-from services.config_service import ConfigService
 from services.base_service import BaseService
+from services.user_service import UserService
 from data.user_config import UserConfig
 
 
@@ -18,23 +19,33 @@ class WirelessService(BaseService):
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
         self.light_service = service_locator.get(LightService)
-        self.config_service = service_locator.get(ConfigService)
-        
+        self.user_service = service_locator.get(UserService)
 
-        # Wireless Access Point
-        self.ap_if = network.WLAN(network.AP_IF)
-        self.socket = None
+        network.hostname('zephyr')
+        network.WLAN(network.AP_IF).active(False)
+        network.WLAN(network.STA_IF).active(False)
+
+        self.interface_access_point = network.WLAN(network.AP_IF)
+        self.interface_station = network.WLAN(network.STA_IF)
+
         self.__state = WirelessService._STATE_DISCONNECTED
-        
-        self.ssid = self.config_service.get(ConfigService._WLAN_NETWORK_SSID)
-        self.password = self.config_service.get(ConfigService._WLAN_NETWORK_PASSWORD)
 
 
     async def start(self):
-        self.ap_if = network.WLAN(network.AP_IF)
-
-        network.WLAN(network.STA_IF).active(False)
-
-        # Access Point Mode
-        self.ap_if.config(essid='Zephyr Wifi', password='Zephyr123', channel=11)
-        self.ap_if.active(True)
+        (self.ssid, self.password) = self.user_service.get_user_config().get_wifi_info()
+        logging.debug("[WLanService] : Loaded Config - {0} | {1}".format(self.ssid, self.password))
+        while True:
+            if self.ssid:
+                # Station Mode
+                if not self.interface_station.active():
+                    network.WLAN(network.STA_IF).active(True)
+                    await asyncio.sleep(3)
+                
+                if not self.interface_station.isconnected():
+                    network.WLAN(network.STA_IF).connect(self.ssid, self.password)
+            else:
+                # Access Point Mode
+                if not self.interface_access_point.active():
+                    self.interface_access_point.config(essid='Zephyr Wifi', password='Zephyr123', channel=11)
+                    self.interface_access_point.active(True)
+            await asyncio.sleep(self.thread_sleep_time)

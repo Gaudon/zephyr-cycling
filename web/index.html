@@ -9,11 +9,13 @@
   <link type="text/css" rel="stylesheet" href="resources/css/zephyr.css"/>
   <!-- Custom Styles -->
 </head>
-<nav>
-    <div class="nav-wrapper">
-      <img class="logo" src="resources/media/logo.png"/>
-    </div>
-</nav>
+<div class="navbar-fixed">
+  <nav>
+      <div class="nav-wrapper">
+        <img class="logo" src="resources/media/logo.png"/>
+      </div>
+  </nav>
+</div>
 <body>
   <main>
     <div class="container center-align">
@@ -115,6 +117,12 @@
 <script src="resources/js/zephyr.js"></script>
 <script defer>
   M.AutoInit();
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.collapsible');
+    var instances = M.Collapsible.init(elems, options);
+  });
+
   loadUserConfig()
 </script>
 </html>

@@ -5,6 +5,7 @@ import machine
 from utils import files
 from lib.microdot import Microdot, send_file, Request, Response
 from data.user_config import UserConfig
+from data.status import Status
 from services.service_manager import service_locator
 from services.user_service import UserService
 from services.fan_service import FanService
@@ -15,13 +16,16 @@ app = Microdot()
 @app.route('/', methods=['GET', 'POST'])
 async def root(request):
     if request.method == 'GET':
-        return send_file('../web/configuration.html')
+        return send_file('../web/index.html')
     elif request.method == 'POST':
         logging.debug("[WebServer] : Json Request - {0}".format(request.json))
         
         # Process the form data
         user_config = UserConfig()
         hr_value = 0
+
+        user_config.set_wifi_info(request.json['wifi_config']['ssid'], request.json['wifi_config']['password'])
+
         for i in range(0, 4):
             try:
                 hr_value = int(request.json[i]['hr'])
@@ -41,6 +45,14 @@ async def root(request):
         # Notify the user service that the user settings have been changed.
         service_locator.get(UserService).update_user_config()
 
+
+@app.route('setup', methods=['GET', 'POST'])
+async def setup(request):
+    if request.method == 'GET':
+        return send_file('../web/setup.html')
+    elif request.method == 'POST':
+        logging.debug("[WebServer] : Json Request - {0}".format(request.json))
+        
 
 @app.route('config', methods=['GET'])
 async def get_user_config(request):
@@ -69,6 +81,15 @@ async def reset(request):
     logging.debug("[WebServer] : System Restart Requested")
     machine.reset()
 
+
+@app.route('status', methods=['GET'])
+async def status(request):
+    return json.dumps(Status(
+        "manual" if (service_locator.get(FanService).get_operation_mode() == FanService.__MODE_MANUAL) else "heartrate",
+        service_locator.get(BluetoothReceiveService).isconnected(),
+        0
+    ))
+    
 
 @app.route('relay', methods=['GET'])
 async def set_relay(request):

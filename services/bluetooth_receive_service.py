@@ -108,6 +108,10 @@ class BluetoothReceiveService(BaseService):
         self.__state = state
 
 
+    def isconnected(self):
+        return self.__state == BluetoothReceiveService._STATE_CONNECTED
+
+
     def register_callback(self, event, function_handler):
         self.listeners.append((event, function_handler))
         

@@ -34,6 +34,24 @@ function onResetButtonClick() {
   xhr.send();  
 }
 
+function onStatusUpdate() {
+  fetch("/status").then(response => {
+    if (!response.ok) {
+      throw new Error('Status could not be read.');
+    }
+    return response.json()
+  }).then(data => {
+    if (data != null) {
+      for (let i = 1; i <= 8; i++) { 
+        document.getElementById('hr' + i.toString()).value = data.relay_config[i-1][2]
+        document.getElementById('en' + i.toString()).checked = (Boolean(data.relay_config[i-1][1]) == true)
+      }
+    }
+  }).catch(error => {
+      console.error('Error fetching data:', error);
+  });  
+}
+
 function saveUserConfig() {
   document.getElementById('settings_save_button').disabled = true
 
