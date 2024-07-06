@@ -13,7 +13,7 @@ from services.bluetooth_receive_service import BluetoothReceiveService
 
 app = Microdot()
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 async def root(request):
     if request.method == 'GET':
         return send_file('../web/index.html')
@@ -24,7 +24,8 @@ async def root(request):
         user_config = UserConfig()
         hr_value = 0
 
-        user_config.set_wifi_info(request.json['wifi_config']['ssid'], request.json['wifi_config']['password'])
+        (ssid, password) = service_locator.get(UserService).get_user_config().get_wifi_info()
+        user_config.set_wifi_info(ssid, password)
 
         for i in range(0, 4):
             try:

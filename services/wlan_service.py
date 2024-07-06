@@ -33,7 +33,6 @@ class WirelessService(BaseService):
 
     async def start(self):
         (self.ssid, self.password) = self.user_service.get_user_config().get_wifi_info()
-        logging.debug("[WLanService] : Loaded Config - {0} | {1}".format(self.ssid, self.password))
         while True:
             if self.ssid:
                 # Station Mode
@@ -43,7 +42,13 @@ class WirelessService(BaseService):
                     await asyncio.sleep(3)
                 
                 if not self.interface_station.isconnected():
-                    network.WLAN(network.STA_IF).connect(self.ssid, self.password)
+                    self.__state = WirelessService._STATE_DISCONNECTED
+                    logging.debug("[WLanService] : Connecting to wireless network.")
+                    self.interface_station.connect(self.ssid, self.password)
+                else:
+                    if self.__state == WirelessService._STATE_DISCONNECTED:
+                        self.__state = WirelessService._STATE_CONNECTED
+                        logging.debug("[WLanService] : Wireless Connected. {0}".format(self.interface_station.ifconfig()))         
             else:
                 # Access Point Mode
                 if not self.interface_access_point.active():

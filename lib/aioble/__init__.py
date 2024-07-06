@@ -30,6 +30,3 @@ except:
 
 ADDR_PUBLIC = const(0)
 ADDR_RANDOM = const(1)
-
-
-__version__ = '0.2.0'

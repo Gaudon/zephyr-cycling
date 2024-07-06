@@ -5,10 +5,13 @@ function loadUserConfig() {
     }
     return response.json()
   }).then(data => {
-    if (data != null && data.relay_config != null) {
-      for (let i = 1; i <= 8; i++) { 
-        document.getElementById('hr' + i.toString()).value = data.relay_config[i-1][2]
-        document.getElementById('en' + i.toString()).checked = (Boolean(data.relay_config[i-1][1]) == true)
+    if (data != null) {
+      // Relay Config
+      if(data.relay_settings != null) {
+        for (let i = 1; i <= 4; i++) { 
+          document.getElementById('hr' + i.toString()).value = data.relay_settings[i-1][2]
+          document.getElementById('en' + i.toString()).checked = (Boolean(data.relay_settings[i-1][1]) == true)
+        }
       }
     }
   }).catch(error => {
