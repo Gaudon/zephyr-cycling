@@ -4,7 +4,7 @@
 from micropython import const
 from collections import deque
 import bluetooth
-import uasyncio as asyncio
+import asyncio
 
 from .core import (
     ensure_active,
@@ -338,6 +338,3 @@ def register_services(*services):
             for descriptor in characteristic.descriptors:
                 descriptor._register(service_handles[n])
                 n += 1
-
-
-__version__ = '0.4.1'

@@ -1,40 +1,81 @@
 body {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-    background-color: #3f3b3b; /* Dark background color */
-    color: #fff; /* Light text color */
-  }
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background-color: #3f3b3b;
+  /* Dark background color */
+  color: #fff;
+  /* Light text color */
+}
+
 main {
   flex: 1 0 auto;
 }
+
 .page-footer {
   background-color: #2BBBAD
 }
+
 .page-footer .btn {
   width: 100%;
 }
+
 .logo {
-  width: auto; /* Adjust width as needed */
-  height: 85%; /* Adjust height as needed */
+  width: auto;
+  /* Adjust width as needed */
+  height: 85%;
+  /* Adjust height as needed */
   margin: 5px;
 }
+
 .center-align-form {
   display: flex;
   justify-content: center;
   margin-top: 20px;
 }
+
 .valign-wrapper {
   display: flex;
   align-items: center;
 }
+
 .nav-wrapper {
-    display: flex;
-    background-color: #2BBBAD;
+  display: flex;
+  background-color: #2BBBAD;
 }
+
 #toast-container {
   top: auto !important;
   right: auto !important;
   bottom: 10%;
-  left:0%;
+  left: 0%;
+}
+
+input[type=text],
+input[type=password] {
+  color: white;
+  /* White text color for input fields */
+}
+
+/* Update input labels and underline color when focused */
+.input-field input[type=text]:focus+label,
+.input-field input[type=password]:focus+label {
+  color: #2BBBAD;
+  /* Materialize red accent color for labels */
+}
+
+.input-field input[type=text]:focus,
+.input-field input[type=password]:focus {
+  border-bottom: 1px solid #2BBBAD;
+  /* Materialize red accent color for underline */
+  box-shadow: 0 1px 0 0 #2BBBAD;
+  /* Materialize red accent color for box shadow */
+}
+
+/* Update button color to match the dark theme */
+.btn,
+.btn:hover,
+.btn:focus {
+  background-color: #2BBBAD;
+  /* Materialize red accent color for buttons */
 }

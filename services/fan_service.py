@@ -112,6 +112,10 @@ class FanService(BaseService):
             r.state = Relay._STATE_OFF
 
 
+    def get_operation_mode(self):
+        return self.mode
+
+
     def set_relay_by_id(self, relay: int, enabled: bool):
         if self.mode == FanService.__MODE_MANUAL:
             for r in self.relays:

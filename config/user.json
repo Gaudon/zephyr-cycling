@@ -1,6 +1,9 @@
 {
-    "wifi_password": null,
-    "relay_config":
+    "wifi_settings": {
+        "ssid": "",
+        "password": ""
+    },
+    "relay_settings":
     [
         [
             1,

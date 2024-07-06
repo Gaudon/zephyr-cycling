@@ -3,7 +3,7 @@
 
 from micropython import const
 
-import uasyncio as asyncio
+import asyncio
 
 from .core import ble, log_error, register_irq_handler
 from .device import DeviceConnection
@@ -212,6 +212,3 @@ async def connect(connection, psm, mtu, timeout_ms):
             return channel
         else:
             raise L2CAPConnectionError(channel._status)
-
-
-__version__ = '0.2.0'

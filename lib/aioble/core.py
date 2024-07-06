@@ -76,6 +76,3 @@ def ble_irq(event, data):
 # TODO: Allow this to be injected.
 ble = bluetooth.BLE()
 ble.irq(ble_irq)
-
-
-__version__ = '0.2.0'

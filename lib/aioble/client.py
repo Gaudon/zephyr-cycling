@@ -3,7 +3,7 @@
 
 from micropython import const
 from collections import deque
-import uasyncio as asyncio
+import asyncio
 import struct
 
 import bluetooth
@@ -454,6 +454,3 @@ class ClientDescriptor(BaseClientCharacteristic):
             characteristic._value_handle,
             characteristic._end_handle,
         )
-
-
-__version__ = '0.3.0'
