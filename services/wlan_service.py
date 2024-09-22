@@ -14,7 +14,7 @@ class WirelessService(BaseService):
     
     _STATE_DISCONNECTED = "DISCONNECTED"
     _STATE_CONNECTED = "CONNECTED"
-
+    
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
@@ -40,11 +40,12 @@ class WirelessService(BaseService):
                     logging.debug("[WLanService] : Activating Station Interface")
                     network.WLAN(network.STA_IF).active(True)
                     await asyncio.sleep(3)
-                
+
                 if not self.interface_station.isconnected():
                     self.__state = WirelessService._STATE_DISCONNECTED
                     logging.debug("[WLanService] : Connecting to wireless network.")
                     self.interface_station.connect(self.ssid, self.password)
+                    await asyncio.sleep(10)
                 else:
                     if self.__state == WirelessService._STATE_DISCONNECTED:
                         self.__state = WirelessService._STATE_CONNECTED
