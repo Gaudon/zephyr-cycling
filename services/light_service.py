@@ -11,6 +11,7 @@ class LightService(BaseService):
     _LED_POWER = "POWER"
     _LED_BLUETOOTH = "BLUETOOTH"
     _LED_FAN_MODE = "FAN_MODE"
+    _LED_WIFI = "WIFI"
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
@@ -45,6 +46,14 @@ class LightService(BaseService):
                 Led._STATE_OFF
             )
         )
+
+        self.leds.append(
+            Led(
+                self.config_service.get(ConfigService._LED_WIFI_PIN), 
+                machine.Pin(int(self.config_service.get(ConfigService._LED_WIFI_PIN)), machine.Pin.OUT),
+                Led._STATE_OFF
+            )
+        )
         
         coroutines = []
 
@@ -63,6 +72,8 @@ class LightService(BaseService):
                 target_pin_id = self.config_service.get(ConfigService._LED_POWER_PIN)
             elif led == LightService._LED_FAN_MODE:
                 target_pin_id = self.config_service.get(ConfigService._LED_MANUAL_FAN_PIN)
+            elif led == LightService._LED_WIFI:
+                target_pin_id = self.config_service.get(ConfigService._LED_WIFI_PIN)
 
             if target_pin_id is not None and l.pin_id == target_pin_id:
                 l.state = state

@@ -8,12 +8,14 @@ from services.light_service import LightService
 from services.base_service import BaseService
 from services.user_service import UserService
 from data.user_config import UserConfig
+from data.led import Led
 
 
 class WirelessService(BaseService):
     
     _STATE_DISCONNECTED = "DISCONNECTED"
     _STATE_CONNECTED = "CONNECTED"
+    _STATE_CONNECTING = "CONNECTING"
     
 
     def __init__(self, operation_mode, thread_sleep_time):
@@ -33,6 +35,23 @@ class WirelessService(BaseService):
 
     async def start(self):
         (self.ssid, self.password) = self.user_service.get_user_config().get_wifi_info()
+        coroutines = [self.run(), self.update_wifi_led()]
+        await asyncio.gather(*coroutines, return_exceptions=True)
+        
+
+    async def update_wifi_led(self):
+        while True:
+            if self.__state == WirelessService._STATE_CONNECTING:
+                self.light_service.set_led_state(LightService._LED_WIFI, Led._STATE_BLINKING)
+            elif self.__state == WirelessService._STATE_CONNECTED:
+                self.light_service.set_led_state(LightService._LED_WIFI, Led._STATE_ON)
+            else:
+                self.light_service.set_led_state(LightService._LED_WIFI, Led._STATE_OFF)
+            
+            await asyncio.sleep(self.thread_sleep_time)
+
+
+    async def run(self):
         while True:
             if self.ssid:
                 # Station Mode
@@ -44,10 +63,12 @@ class WirelessService(BaseService):
                 if not self.interface_station.isconnected():
                     self.__state = WirelessService._STATE_DISCONNECTED
                     logging.debug("[WLanService] : Connecting to wireless network.")
-                    self.interface_station.connect(self.ssid, self.password)
-                    await asyncio.sleep(10)
+                    self.interface_station.disconnect()
+                    self.interface_station.connect(self.ssid, self.password, channel=12)
+                    self.__state = WirelessService._STATE_CONNECTING
+                    await asyncio.sleep(15)
                 else:
-                    if self.__state == WirelessService._STATE_DISCONNECTED:
+                    if self.__state == WirelessService._STATE_DISCONNECTED or self.__state == WirelessService._STATE_CONNECTING:
                         self.__state = WirelessService._STATE_CONNECTED
                         logging.debug("[WLanService] : Wireless Connected. {0}".format(self.interface_station.ifconfig()))         
             else:
