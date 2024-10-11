@@ -63,9 +63,12 @@ async def main():
 
 
 async def cleanup():
+    __last_memory_value = 0
     while True:
         gc.collect()
-        logging.debug(f"[SYSTEM] : Memory - {gc.mem_alloc()} of {gc.mem_free()} bytes used ({int(gc.mem_alloc() / gc.mem_free() * 100)}%).")
+        if int(gc.mem_alloc() / gc.mem_free() * 100) != __last_memory_value:
+            __last_memory_value = int(gc.mem_alloc() / gc.mem_free() * 100)
+            logging.debug(f"[SYSTEM] : Memory - {gc.mem_alloc()} of {gc.mem_free()} bytes used ({__last_memory_value}%).")
         await asyncio.sleep(10)
 
 
