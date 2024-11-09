@@ -39,11 +39,19 @@ class UserService(BaseService):
         function_handler(self.user_config)
 
 
+    def notify_listeners(self):
+        for listener in self.user_config_update_listeners:
+            listener(self.user_config)
+
+
+    def save_user_config(self):
+        with open("/config/user.json", "w") as file:
+            file.write(json.dumps(self.user_config.__dict__))
+        self.notify_listeners()
+
+
     def update_user_config(self):
         with open("/config/user.json", "r") as file:
             json_data = json.load(file)
             self.user_config = UserConfig(json_data)
-            file.close()
-
-        for listener in self.user_config_update_listeners:
-            listener(self.user_config)
+        self.notify_listeners()

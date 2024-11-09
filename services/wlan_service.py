@@ -7,7 +7,7 @@ from services.service_manager import service_locator
 from services.light_service import LightService
 from services.base_service import BaseService
 from services.user_service import UserService
-from data.user_config import UserConfig
+
 from data.led import Led
 
 
@@ -20,10 +20,11 @@ class WirelessService(BaseService):
 
     def __init__(self, operation_mode, thread_sleep_time):
         BaseService.__init__(self, operation_mode, thread_sleep_time)
+        self.__host_name = "zephyr"
         self.light_service = service_locator.get(LightService)
         self.user_service = service_locator.get(UserService)
 
-        network.hostname('zephyr')
+        network.hostname(self.__host_name)
         network.WLAN(network.AP_IF).active(False)
         network.WLAN(network.STA_IF).active(False)
 
@@ -62,7 +63,7 @@ class WirelessService(BaseService):
 
                 if not self.interface_station.isconnected():
                     self.__state = WirelessService._STATE_DISCONNECTED
-                    logging.debug("[WLanService] : Connecting to wireless network.")
+                    logging.info("[WLanService] : Connecting to wireless network.")
                     self.interface_station.disconnect()
                     self.interface_station.connect(self.ssid, self.password, channel=12)
                     self.__state = WirelessService._STATE_CONNECTING
@@ -70,7 +71,8 @@ class WirelessService(BaseService):
                 else:
                     if self.__state == WirelessService._STATE_DISCONNECTED or self.__state == WirelessService._STATE_CONNECTING:
                         self.__state = WirelessService._STATE_CONNECTED
-                        logging.debug("[WLanService] : Wireless Connected. {0}".format(self.interface_station.ifconfig()))         
+                        logging.info("[WLanService] : Wireless Connected. {0}".format(self.interface_station.ifconfig()))  
+                        logging.info("[WLanService] : Visit http://{0}/ in your browser to access options.".format(self.__host_name))
             else:
                 # Access Point Mode
                 if not self.interface_access_point.active():

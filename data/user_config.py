@@ -5,17 +5,22 @@ class UserConfig:
     def __init__(self, json_data=None):
         self.relay_settings = []
         self.wifi_settings = {}
+        self.hrm_device_settings = {}
 
         if json_data:
-            logging.debug("[UserConfig] : Parsing Config - {0}".format(json_data))
             # Wireless Network Configuration
             self.wifi_settings['ssid'] = json_data['wifi_settings']['ssid']
             self.wifi_settings['password'] = json_data['wifi_settings']['password']
             
+            # Heart Rate Monitor Configuration
+            self.hrm_device_settings['address'] = json_data['hrm_device_settings']['address']
+            self.hrm_device_settings['type'] = json_data['hrm_device_settings']['type']
+
             # Fan Mode / Relay Configuration
             for config_data in json_data['relay_settings']:
                 self.relay_settings.append((int(config_data[0]), bool(config_data[1]), int(config_data[2])))
-            logging.debug("[UserConfig] : Loaded Config - {0} - {1}".format(self.wifi_settings, self.relay_settings))
+
+            logging.debug("[UserConfig] : Loaded Config - {0} - {1} - {2}".format(self.wifi_settings['ssid'], self.hrm_device_settings, self.relay_settings))
 
 
     def add_fan_mode(self, relay_number: int, status: bool, heart_rate: int):
@@ -45,5 +50,14 @@ class UserConfig:
         return (self.wifi_settings['ssid'], self.wifi_settings['password'])
     
 
+    def set_heart_rate_device_info(self, address: str, type: int):
+        self.hrm_device_settings['address'] = address
+        self.hrm_device_settings['type'] = type
+
+
+    def get_heart_rate_device_info(self) -> tuple[str, int]:
+        return (self.hrm_device_settings['address'], self.hrm_device_settings['type'])
+
+
     def __repr__(self) -> str:
-        return "Wifi Config: {0} - Relay Config: {1}".format(self.wifi_settings, self.relay_settings)
+        return "Wifi Config: {0} - HRM Config: {1} - Relay Config: {2}".format(self.wifi_settings, self.hrm_device_settings, self.relay_settings)
