@@ -27,37 +27,8 @@ async def root(request):
         (ssid, password) = service_locator.get(UserService).get_user_config().get_wifi_info()
         user_config.set_wifi_info(ssid, password)
 
-        for i in range(0, 4):
-            try:
-                hr_value = int(request.json[i]['hr'])
-            except:
-                hr_value = 0
-            
-            user_config.add_fan_mode(
-                i+1,
-                request.json[i]['en'] == True, 
-                hr_value
-            )
-
-        file = open("config/user.json", "w")
-        file.write(json.dumps(user_config.__dict__))
-        file.close()
-
-        # Notify the user service that the user settings have been changed.
-        service_locator.get(UserService).update_user_config()
-
-
-@app.route('setup', methods=['GET', 'POST'])
-async def setup(request):
-    if request.method == 'GET':
-        return send_file('../web/setup.html')
-    elif request.method == 'POST':
-        logging.debug("[WebServer] : Json Request - {0}".format(request.json))
-
-        user_config = UserConfig()
-        hr_value = 0
-
-        user_config.set_wifi_info(request.json['wifi_settings']['ssid'], request.json['wifi_settings']['password'])
+        # TODO: Add support for device information
+        user_config.set_heart_rate_device_info("", "")
 
         for i in range(0, 4):
             try:
@@ -77,8 +48,15 @@ async def setup(request):
 
         # Notify the user service that the user settings have been changed.
         service_locator.get(UserService).update_user_config()
-        
 
+
+@app.route('/settings/fan', methods=['PUT'])
+async def set_settings_fan(request):
+    if request.method == 'PUT':
+        # TODO: Implement
+        return
+
+        
 @app.route('config', methods=['GET'])
 async def get_user_config(request):
     json_data = '{}'

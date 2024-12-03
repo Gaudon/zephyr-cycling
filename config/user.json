@@ -5,7 +5,7 @@
     },
     "hrm_device_settings": {
         "type": "",
-        "address": -1
+        "address": ""
     },
     "relay_settings":
     [

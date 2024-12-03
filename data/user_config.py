@@ -50,12 +50,12 @@ class UserConfig:
         return (self.wifi_settings['ssid'], self.wifi_settings['password'])
     
 
-    def set_heart_rate_device_info(self, address: str, type: int):
+    def set_heart_rate_device_info(self, address: str, type: str):
         self.hrm_device_settings['address'] = address
         self.hrm_device_settings['type'] = type
 
 
-    def get_heart_rate_device_info(self) -> tuple[str, int]:
+    def get_heart_rate_device_info(self) -> tuple[str, str]:
         return (self.hrm_device_settings['address'], self.hrm_device_settings['type'])
 
 

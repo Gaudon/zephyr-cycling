@@ -58,7 +58,23 @@ function onStatusUpdate() {
 function saveUserConfig() {
   document.getElementById('settings_save_button').disabled = true
 
-  var user_config = []
+  const user_config = { 
+    wifi_settings: { 
+      ssid: "", 
+      password: "" 
+    }, 
+    hrm_device_settings: { 
+      type: "", 
+      address: "" 
+    }, 
+    relay_settings: [ 
+      {"en":false,"hr":"0"},
+      {"en":false,"hr":"0"},
+      {"en":false,"hr":"0"},
+      {"en":false,"hr":"0"} 
+    ]
+  };
+
   var xhr = new XMLHttpRequest();
   
   xhr.open("POST", "/", true); 
@@ -78,7 +94,7 @@ function saveUserConfig() {
     var relay_setting = {}
     relay_setting.en = document.getElementById('en' + i).checked
     relay_setting.hr = document.getElementById('hr' + i).value
-    user_config.push(relay_setting)
+    user_config.relay_settings[i - 1] = relay_setting
   } 
 
   xhr.send(JSON.stringify(user_config));
