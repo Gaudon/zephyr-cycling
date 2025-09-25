@@ -1,127 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zephyr</title>
-  <!-- Materialize CSS -->
-  <link type="text/css" rel="stylesheet" href="resources/css/materialize.css" media="screen,projection"/>
-  <link type="text/css" rel="stylesheet" href="resources/css/zephyr.css"/>
-  <!-- Custom Styles -->
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Zephyr</title>
+<style>
+body{margin:0;font-family:sans-serif;background-color:#333333} /* Background color changed to dark gray */
+.C{max-width:600px;margin:0 auto;padding:20px;color:#ffffff} /* Added white text color */
+.center{text-align:center}
+.R{display:flex;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.C-12,.C-6,.C-4,.C-3{padding:0 5px;box-sizing:border-box}
+.C-12{width:100%}
+.C-6{width:50%;text-align:center}
+.C-4{width:33.333%}
+.C-3{width:25%;text-align:center}
+.H5{margin:5px 0;font-size:1.1em;font-weight:400}
+input[type="number"]{width:80px;display:block;margin:0 auto;color:#000;background-color:#fff;border:1px solid #ccc;padding:5px} /* Ensured input text/background is visible */
+.B{border:none;border-radius:2px;height:36px;line-height:36px;padding:0 16px;text-transform:uppercase;color:#fff;cursor:pointer;display:block;width:100%;box-shadow:0 2px 2px 0 rgba(0,0,0,0.14);transition:background-color .3s}
+.B:active{box-shadow:0 4px 5px 0 rgba(0,0,0,0.14)}
+.S{position:relative;display:inline-block;width:50px;height:26px;vertical-align:middle}
+.S input{opacity:0;width:0;height:0}
+.L{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:34px}
+.L:before{position:absolute;content:"";height:18px;width:18px;left:4px;bottom:4px;background-color:#fff;transition:.4s;border-radius:50%}
+.S input:checked+.L{background-color:#2196F3}
+.S input:focus+.L{box-shadow:0 0 1px #2196F3}
+.S input:checked+.L:before{transform:translateX(24px)}
+</style>
 </head>
-<div class="navbar-fixed">
-  <nav>
-      <div class="nav-wrapper">
-      </div>
-  </nav>
-</div>
 <body>
-  <main>
-    <div class="container center-align">
-      <!-- Form with settings -->
-      <div class="row center-align-form">
-        <form class="col s12 center-align" id="user_settings_form" method="post" action="">
-          <!-- Header row -->
-          <div class="row valign-wrapper">
-            <div class="col s3">Fan Mode</div>
-            <div class="col s3">Enabled</div>
-            <div class="col s6">Target Heart Rate</div>
-          </div>
-          <!-- Content Rows -->
-          <div class="row valign-wrapper">
-            <div class="col s3">
-              <label><h5>1</h5></label>
-            </div>
-            <div class="switch col s3">
-              <label>
-                <input type="checkbox" id="en1" name="en1">
-                <span class="lever"></span>
-              </label>
-            </div>
-            <div class="input-field col s6">
-              <input id="hr1" type="number" name="hr1" class="validate" min="0" max="255">
-              <label for="hr1"></label>
-            </div>
-          </div>
-          <div class="row valign-wrapper">
-            <div class="col s3">
-              <label><h5>2</h5></label>
-            </div>
-            <div class="switch col s3">
-              <label>
-                <input type="checkbox" id="en2" name="en2">
-                <span class="lever"></span>
-              </label>
-            </div>
-            <div class="input-field col s6">
-              <input id="hr2" type="number" name="hr2" class="validate" min="0" max="255">
-              <label for="hr2"></label>
-            </div>
-          </div>
-          <div class="row valign-wrapper">
-            <div class="col s3">
-              <label><h5>3</h5></label>
-            </div>
-            <div class="switch col s3">
-              <label>
-                <input type="checkbox" id="en3" name="en3">
-                <span class="lever"></span>
-              </label>
-            </div>
-            <div class="input-field col s6">
-              <input id="hr3" type="number" name="hr3" class="validate" min="0" max="255">
-              <label for="hr3"></label>
-            </div>
-          </div>
-          <div class="row valign-wrapper">
-            <div class="col s3">
-              <label><h5>4</h5></label>
-            </div>
-            <div class="switch col s3">
-              <label>
-                <input type="checkbox" id="en4" name="en4">
-                <span class="lever"></span>
-              </label>
-            </div>
-            <div class="input-field col s6">
-              <input id="hr4" type="number" name="hr4" class="validate" min="0" max="255">
-              <label for="hr4"></label>
-            </div>
-          </div>
-          <button class="btn waves-effect waves-light" onclick="saveUserConfig(); return false" id="settings_save_button">Save</button>
-        </form>
-      </div>
-    </div> 
-  </main>
-  <footer class="page-footer">
-    <div class="container">
-      <div class="row s12 center-align">
-        <div class="col s3 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_1" style="background-color: #F7994E" onclick="onFanModeButtonClick(1)">1</button></div>
-        <div class="col s3 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_2" style="background-color: #F7994E" onclick="onFanModeButtonClick(2)">2</button></div>
-        <div class="col s3 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_3" style="background-color: #F7994E" onclick="onFanModeButtonClick(3)">3</button></div>
-        <div class="col s3 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_4" style="background-color: #F7994E" onclick="onFanModeButtonClick(4)">4</button></div>
-        </div>
-      <div class="row s12 center-align">
-        <div class="col s4 center-align"><button class="btn waves-effect waves-light" id="btn_manual_mode_1" style="background-color: #3F3B3B" onclick="onFanModeButtonClick(0)">OFF</button></div>
-        <div class="col s4 center-align"><button class="btn waves-effect waves-light" id="btn_ble_scan" style="background-color: #0076F7" onclick="onBleScanButtonClick()">SCAN</button></div>
-        <div class="col s4 center-align"><button class="btn waves-effect waves-light" id="btn_reset" style="background-color: #a72525" onclick="onResetButtonClick()">RESET</button></div>
-      </div>
-    </div>
-  </footer>
-</body>
-
-
-<!-- Materialize JavaScript -->
-<script src="resources/js/materialize.js"></script>
+<main><div class="C">
+<div class="R" style="margin-top:10px"><div class="C-3">Fan Mode</div><div class="C-3">Enabled</div><div class="C-6">Target Heart Rate</div></div>
+<form class="C-12" id="user_settings_form" method="post" action="">
+<div class="R">
+<div class="C-3"><label><span class="H5">1</span></label></div>
+<div class="C-3"><div class="S"><label><input type="checkbox" id="en1" name="en1"><span class="L"></span></label></div></div>
+<div class="C-6"><input type="number" id="thr1" name="thr1" min="0" max="100" value="0"></div>
+</div>
+<div class="R">
+<div class="C-3"><label><span class="H5">2</span></label></div>
+<div class="C-3"><div class="S"><label><input type="checkbox" id="en2" name="en2"><span class="L"></span></label></div></div>
+<div class="C-6"><input type="number" id="thr2" name="thr2" min="0" max="100" value="0"></div>
+</div>
+<div class="R">
+<div class="C-3"><label><span class="H5">3</span></label></div>
+<div class="C-3"><div class="S"><label><input type="checkbox" id="en3" name="en3"><span class="L"></span></label></div></div>
+<div class="C-6"><input type="number" id="thr3" name="thr3" min="0" max="100" value="0"></div>
+</div>
+<div class="R">
+<div class="C-3"><label><span class="H5">4</span></label></div>
+<div class="C-3"><div class="S"><label><input type="checkbox" id="en4" name="en4"><span class="L"></span></label></div></div>
+<div class="C-6"><input type="number" id="thr4" name="thr4" min="0" max="100" value="0"></div>
+</div>
+</form>
+<div class="R" style="margin-top:20px"><div class="C-6">Mode Status:</div><div class="C-6"><label id="mode_status">Manual</label></div></div>
+<div class="R"><div class="C-6">BLE Status:</div><div class="C-6"><label id="ble_status">Disconnected</label></div></div>
+</div></main>
+<footer><div class="C">
+<div class="R">
+<div class="C-3 center"><button class="B" id="btn_manual_mode_1" style="background-color:#F7994E" onclick="onFanModeButtonClick(1)">1</button></div>
+<div class="C-3 center"><button class="B" id="btn_manual_mode_2" style="background-color:#F7994E" onclick="onFanModeButtonClick(2)">2</button></div>
+<div class="C-3 center"><button class="B" id="btn_manual_mode_3" style="background-color:#F7994E" onclick="onFanModeButtonClick(3)">3</button></div>
+<div class="C-3 center"><button class="B" id="btn_manual_mode_4" style="background-color:#F7994E" onclick="onFanModeButtonClick(4)">4</button></div>
+</div>
+<div class="R">
+<div class="C-4 center"><button class="B" id="btn_manual_mode_1" style="background-color:#3F3B3B" onclick="onFanModeButtonClick(0)">OFF</button></div>
+<div class="C-4 center"><button class="B" id="btn_ble_scan" style="background-color:#0076F7" onclick="onBleScanButtonClick()">SCAN</button></div>
+<div class="C-4 center"><button class="B" id="btn_reset" style="background-color:#a72525" onclick="onResetButtonClick()">RESET</button></div>
+</div>
+</div></footer>
 <script src="resources/js/zephyr.js"></script>
-<script defer>
-  M.AutoInit();
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    var elems = document.querySelectorAll('.collapsible');
-    var instances = M.Collapsible.init(elems, options);
-  });
-
-  loadUserConfig()
-</script>
-</html>
+</body></html>

@@ -6,7 +6,7 @@
 		},
 		{
 			"name": "Mpy Remote Workspace",
-			"uri": "pico:/"
+			"uri": "pico:"
 		}
 	],
 	"settings": {
