@@ -20,48 +20,94 @@ input[type="number"]{width:80px;display:block;margin:0 auto;color:#000;backgroun
 .S input:checked+.L{background-color:#2196F3}
 .S input:focus+.L{box-shadow:0 0 1px #2196F3}
 .S input:checked+.L:before{transform:translateX(24px)}
+.B:disabled {
+  background-color: #b0b0b0 !important;
+  color: #666 !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
 </style>
 </head>
 <body>
-<main><div class="C">
-<div class="R" style="margin-top:10px"><div class="C-3">Fan Mode</div><div class="C-3">Enabled</div><div class="C-6">Target Heart Rate</div></div>
-<form class="C-12" id="user_settings_form" method="post" action="">
-<div class="R">
-<div class="C-3"><label><span class="H5">1</span></label></div>
-<div class="C-3"><div class="S"><label><input type="checkbox" id="en1" name="en1"><span class="L"></span></label></div></div>
-<div class="C-6"><input type="number" id="thr1" name="thr1" min="0" max="100" value="0"></div>
-</div>
-<div class="R">
-<div class="C-3"><label><span class="H5">2</span></label></div>
-<div class="C-3"><div class="S"><label><input type="checkbox" id="en2" name="en2"><span class="L"></span></label></div></div>
-<div class="C-6"><input type="number" id="thr2" name="thr2" min="0" max="100" value="0"></div>
-</div>
-<div class="R">
-<div class="C-3"><label><span class="H5">3</span></label></div>
-<div class="C-3"><div class="S"><label><input type="checkbox" id="en3" name="en3"><span class="L"></span></label></div></div>
-<div class="C-6"><input type="number" id="thr3" name="thr3" min="0" max="100" value="0"></div>
-</div>
-<div class="R">
-<div class="C-3"><label><span class="H5">4</span></label></div>
-<div class="C-3"><div class="S"><label><input type="checkbox" id="en4" name="en4"><span class="L"></span></label></div></div>
-<div class="C-6"><input type="number" id="thr4" name="thr4" min="0" max="100" value="0"></div>
-</div>
-</form>
-<div class="R" style="margin-top:20px"><div class="C-6">Mode Status:</div><div class="C-6"><label id="mode_status">Manual</label></div></div>
-<div class="R"><div class="C-6">BLE Status:</div><div class="C-6"><label id="ble_status">Disconnected</label></div></div>
-</div></main>
-<footer><div class="C">
-<div class="R">
-<div class="C-3 center"><button class="B" id="btn_manual_mode_1" style="background-color:#F7994E" onclick="onFanModeButtonClick(1)">1</button></div>
-<div class="C-3 center"><button class="B" id="btn_manual_mode_2" style="background-color:#F7994E" onclick="onFanModeButtonClick(2)">2</button></div>
-<div class="C-3 center"><button class="B" id="btn_manual_mode_3" style="background-color:#F7994E" onclick="onFanModeButtonClick(3)">3</button></div>
-<div class="C-3 center"><button class="B" id="btn_manual_mode_4" style="background-color:#F7994E" onclick="onFanModeButtonClick(4)">4</button></div>
-</div>
-<div class="R">
-<div class="C-4 center"><button class="B" id="btn_manual_mode_1" style="background-color:#3F3B3B" onclick="onFanModeButtonClick(0)">OFF</button></div>
-<div class="C-4 center"><button class="B" id="btn_ble_scan" style="background-color:#0076F7" onclick="onBleScanButtonClick()">SCAN</button></div>
-<div class="C-4 center"><button class="B" id="btn_reset" style="background-color:#a72525" onclick="onResetButtonClick()">RESET</button></div>
-</div>
-</div></footer>
+
+<main>
+  <div class="C">
+    <!-- Settings Section -->
+    <div class="settings-section" style="margin:24px 0; padding:16px; background:#222; border-radius:8px; border:2px solid #F7994E; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; margin-bottom:8px; font-size:1.2em; color:#F7994E;">Settings</h3>
+      <div class="R" style="margin-top:10px"><div class="C-3">Fan Mode</div><div class="C-3">Enabled</div><div class="C-6">Target Heart Rate</div></div>
+      <form class="C-12" id="user_settings_form" method="post" action="">
+        <div class="R">
+          <div class="C-3"><label><span class="H5">1</span></label></div>
+          <div class="C-3"><div class="S"><label><input type="checkbox" id="en1" name="en1"><span class="L"></span></label></div></div>
+          <div class="C-6"><input type="number" id="hr1" name="hr1" min="0" max="100" value="0"></div>
+        </div>
+        <div class="R">
+          <div class="C-3"><label><span class="H5">2</span></label></div>
+          <div class="C-3"><div class="S"><label><input type="checkbox" id="en2" name="en2"><span class="L"></span></label></div></div>
+          <div class="C-6"><input type="number" id="hr2" name="hr2" min="0" max="100" value="0"></div>
+        </div>
+        <div class="R">
+          <div class="C-3"><label><span class="H5">3</span></label></div>
+          <div class="C-3"><div class="S"><label><input type="checkbox" id="en3" name="en3"><span class="L"></span></label></div></div>
+          <div class="C-6"><input type="number" id="hr3" name="hr3" min="0" max="100" value="0"></div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Controls Section (now green border) -->
+    <div class="controls-section" style="margin:24px 0; padding:16px; background:#222; border-radius:8px; border:2px solid #43A047; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; margin-bottom:8px; font-size:1.2em; color:#43A047;">Controls</h3>
+      <div class="C">
+        <div class="R">
+          <div class="C-4 center"><button class="B" id="btn_manual_mode_1" style="background-color:#F7994E" onclick="onFanModeButtonClick(1)">1</button></div>
+          <div class="C-4 center"><button class="B" id="btn_manual_mode_2" style="background-color:#F7994E" onclick="onFanModeButtonClick(2)">2</button></div>
+          <div class="C-4 center"><button class="B" id="btn_manual_mode_3" style="background-color:#F7994E" onclick="onFanModeButtonClick(3)">3</button></div>
+        </div>
+        <div class="R">
+          <div class="C-4 center"><button class="B" id="btn_manual_mode_1" style="background-color:#3F3B3B" onclick="onFanModeButtonClick(0)">OFF</button></div>
+          <div class="C-4 center"><button class="B" id="btn_ble_scan" style="background-color:#0076F7" onclick="onBleScanButtonClick()">SCAN</button></div>
+          <div class="C-4 center"><button class="B" id="btn_reset" style="background-color:#a72525" onclick="onResetButtonClick()">RESET</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wireless Status Section -->
+    <div class="wlan-status-section" style="margin:24px 0; padding:16px; background:#222; border-radius:8px; border:2px solid #0076F7; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; margin-bottom:8px; font-size:1.2em; color:#0076F7;">Wireless Status</h3>
+      <div style="font-size:1em;">
+        WLAN Status: <span id="wlan_status" style="font-weight:bold;">Unknown</span><br>
+        Network: <span id="wlan_network_name" style="font-weight:bold;">None</span>
+      </div>
+    </div>
+
+    <!-- Bluetooth Status Section -->
+    <div class="ble-status-section" style="margin:24px 0; padding:16px; background:#222; border-radius:8px; border:2px solid #2196F3; color:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+      <h3 style="margin-top:0; margin-bottom:8px; font-size:1.2em; color:#2196F3;">Bluetooth Status</h3>
+      <div style="font-size:1em; margin-bottom:12px;">
+        BLE Status: <span id="ble_status" style="font-weight:bold;">Unknown</span><br>
+        Device: <span id="ble_device_name" style="font-weight:bold;">None</span>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label for="ble_nearby_devices" style="font-size:0.95em; color:#bbb;">Nearby Devices:</label><br>
+        <select id="ble_nearby_devices" size="4" style="width:100%; background:#333; color:#fff; border-radius:4px; border:1px solid #555; margin-top:4px;">
+        </select>
+      </div>
+      <div style="text-align:right;">
+        <button class="B" id="btn_ble_connect" style="background-color:#2196F3; min-width:120px; margin-bottom:8px;" onclick="onBleConnectButtonClick()">Connect</button>
+      </div>
+      <div style="text-align:right;">
+        <button class="B" id="btn_ble_disconnect" style="background-color:#eb6577; min-width:120px;" onclick="onBleDisconnectButtonClick()">Disconnect</button>
+      </div>
+    </div>
+  </div>
+</main>
 <script src="resources/js/zephyr.js"></script>
+<script defer>
+  document.addEventListener('DOMContentLoaded', function() {
+    loadUserConfig();
+    setInterval(onStatusUpdate, 10000);
+  });
+</script>
 </body></html>

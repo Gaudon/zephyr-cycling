@@ -13,8 +13,8 @@ class InputService(BaseService):
     _BTN_CALLBACK_SHORT_PRESS = "BTN_CALLBACK_SHORT_PRESS"
     _BTN_CALLBACK_LONG_PRESS = "BTN_CALLBACK_LONG_PRESS"
 
-    def __init__(self, operation_mode, thread_sleep_time):
-        BaseService.__init__(self, operation_mode, thread_sleep_time)
+    def __init__(self, thread_sleep_time):
+        BaseService.__init__(self, thread_sleep_time)
         self.config_service = service_locator.get(ConfigService)
         self.long_press_duration_ms = 1500
         self.buttons = []
@@ -29,26 +29,25 @@ class InputService(BaseService):
             )
         )
 
-        if self.operation_mode == ConfigService._OP_MODE_PRIMARY:
-            # Add Bluetooth Button
-            self.buttons.append(
-                Button(
-                    int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), 
-                    machine.Pin(int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), machine.Pin.IN), 
-                    150, 
-                    1500
-                )
+        # Add Bluetooth Button
+        self.buttons.append(
+            Button(
+                int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), 
+                machine.Pin(int(self.config_service.get(ConfigService._BTN_BLUETOOTH_SYNC_PIN)), machine.Pin.IN), 
+                150, 
+                1500
             )
+        )
 
-            # Add Manual Mode Operation Button
-            self.buttons.append(
-                Button(
-                    int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), 
-                    machine.Pin(int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), machine.Pin.IN), 
-                    150, 
-                    1500
-                )
+        # Add Manual Mode Operation Button
+        self.buttons.append(
+            Button(
+                int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), 
+                machine.Pin(int(self.config_service.get(ConfigService._BTN_MANUAL_MODE_PIN)), machine.Pin.IN), 
+                150, 
+                1500
             )
+        )
 
     
     async def start(self):

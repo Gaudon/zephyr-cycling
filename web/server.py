@@ -10,13 +10,14 @@ from services.service_manager import service_locator
 from services.user_service import UserService
 from services.fan_service import FanService
 from services.bluetooth_receive_service import BluetoothReceiveService
+from services.wlan_service import WirelessService
 
 app = Microdot()
 
 @app.route('/', methods=['GET', 'POST'])
 async def root(request):
     if request.method == 'GET':
-        return send_file('../web/index.html')
+        return send_file('/web/index.html')
     elif request.method == 'POST':
         logging.debug("[WebServer] : Json Request - {0}".format(request.json))
         
@@ -26,9 +27,6 @@ async def root(request):
 
         (ssid, password) = service_locator.get(UserService).get_user_config().get_wifi_info()
         user_config.set_wifi_info(ssid, password)
-
-        # TODO: Add support for device information
-        user_config.set_heart_rate_device_info("", "")
 
         for i in range(0, 4):
             try:
@@ -42,7 +40,7 @@ async def root(request):
                 hr_value
             )
 
-        file = open("config/user.json", "w")
+        file = open("/config/user.json", "w")
         file.write(json.dumps(user_config.__dict__))
         file.close()
 
@@ -60,7 +58,7 @@ async def set_settings_fan(request):
 @app.route('config', methods=['GET'])
 async def get_user_config(request):
     json_data = '{}'
-    with open("../config/user.json", "r") as file:
+    with open("/config/user.json", "r") as file:
         json_data = json.load(file)
         file.close()
     return json_data
@@ -70,13 +68,23 @@ async def get_user_config(request):
 async def resources(request, path):
     if '..' in path:
         return 'Not found', 404
-    return send_file('../web/resources/' + path, max_age=86400)
+    return send_file('/web/resources/' + path, max_age=86400)
 
 
 @app.route('scan', methods=['GET'])
 async def scan_bluetooth(request):
     await service_locator.get(BluetoothReceiveService).disconnect()
     service_locator.get(BluetoothReceiveService).set_state(BluetoothReceiveService._STATE_SCANNING)
+
+
+@app.route('connect', methods=['GET'])
+async def connect_bluetooth(request):
+    service_locator.get(BluetoothReceiveService).connect(request.args['address'], request.args['address_type'])
+
+
+@app.route('disconnect', methods=['GET'])
+async def disconnect_bluetooth(request):
+    await service_locator.get(BluetoothReceiveService).disconnect()
 
 
 @app.route('reset', methods=['GET'])
@@ -87,11 +95,11 @@ async def reset(request):
 
 @app.route('status', methods=['GET'])
 async def status(request):
-    return json.dumps(Status(
-        "manual" if (service_locator.get(FanService).get_operation_mode() == FanService.__MODE_MANUAL) else "heartrate",
-        service_locator.get(BluetoothReceiveService).isconnected(),
-        0
-    ))
+    return json.dumps({
+        "mode": service_locator.get(FanService).get_operation_mode(),
+        "ble_status": service_locator.get(BluetoothReceiveService).get_status().to_dict(),
+        "wlan_status": service_locator.get(WirelessService).get_status().to_dict()
+    })
     
 
 @app.route('relay', methods=['GET'])

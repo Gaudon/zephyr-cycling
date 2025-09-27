@@ -8,11 +8,8 @@ from services.config_service import ConfigService
 from services.user_service import UserService
 from services.wlan_service import WirelessService
 from services.bluetooth_receive_service import BluetoothReceiveService
-from services.bluetooth_transmit_service import BluetoothTransmitService
 from services.light_service import LightService
 from services.input_service import InputService
-from services.uart_receive_service import UartReceiveService
-from services.uart_transmit_service import UartTransmitService
 from services.fan_service import FanService
 
 
@@ -21,7 +18,6 @@ async def main():
     # Configuration
     ############################
     service_locator.register(ConfigService())
-    operation_mode = service_locator.get(ConfigService).get_operation_mode()
 
     logging.basicConfig(level=logging.DEBUG)
     logging.debug("[SYSTEM] : Version - {0}".format(sys.version))
@@ -31,20 +27,14 @@ async def main():
     ############################
     
     # Common Services
-    service_locator.register(InputService(operation_mode, 0.05))
+    service_locator.register(InputService(0.05))
+    service_locator.register(UserService(0.5))
+    service_locator.register(LightService(0.5))
+    service_locator.register(WirelessService(0.5))
+    service_locator.register(BluetoothReceiveService(0.5))
+    service_locator.register(FanService(0.5))
 
-    if operation_mode == ConfigService._OP_MODE_PRIMARY:
-        service_locator.register(UserService(operation_mode, 0.5))
-        service_locator.register(LightService(operation_mode, 0.5))
-        service_locator.register(WirelessService(operation_mode, 0.5))
-        service_locator.register(BluetoothReceiveService(operation_mode, 0.5))
-        service_locator.register(UartTransmitService(operation_mode, 0.05))
-        service_locator.register(FanService(operation_mode, 0.5))
-    else:
-        service_locator.register(UartReceiveService(operation_mode, 0.05))
-        service_locator.register(BluetoothTransmitService(operation_mode, 0.5))
-
-    logging.info("[SYSTEM] : Initialized - Mode [{0}]".format(operation_mode))
+    logging.info("[SYSTEM] : Initialized")
 
     # Start Services
     coroutines = []
@@ -54,10 +44,9 @@ async def main():
     coroutines.append(cleanup())
 
     # Start Web Server
-    if operation_mode == ConfigService._OP_MODE_PRIMARY:
-        gc.collect()
-        from web import server
-        coroutines.append(server.app.start_server(port=80, debug=True))
+    gc.collect()
+    from web import server
+    coroutines.append(server.app.start_server(port=80, debug=True))
 
     await asyncio.gather(*coroutines)
 

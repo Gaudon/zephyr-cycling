@@ -20,8 +20,8 @@ class FanService(BaseService):
     __MODE_MANUAL = "MODE_MANUAL"
 
 
-    def __init__(self, operation_mode, thread_sleep_time):
-        BaseService.__init__(self, operation_mode, thread_sleep_time)
+    def __init__(self, thread_sleep_time):
+        BaseService.__init__(self, thread_sleep_time)
         self.config_service = service_locator.get(ConfigService)
         self.bluetooth_receive_service = service_locator.get(BluetoothReceiveService)
         self.input_service = service_locator.get(InputService)
