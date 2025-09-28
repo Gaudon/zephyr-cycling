@@ -28,7 +28,7 @@ async def root(request):
         (ssid, password) = service_locator.get(UserService).get_user_config().get_wifi_info()
         user_config.set_wifi_info(ssid, password)
 
-        for i in range(0, 4):
+        for i in range(0, 3):
             try:
                 hr_value = int(request.json['relay_settings'][i]['hr'])
             except:
@@ -46,13 +46,6 @@ async def root(request):
 
         # Notify the user service that the user settings have been changed.
         service_locator.get(UserService).update_user_config()
-
-
-@app.route('/settings/fan', methods=['PUT'])
-async def set_settings_fan(request):
-    if request.method == 'PUT':
-        # TODO: Implement
-        return
 
         
 @app.route('config', methods=['GET'])

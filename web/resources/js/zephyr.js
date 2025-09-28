@@ -93,8 +93,11 @@ function onStatusUpdate() {
   });  
 }
 
-function saveUserConfig() {
-  document.getElementById('settings_save_button').disabled = true
+function onSaveSettingsClick() {
+  document.getElementById('btn_save_settings').disabled = true
+  setTimeout(() => {
+    document.getElementById('btn_save_settings').disabled = false
+  }, 5000);
 
   const user_config = { 
     wifi_settings: { 
@@ -104,8 +107,7 @@ function saveUserConfig() {
     relay_settings: [ 
       {"en":false,"hr":"0"},
       {"en":false,"hr":"0"},
-      {"en":false,"hr":"0"},
-      {"en":false,"hr":"0"} 
+      {"en":false,"hr":"0"}
     ]
   };
 
@@ -113,18 +115,8 @@ function saveUserConfig() {
   
   xhr.open("POST", "/", true); 
   xhr.setRequestHeader("Content-Type", "application/json");
-  
-  xhr.onload = function(event) { 
-    M.toast({html: 'User settings have been updated.'})
-    document.getElementById('settings_save_button').disabled = false
-  }; 
 
-  xhr.onerror = function(event) {
-    M.toast({html: 'An error has occurred.'})
-    document.getElementById('settings_save_button').disabled = false
-  };
-
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 3; i++) {
     var relay_setting = {}
     relay_setting.en = document.getElementById('en' + i).checked
     relay_setting.hr = document.getElementById('hr' + i).value
