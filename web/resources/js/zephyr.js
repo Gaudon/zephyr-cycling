@@ -26,9 +26,33 @@ function onFanModeButtonClick(relay_id) {
 }
 
 function onBleScanButtonClick() {
+  if (document.getElementById('ble_status').textContent !== 'IDLE') return;
   var xhr = new XMLHttpRequest();
   xhr.open("GET", "scan"); 
-  xhr.send();  
+  xhr.send();
+
+  document.getElementById('btn_ble_scan').disabled = true
+  setTimeout(() => {
+    document.getElementById('btn_ble_scan').disabled = false
+  }, 20000);
+}
+
+function onBleDisconnectButtonClick() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "disconnect");
+  xhr.send();
+}
+
+function onBleConnectButtonClick() {
+  const select = document.getElementById('ble_nearby_devices');
+  const address = select.options[select.selectedIndex].getAttribute('data-address') || '';
+  const addressType = select.options[select.selectedIndex].getAttribute('data-type') || '';
+
+  if (!address || !addressType) return;
+  
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "connect?address=" + encodeURIComponent(address) + "&address_type=" + encodeURIComponent(addressType));
+  xhr.send();
 }
 
 function onResetButtonClick() {
@@ -45,9 +69,23 @@ function onStatusUpdate() {
     return response.json()
   }).then(data => {
     if (data != null) {
-      for (let i = 1; i <= 8; i++) { 
-        document.getElementById('hr' + i.toString()).value = data.relay_config[i-1][2]
-        document.getElementById('en' + i.toString()).checked = (Boolean(data.relay_config[i-1][1]) == true)
+      document.getElementById('ble_status').innerText = data.ble_status.state;
+      document.getElementById('ble_device_name').innerText = data.ble_status.device_name;
+      document.getElementById('wlan_status').innerText = data.wlan_status.state;
+      document.getElementById('wlan_network_name').innerText = data.wlan_status.network_name;
+
+      const deviceList = data.ble_status.device_list;
+      const select = document.getElementById('ble_nearby_devices');
+      select.innerHTML = "";
+      if (Array.isArray(deviceList) && deviceList.length > 0) {
+        deviceList.forEach(d => {
+          const option = document.createElement('option');
+          option.textContent = d.name;
+          option.setAttribute('data-address', d.address);
+          option.setAttribute('data-type', d.address_type);
+          select.appendChild(option);
+        });
+        select.selectedIndex = 0;
       }
     }
   }).catch(error => {
@@ -55,23 +93,21 @@ function onStatusUpdate() {
   });  
 }
 
-function saveUserConfig() {
-  document.getElementById('settings_save_button').disabled = true
+function onSaveSettingsClick() {
+  document.getElementById('btn_save_settings').disabled = true
+  setTimeout(() => {
+    document.getElementById('btn_save_settings').disabled = false
+  }, 5000);
 
   const user_config = { 
     wifi_settings: { 
       ssid: "", 
       password: "" 
     }, 
-    hrm_device_settings: { 
-      type: "", 
-      address: "" 
-    }, 
     relay_settings: [ 
       {"en":false,"hr":"0"},
       {"en":false,"hr":"0"},
-      {"en":false,"hr":"0"},
-      {"en":false,"hr":"0"} 
+      {"en":false,"hr":"0"}
     ]
   };
 
@@ -79,18 +115,8 @@ function saveUserConfig() {
   
   xhr.open("POST", "/", true); 
   xhr.setRequestHeader("Content-Type", "application/json");
-  
-  xhr.onload = function(event) { 
-    M.toast({html: 'User settings have been updated.'})
-    document.getElementById('settings_save_button').disabled = false
-  }; 
 
-  xhr.onerror = function(event) {
-    M.toast({html: 'An error has occurred.'})
-    document.getElementById('settings_save_button').disabled = false
-  };
-
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 3; i++) {
     var relay_setting = {}
     relay_setting.en = document.getElementById('en' + i).checked
     relay_setting.hr = document.getElementById('hr' + i).value

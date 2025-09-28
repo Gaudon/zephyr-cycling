@@ -14,6 +14,7 @@ from services.base_service import BaseService
 from services.user_service import UserService
 
 from data.led import Led
+from data.status import BluetoothStatus
 
 
 class BluetoothReceiveService(BaseService):
@@ -25,20 +26,21 @@ class BluetoothReceiveService(BaseService):
 
     _EVENT_HEART_RATE_RECEIVED = "HEART_RATE_RECEIVED"
 
-    def __init__(self, operation_mode, thread_sleep_time):
-        BaseService.__init__(self, operation_mode, thread_sleep_time)
+    def __init__(self, thread_sleep_time):
+        BaseService.__init__(self, thread_sleep_time)
 
         self.__state = BluetoothReceiveService._STATE_IDLE
+        self.__status = BluetoothStatus(self.__state, "None")
         self.connection = None
-        self.__retry_on_disconnect = False
+        self.heart_rate_device_name = None
         self.heart_rate_device_addr = None
         self.heart_rate_device_addr_type = None
+        self.heart_rate_device_list = []
         self.heart_rate_service = None
         self.heart_rate_characteristic = None
         self.heart_rate_subscription = False
         self.heart_rate_data = None
         self.listeners = []
-        self.banned_device_names = ['Zephyr HRM']
 
         # Services
         self.input_service = service_locator.get(InputService)
@@ -62,7 +64,8 @@ class BluetoothReceiveService(BaseService):
         self._CHAR_FIRMWARE_REV_STR = bluetooth.UUID(0x2A26)
         self._CHAR_HARDWARE_REV_STR = bluetooth.UUID(0x2A27)
     
-        self.supported_services = [self._UUID_HEART_RATE_SERVICE, self._UUID_CYCLING_SPEED_AND_CADENCE]
+        #self.supported_services = [self._UUID_HEART_RATE_SERVICE, self._UUID_CYCLING_SPEED_AND_CADENCE]
+        self.supported_services = [self._UUID_HEART_RATE_SERVICE]
 
         # Device Info
         self.svc_device_info = aioble.Service(self._SVC_DEVICE_INFO)        
@@ -104,7 +107,7 @@ class BluetoothReceiveService(BaseService):
             InputService._BTN_CALLBACK_LONG_PRESS
         )
 
-        coroutines = [self.run(), self.update_bluetooth_led()]
+        coroutines = [self.run(), self.update_bluetooth_led(), self.update_status()]
         await asyncio.gather(*coroutines, return_exceptions=True)
 
 
@@ -113,6 +116,18 @@ class BluetoothReceiveService(BaseService):
             logging.info("[BluetoothReceiveService] : [StateChangeEvent] - {0} -> {1}".format(self.__state, state))
             self.__state = state
 
+
+    def get_status(self):
+        return self.__status
+    
+
+    async def update_status(self):
+        while True:
+            self.__status.state = self.__state
+            self.__status.device_name = "" if self.heart_rate_device_name is None else self.heart_rate_device_name
+            self.__status.device_list = self.heart_rate_device_list
+            await asyncio.sleep(self.thread_sleep_time)
+    
 
     def can_change_state(self, current_state, next_state) -> bool:
         if current_state == self._STATE_IDLE:
@@ -150,9 +165,10 @@ class BluetoothReceiveService(BaseService):
     async def disconnect(self):
         if self.connection is not None:
             await self.connection.disconnect()
-            await aioble.device.DeviceConnection.disconnect()
+            await aioble.device.DeviceConnection.disconnect(self.connection)
             self.connection = None
         
+        self.heart_rate_device_name = None
         self.heart_rate_device_addr = None
         self.heart_rate_device_addr_type = None
         self.heart_rate_service = None
@@ -165,16 +181,10 @@ class BluetoothReceiveService(BaseService):
 
         
     async def run(self):
-        # Check for saved devices
-        (self.heart_rate_device_addr, self.heart_rate_device_addr_type) = self.get_heartrate_device_info()
-
         while True:
             if self.__state == BluetoothReceiveService._STATE_IDLE:
                 if self.heart_rate_device_addr and self.heart_rate_device_addr_type:
                     self.set_state(BluetoothReceiveService._STATE_CONNECTING)
-                if self.__retry_on_disconnect:
-                    self.set_state(BluetoothReceiveService._STATE_SCANNING)
-                await asyncio.sleep(self.thread_sleep_time)
             elif self.__state in [BluetoothReceiveService._STATE_SCANNING]:
                 await self.scanning()
             elif self.__state == BluetoothReceiveService._STATE_CONNECTING:
@@ -186,30 +196,23 @@ class BluetoothReceiveService(BaseService):
 
 
     async def scanning(self):
-        (self.heart_rate_device_addr, self.heart_rate_device_addr_type) = self.get_heartrate_device_info()
-        if self.heart_rate_device_addr and self.heart_rate_device_addr_type:
-            logging.info("[BluetoothReceiveService] : Saved device detected, attempting to connect...")
-            self.set_state(BluetoothReceiveService._STATE_CONNECTING)
-        else:
-            logging.info("[BluetoothReceiveService] : Scanning for devices...")
-            try:
-                async with aioble.scan(10000, 1280000, 11250, True) as scanner:
-                    async for result in scanner:
-                        if any(service in result.services() for service in self.supported_services):
-                            logging.info("[BluetoothReceiveService] : Supported Device Found - [{0}]".format(result))
-                            # Do not pair with the transmission chip
-                            if result.name() not in self.banned_device_names and not self.heart_rate_device_addr:
-                                logging.info("[BluetoothReceiveService] : Device Saved - {0}[{1}]".format(result.name(), result.device.addr_hex()))
-                                self.heart_rate_device_addr = result.device.addr_hex()
-                                self.heart_rate_device_addr_type = result.device.addr_type
-            except Exception as e:
-                logging.error("[BluetoothReceiveService] : Exception - {0}".format(e))
+        logging.info("[BluetoothReceiveService] : Scanning for devices...")
+        try:
+            async with aioble.scan(20000, 1280000, 11250, True) as scanner:
+                async for result in scanner:
+                    logging.info("[BluetoothReceiveService] : Device Found - [{0}] - {1}".format(result, str(result.services())))
+                    if any(service in result.services() for service in self.supported_services):
+                        logging.info("[BluetoothReceiveService] : Supported Device Found - {0}[{1}]".format(result.name(), result.device.addr_hex()))
+                        device_entry = (result.name(), result.device.addr_hex(), result.device.addr_type)
+                        if device_entry not in self.heart_rate_device_list:
+                            self.heart_rate_device_list.append(device_entry)
+        except Exception as e:
+            logging.error("[BluetoothReceiveService] : Exception - {0}".format(e))
 
-        if(self.heart_rate_device_addr == None):
+        if(self.heart_rate_device_list.count == 0):
             logging.info("[BluetoothReceiveService] : No Connection - Heart rate monitor not found.")
-            self.set_state(BluetoothReceiveService._STATE_IDLE)
-        else:
-            self.set_state(BluetoothReceiveService._STATE_CONNECTING)
+            
+        self.set_state(BluetoothReceiveService._STATE_IDLE)
 
             
     async def update_bluetooth_led(self):
@@ -222,6 +225,13 @@ class BluetoothReceiveService(BaseService):
                 self.light_service.set_led_state(LightService._LED_BLUETOOTH, Led._STATE_OFF)
             
             await asyncio.sleep(self.thread_sleep_time)
+
+
+    def connect(self, address: str, address_type: str):
+        logging.info("[BluetoothReceiveService] : Connecting to Device - {0}".format(address))
+        self.heart_rate_device_addr = address
+        self.heart_rate_device_addr_type = int(address_type)
+        self.set_state(BluetoothReceiveService._STATE_CONNECTING)
 
 
     async def connecting(self):
@@ -244,7 +254,6 @@ class BluetoothReceiveService(BaseService):
                 await self.heart_rate_characteristic.subscribe(notify=True)
 
             # Save the connected device information
-            self.set_heartrate_device_info()
             self.set_state(BluetoothReceiveService._STATE_CONNECTED)
         except Exception as e:
             logging.error("[BluetoothReceiveService] : Exception - {0}".format(e))
@@ -252,32 +261,22 @@ class BluetoothReceiveService(BaseService):
 
 
     async def connected(self):      
-        # After achieveing a successful connection, always look for a connection incase a dropout occurs.
-        if not self.__retry_on_disconnect:
-            self.__retry_on_disconnect = True
         try:
+            # Find and set the device name for the connected address
+            if(self.heart_rate_device_name == None and self.heart_rate_device_addr):
+                for entry in self.heart_rate_device_list:
+                    if len(entry) >= 2 and entry[1] == self.heart_rate_device_addr:
+                        self.heart_rate_device_name = entry[0]
+                        break
+
             if self.heart_rate_characteristic is not None:
                 self.heart_rate_data = await self.heart_rate_characteristic.notified(timeout_ms=5000)
-                logging.debug("[BluetoothReceiveService] : Heart Rate Received - {0}".format(self.heart_rate_data))
+                logging.debug("[BluetoothReceiveService] : Heart Rate Received - Raw[{0}] - Value[{1}]".format(self.heart_rate_data, bytes(self.heart_rate_data)[1]))
                 for listener in self.listeners:
                     if listener[0] == self._EVENT_HEART_RATE_RECEIVED:
                         listener[1](bytes(self.heart_rate_data))
-                
+
             await asyncio.sleep(self.thread_sleep_time)
         except Exception as e:
             logging.debug("[BluetoothReceiveService] : Device Disconnected - {0}".format(e))
             await self.disconnect()
-    
-
-    def set_heartrate_device_info(self):
-        if self.heart_rate_device_addr and self.heart_rate_device_addr_type:
-            self.user_service.get_user_config().set_heart_rate_device_info(self.heart_rate_device_addr, self.heart_rate_device_addr_type)
-            self.user_service.save_user_config()
-
-    
-    def get_heartrate_device_info(self) -> tuple[str, int]:
-        try:
-            return self.user_service.get_user_config().get_heart_rate_device_info()
-        except Exception as e:
-            logging.debug("[BluetoothReceiveService] : Load Error - {0}".format(e))
-            return ("", -1)

@@ -9,8 +9,8 @@ from data.user_config import UserConfig
 class UserService(BaseService):
     
     
-    def __init__(self, operation_mode, thread_sleep_time):
-        BaseService.__init__(self, operation_mode, thread_sleep_time)
+    def __init__(self, thread_sleep_time):
+        BaseService.__init__(self, thread_sleep_time)
         self.config_file_name = 'user.json'
         self.user_config = None
         self.user_config_update_listeners = []

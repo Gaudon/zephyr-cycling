@@ -7,10 +7,6 @@ from data.user_config import UserConfig
 
 class ConfigService():
     
-    _OP_MODE_PRIMARY = "PRIMARY"
-    _OP_MODE_SECONDARY = "SECONDARY"
-    _CONFIG_OPERATION_MODE = "OPERATION_MODE"
-
     # PIN DEFINITIONS
     _BTN_BLUETOOTH_SYNC_PIN = "BTN_BLUETOOTH_SYNC_PIN"
     _BTN_MANUAL_MODE_PIN = "BTN_MANUAL_MODE_PIN"
@@ -26,16 +22,11 @@ class ConfigService():
         self.config_file_name = 'config.txt'
         self.data = {}
         self.load_config()
-        self.operation_mode = self.get(ConfigService._CONFIG_OPERATION_MODE)
     
     
     async def start(self):
         pass
     
-    
-    def get_operation_mode(self):
-        return self.operation_mode
-
 
     def file_exists(self, filename):
         try:

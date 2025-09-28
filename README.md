@@ -4,19 +4,9 @@ The codename Zephyr Cycling project is an attempt to turn a "dumb" hardware swit
 
 ## Overview
 
-While the features and functionality are somewhat straight forward, here's a short overview.
-
-[Video Overview: How it Works](https://youtu.be/IWAn6BZootY)
-
-<img src="https://github.com/Gaudon/zephyr-cycling/assets/1593839/de3a3f4c-01c9-478f-87c0-9325d2caedf5" width="50%">
-
-### Can I see it in action?
-
-The production value of these videos is quite low 😂. But here's some initial testing of the unit running for my own purposes. I did complete the first ride using it on March 7th, 2024 and it worked a treat!
-
-[Treadmill Example](https://youtu.be/G-9pirc2J4w)
-
-[Cycling Example](https://youtube.com/shorts/M7jgy0t9K8Y?feature=share)
+Settings/Controls | Bluetooth/Wireless Status
+|:-:|:-:|
+<img src="https://github.com/user-attachments/assets/88b91478-2f0b-4ded-9f97-9d90de5add7e" width="50%"> | <img src="https://github.com/user-attachments/assets/a06e38a5-d952-4099-9d81-de3fdf3280a6" width="50%">
 
 ## How was this built?
 

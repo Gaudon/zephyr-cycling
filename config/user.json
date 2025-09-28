@@ -3,10 +3,6 @@
         "ssid": "",
         "password": ""
     },
-    "hrm_device_settings": {
-        "type": "",
-        "address": ""
-    },
     "relay_settings":
     [
         [
