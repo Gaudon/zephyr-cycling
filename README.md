@@ -8,6 +8,10 @@ Settings/Controls | Bluetooth/Wireless Status
 |:-:|:-:|
 <img src="https://github.com/user-attachments/assets/88b91478-2f0b-4ded-9f97-9d90de5add7e" width="50%"> | <img src="https://github.com/user-attachments/assets/a06e38a5-d952-4099-9d81-de3fdf3280a6" width="50%">
 
+### Appearance
+
+<img src="https://github.com/user-attachments/assets/cff68205-ef12-4944-9f2c-e8fa0f3d20cf">
+
 ## How was this built?
 
 ### Hardware
